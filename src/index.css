@@ -1,0 +1,17 @@
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* The root element in the index.html file where React app is rendered. */
+#root {
+  width: 100%;
+  height: 100%;
+}
+
+.quartal-topnavi-override {
+  background-color: rgb(234, 234, 234) !important;
+  border-bottom: 4px solid var(--bs-primary);
+}

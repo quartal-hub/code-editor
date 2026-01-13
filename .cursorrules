@@ -1,0 +1,97 @@
+# Quartal Hub Code UI - Project Rules
+
+## Project Overview
+This is a standalone SPA that implements various customized code editors for Quartal Hub. The application has no authentication or storage - calling web UIs use pages on this project in iframe, pass code and other parameters to the editors and observe changes with events. The calling UIs will then handle the storage.
+
+## Tech Stack
+- **Framework**: React 19 with TypeScript
+- **Build Tool**: Vite
+- **Routing**: React Router v6
+- **Package Manager**: pnpm
+- **Editors**: Sandpack (with Monaco Editor integration), Monaco Editor standalone
+- **Target**: ESNext
+- **UI elements**: Bootstrap outside Sandpack, Monaco etc. components.
+  Later versions, may add "switching the skin" as changing the Bootstrap CSS.
+
+## Project Structure
+
+### Routing
+- `/` - Home/Intro page with navigation
+- `/monaco` - Stand-alone Monaco editor for single files (JSON, CSS, JS/TS, HTML)
+- `/skin` - Visual editor for Bootstrap based skins
+- `/expression` - Excel-like expression editor
+- `/function` - Editor for a single function within a class
+- `/class` - Visual editor for classes (properties, expressions, functions, interfaces)
+- `/project` - Project editor with Sandpack (Quartal Hub business logic and UXs)
+
+### File Organization
+- `src/pages/` - Route page components
+- `src/components/` - Reusable components (e.g., MonacoEditor.tsx)
+- Use TypeScript for all files (.tsx for components, .ts for utilities)
+
+## Code Style Guidelines
+
+### TypeScript
+- Use strict TypeScript with explicit return types for functions
+- Use `JSX.Element` as return type for React components
+- Prefer functional components with hooks
+- Use ESNext target and lib settings
+
+### React
+- Use functional components only
+- Use React Router's `Link` component for navigation (not `<a>` tags)
+- Import React explicitly when needed (e.g., for React.useState in Sandpack code)
+
+### Styling
+- Use bootstrap when standard bootstrap fits the styling needs (not inside Monaco, Sandpack etc.).
+- Skin CSS is Bootstrap-based. It is loaded dynamically from CDN (see main.tsx)
+- Prefer inline styles for component-specific styling when Bootstrap is not enough 
+- External CSS only in `src/index.css` for global styles
+
+### Sandpack Integration
+- Use `SandpackProvider`, `SandpackLayout`, `SandpackPreview` for project editor
+- Use `useActiveCode` and `useSandpack` hooks for Monaco integration
+
+### Monaco Editor
+- Use `@monaco-editor/react` for Monaco integration
+- Default theme: `vs-dark`
+- Language detection based on file extension
+
+## Development Guidelines
+
+### Adding New Pages
+1. Create component in `src/pages/`
+2. Add route in `src/App.tsx`
+3. Add navigation link in `src/pages/Home.tsx`
+
+### Component Creation
+- Create reusable components in `src/components/` or alongside pages if page-specific
+- Export as default
+- Use TypeScript with proper typing
+
+### Code Quality
+- No linter errors
+- Follow existing code patterns
+- Maintain consistency with project structure
+
+## Specific Requirements
+
+### Monaco Editor Page (`/monaco`)
+- Support JSON, CSS, JS/TS, HTML editing
+- Single file editing without context
+- Context can be passed via methods
+
+### Project Editor (`/project`)
+- Uses Sandpack with Monaco Editor
+- Supports Quartal Hub business logic and UX editing
+- Full project editing capabilities
+
+### Skin Loading
+- Skin CSS loaded from configurable URL (default: https://cdn.quartal.com/skins/default.css)
+- Loaded dynamically in main.tsx
+
+## Notes
+- This is a read-only application (no persistence)
+- Editors receive code via props/URL parameters
+- Changes are observed by parent applications
+- Future: QEditor component should be extractable as a Web Component for use in Vanilla JS, Vue, etc.

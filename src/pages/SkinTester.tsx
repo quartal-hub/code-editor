@@ -1,0 +1,21 @@
+import { QEditor } from "@/publish";
+import { TesterLayout } from "@/components/layout";
+
+function SkinTester(): JSX.Element {
+  return (
+    <TesterLayout title="Skin Editor Tester">
+      <div className="h-100">
+        <QEditor
+          type="skin"
+          mode="default"
+          code=""
+          language=""
+          data={{}}
+          onChange={(value) => console.log(value)}
+        />
+      </div>
+    </TesterLayout>
+  );
+}
+
+export default SkinTester;
