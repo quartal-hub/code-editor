@@ -1,5 +1,8 @@
 import { QEditor } from "@/publish";
 import { TesterLayout } from "@/components/layout";
+import { getClassExamples } from "@/examples/getClassExamples";
+
+const testCode = getClassExamples()[1].props.code;
 
 function ClassTester(): JSX.Element {
   return (
@@ -8,7 +11,7 @@ function ClassTester(): JSX.Element {
         <QEditor
           type="class"
           mode="default"
-          code=""
+          code={testCode}
           lang=""
           data={{}}
           onChange={(value) => console.log(value)}

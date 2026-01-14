@@ -6,7 +6,7 @@ function TopNavi(): JSX.Element {
 
   return (
     <div>
-      <nav className="navbar quartal-topnavi-override">
+      <nav className="navbar quartal-topnavi-override ">
         <div className="container-fluid">
           <div className="d-none d-lg-flex ms-3" style={{ fontSize: "1.3rem" }}>
             <img src="https://cdn.quartal.com/img/logo/quartal-logo-q.png" style={{ height: "32px" }} alt="Logo" className="me-3" />

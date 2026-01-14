@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client'
 import App from './App'
 
 // Dynamically load a skin CSS from a configurable URL
+// const SKIN_URL = "https://cdn.quartal.com/skins/default.css";
 const SKIN_URL = "https://cdn.quartal.com/css/quartal-www.css";
 
 function loadSkin(url: string) {
