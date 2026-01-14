@@ -14,7 +14,7 @@ function LeftNavi(): JSX.Element {
     <div>
       <h2 className="mb-3">Available Editors:</h2>
       <div className="list-group">
-        {navItems.map((item) => {
+        {navItems.filter((item) => item.path !== "/").map((item) => {
           const isActive = location.pathname === item.path;
           return (
             <Link

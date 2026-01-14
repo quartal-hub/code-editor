@@ -1,4 +1,4 @@
-Quartal Hub Code UI (https://code.qrtl.com)
+Quartal Hub Code UI (https://code.quartal.com)
 ===========================================
 
 Simple Read application (SPA) that implements various customized code editors for Quartal Hub.
@@ -30,3 +30,17 @@ Paths:
   - Quartal Hub business logic
   - Salaxy business logic
   - Quartal Hub UX editor
+
+TODO-list
+=========
+
+These things still need to be addressed:
+
+- index.html: Optimize the used fonts before going to production:
+  - Quartal fonts not needed in editors, only in the main page
+  - Select the Material icons that are used to make package smaller.
+- Support communication using events:
+  1. Load the iframe without query parameters (wait for ready event)
+  2. Pass the code etc. parameters using events.
+  3. Pass changes back as events.
+  4. When changes in the iframe parent, send changes as events, not as query params.

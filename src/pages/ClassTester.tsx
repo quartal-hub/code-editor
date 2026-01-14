@@ -9,7 +9,7 @@ function ClassTester(): JSX.Element {
           type="class"
           mode="default"
           code=""
-          language=""
+          lang=""
           data={{}}
           onChange={(value) => console.log(value)}
         />

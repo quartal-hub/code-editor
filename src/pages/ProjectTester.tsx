@@ -9,7 +9,7 @@ function ProjectTester(): JSX.Element {
           type="project"
           mode="default"
           code=""
-          language=""
+          lang=""
           data={{}}
           onChange={(value) => console.log(value)}
         />

@@ -15,3 +15,13 @@ body {
   background-color: rgb(234, 234, 234) !important;
   border-bottom: 4px solid var(--bs-primary);
 }
+
+.text-quartal {
+  font-family: univers-next-pro-condensed, sans-serif;
+  font-weight: 200;
+  font-style: normal;
+  b, strong {
+    font-weight: 800;
+    font-style: normal;
+  }
+}

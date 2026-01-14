@@ -9,7 +9,7 @@ function SkinTester(): JSX.Element {
           type="skin"
           mode="default"
           code=""
-          language=""
+          lang=""
           data={{}}
           onChange={(value) => console.log(value)}
         />

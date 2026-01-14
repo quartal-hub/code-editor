@@ -1,19 +1,7 @@
 import { useMemo } from "react";
+import { QEditorProps } from "./model";
 
-export type EditorType = "monaco" | "skin" | "expression" | "function" | "class" | "project";
-
-export type EditorMode = string; // Typically "default" | "preview", but editors may have other modes
-
-export interface QEditorProps {
-  type: EditorType;
-  mode?: EditorMode;
-  code?: string;
-  language?: string;
-  data?: Record<string, unknown>;
-  onChange?: (value: unknown) => void;
-}
-
-const typeToRoute: Record<EditorType, string> = {
+const typeToRoute: Record<QEditorProps["type"], string> = {
   monaco: "/monaco",
   skin: "/skin",
   expression: "/expression",
@@ -26,15 +14,15 @@ function QEditor({
   type,
   mode = "default",
   code,
-  language,
+  lang,
   data,
   onChange,
 }: QEditorProps): JSX.Element {
   const iframeSrc = useMemo(() => {
-    const baseRoute = typeToRoute[type];
-    // For now, just return the route. Later we'll add query parameters for code, language, mode, data
-    return baseRoute;
-  }, [type]);
+    const baseRoute = typeToRoute[type] || "/monaco";
+    const base64Data = data ? btoa(JSON.stringify(data || {})) : "";
+    return `${baseRoute}?code=${encodeURIComponent(code || "")}&lang=${encodeURIComponent(lang || "")}&mode=${encodeURIComponent(mode || "")}&data=${encodeURIComponent(base64Data)}`;
+  }, [type, code, lang, mode, data]);
 
   // onChange handler will be wired later when we implement communication with iframe
   useMemo(() => {

@@ -27,6 +27,8 @@ This is a standalone SPA that implements various customized code editors for Qua
 ### File Organization
 - `src/pages/` - Route page components
 - `src/components/` - Reusable components (e.g., MonacoEditor.tsx)
+- `src/publish` - Files that would be published in a future NPM package: The QEditor component  
+  for showing the editors in an iframe and interfaces that define the data model of each editor.
 - Use TypeScript for all files (.tsx for components, .ts for utilities)
 
 ## Code Style Guidelines

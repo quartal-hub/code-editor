@@ -3,7 +3,7 @@ import {
   SandpackLayout,
   SandpackPreview,
 } from "@codesandbox/sandpack-react";
-import { MonacoEditor } from "@/components/editors";
+import { SandpackMonacoEditor } from "@/components/editors";
 
 function ProjectEditor(): JSX.Element {
   return (
@@ -63,7 +63,7 @@ root.render(
         }}
       >
         <SandpackLayout>
-          <MonacoEditor />
+          <SandpackMonacoEditor />
           <SandpackPreview style={{ height: "100vh" }} />
         </SandpackLayout>
       </SandpackProvider>
