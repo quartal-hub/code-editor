@@ -1,0 +1,28 @@
+{
+  "name": "@salaxy/expressions",
+  "description": "Javascript expressions library for Salaxy Business Logic Engine",
+  "version": "0.0.1",
+  "author": "Salaxy team (Payroll Finland ltd.)",
+  "keywords": ["Salaxy", "payroll"],
+  "license": "EPL-2.0",
+  "engines": {
+    "node": ">=18.16.0",
+    "npm": ">=9.5.1"
+  },
+  "type": "module",
+  "main": "./salaxy-lib-expressions.umd.cjs",
+  "module": "./salaxy-lib-expressions.js",
+  "typings": "./salaxy-lib-expressions.d.ts",
+  "files": ["*"],
+  "exports": {
+    ".": {
+      "require": "./salaxy-lib-expressions.umd.cjs",
+      "import": "./salaxy-lib-expressions.js",
+      "types": "./salaxy-lib-expressions.d.ts"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://gitlab.com/salaxy/salaxy-monorepo"
+  }
+}

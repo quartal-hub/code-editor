@@ -3,14 +3,6 @@ import { QEditorExample } from "./QEditorExample";
 export function getMonacoExamples(): QEditorExample[] {
     return [
         {
-            title: "Hello World",
-            descr: "Simple Hello World in JavaScript, no language specified.",
-            props: {
-                type: "monaco",
-                code: "console.log('Hello, world!');",
-            },
-        },
-        {
             title: "Hello World, JavaScript",
             descr: "Simple Hello World in JavaScript, language specified explicitly.",
             props: {
@@ -44,6 +36,14 @@ function sayHello(greeting: Greetings, target?: string) {
 
 sayHello(Greetings.GoodMorning, "Typescript");`,
                 lang: "typescript",
+            },
+        },
+        {
+            title: "Hello World, no language",
+            descr: "Simple Hello World in JavaScript, no language specified.",
+            props: {
+                type: "monaco",
+                code: "console.log('Hello, world!');",
             },
         },
         {

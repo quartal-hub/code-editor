@@ -8,9 +8,7 @@ interface MonacoEditorProps {
   readOnly?: boolean;
   /** The code to show in the editor. */
   code?: string;
-  /**
-   * Extra Monaco editor options to merge in.
-   */
+  /** Extra Monaco editor options to merge into the editor options. */
   options?: Record<string, unknown>;
 
   /**
@@ -18,6 +16,24 @@ interface MonacoEditorProps {
    * Default is "vs-dark", typically the other value would be "vs-light", but it can be any valid Monaco theme.
    */
   theme?: string;
+
+  /**
+   * Callback when code changes (for local tracking, e.g., hash updates).
+   */
+  onCodeChange?: (code: string, cursorPosition?: { lineNumber: number; column: number } | null) => void;
+
+  /**
+   * Callback when Monaco instance is mounted (for setup hooks like useMonacoSetup).
+   */
+  onMonacoMount?: (monaco: Monaco) => void;
+
+  /**
+   * Ref to expose editor instance methods.
+   */
+  editorRef?: React.MutableRefObject<{
+    getValue: () => string;
+    triggerSuggest: () => void;
+  } | null>;
 }
 
 function MonacoEditor({
@@ -26,6 +42,9 @@ function MonacoEditor({
   code: editorCode = "",
   options,
   theme = "vs-dark",
+  onCodeChange,
+  onMonacoMount,
+  editorRef: externalEditorRef,
 }: MonacoEditorProps): JSX.Element {
   const editorRef = useRef<ReturnType<Monaco["editor"]["create"]> | null>(null);
   const monacoRef = useRef<Monaco | null>(null);
@@ -42,9 +61,20 @@ function MonacoEditor({
   }, []);
 
   // Handle editor mount
-  const handleEditorDidMount: OnMount = (editorInstance, monacoInstance: Monaco) => {
+  const handleEditorDidMount: OnMount = async (editorInstance, monacoInstance: Monaco) => {
     editorRef.current = editorInstance;
     monacoRef.current = monacoInstance;
+
+    // Expose editor methods via external ref if provided
+    if (externalEditorRef) {
+      externalEditorRef.current = {
+        getValue: () => editorInstance.getValue(),
+        triggerSuggest: () => {
+          // Trigger autocomplete (Ctrl+Space equivalent)
+          editorInstance.trigger("keyboard", "editor.action.triggerSuggest", null);
+        },
+      };
+    }
 
     // Configure TypeScript/JavaScript diagnostics and compiler options
     monacoInstance.languages.typescript.javascriptDefaults.setDiagnosticsOptions({
@@ -52,56 +82,10 @@ function MonacoEditor({
       noSyntaxValidation: false,
     });
 
-    monacoInstance.languages.typescript.javascriptDefaults.setCompilerOptions({
-      target: monacoInstance.languages.typescript.ScriptTarget.ES2015,
-      allowNonTsExtensions: true,
-    });
-
-    // Set up message handling
-    const handleMessage = (event: MessageEvent) => {
-      if (!editorRef.current) {
-        return;
-      }
-
-      if (event?.data?.code !== undefined) {
-        const currentValue = editorRef.current.getValue();
-        // Only update if the code is different to avoid cursor position issues
-        if (currentValue !== event.data.code) {
-          editorRef.current.setValue(event.data.code || "");
-          
-          // Restore cursor position if provided
-          if (event.data.cursorPosition) {
-            editorRef.current.setPosition({
-              lineNumber: event.data.cursorPosition.lineNumber,
-              column: event.data.cursorPosition.column,
-            });
-            editorRef.current.revealPositionInCenter({
-              lineNumber: event.data.cursorPosition.lineNumber,
-              column: event.data.cursorPosition.column,
-            });
-          }
-        }
-      }
-    };
-
-    window.addEventListener("message", handleMessage);
-
-    // Send loaded message to parent
-    if (window.self !== window.top) {
-      window.parent.postMessage({ loaded: true }, "*");
+    // Call onMonacoMount callback if provided (for setup hooks)
+    if (onMonacoMount) {
+      onMonacoMount(monacoInstance);
     }
-
-    // Handle window resize
-    const handleResize = () => {
-      editorRef.current?.layout();
-    };
-    window.addEventListener("resize", handleResize);
-
-    // Cleanup function
-    return () => {
-      window.removeEventListener("message", handleMessage);
-      window.removeEventListener("resize", handleResize);
-    };
   };
 
   // Handle code changes with debounce
@@ -110,33 +94,12 @@ function MonacoEditor({
       return;
     }
 
-    const sendUpdate = () => {
-      try {
-        // Check if the code editor is running inside an iframe
-        if (window.self === window.top) {
-          console.warn("Code editor is not running inside an iframe");
-          return;
-        }
+    const newCode = editorRef.current.getValue() || "";
 
-        const position = editorRef.current?.getPosition();
-        window.parent.postMessage(
-          {
-            code: editorRef.current?.getValue() || "",
-            cursorPosition: position
-              ? {
-                  lineNumber: position.lineNumber,
-                  column: position.column,
-                }
-              : null,
-          },
-          "*"
-        );
-      } catch (error) {
-        console.warn("Could not send code update to parent window:", error);
-      }
-    };
-
-    debounce(sendUpdate, 250)();
+    // Call onCodeChange callback if provided (for local tracking, e.g., hash updates)
+    if (onCodeChange) {
+      debounce(() => onCodeChange(newCode, editorRef.current.getPosition()), 250)();
+    }
   };
 
   // Update editor when props change
@@ -191,7 +154,7 @@ function MonacoEditor({
     <div style={{ width: "100%", height: "100%" }}>
       <Editor
         height="100%"
-        language={lang}
+        language={"javascript"}
         theme={theme || "vs-dark"}
         value={editorCode}
         onChange={handleEditorChange}

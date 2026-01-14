@@ -1,0 +1,32 @@
+{
+  "name": "@salaxy/core",
+  "description": "General plain JavaScript / TypeScript libraries for Salaxy API (Palkkaus.fi)",
+  "version": "5.0.1",
+  "author": "Palkkaus.fi / Salaxy team (Payroll Finland ltd.)",
+  "keywords": ["Salaxy", "Palkkaus", "payroll"],
+  "license": "EPL-2.0",
+  "engines": {
+    "node": ">=18.16.0",
+    "npm": ">=9.5.1"
+  },
+  "type": "module",
+  "main": "./salaxy-lib-core.umd.cjs",
+  "module": "./salaxy-lib-core.js",
+  "typings": "./salaxy-lib-core.d.ts",
+  "files": ["*"],
+  "exports": {
+    ".": {
+      "require": "./salaxy-lib-core.umd.cjs",
+      "import": "./salaxy-lib-core.js",
+      "types": "./salaxy-lib-core.d.ts"
+    }
+  },
+  "dependencies": {
+    "dayjs": "^1.11.10",
+    "js-base64": "^3.7.7"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://gitlab.com/salaxy/salaxy-monorepo"
+  }
+}
