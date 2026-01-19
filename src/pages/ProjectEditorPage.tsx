@@ -4,6 +4,7 @@ import {
   SandpackPreview,
 } from "@codesandbox/sandpack-react";
 import { SandpackMonacoEditor } from "@/components/editors";
+import { JSX } from "react";
 
 function ProjectEditor(): JSX.Element {
   return (

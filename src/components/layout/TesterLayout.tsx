@@ -1,5 +1,4 @@
-import { ReactNode } from "react";
-import LeftNavi from "./LeftNavi";
+import { JSX, ReactNode } from "react";
 import TopNavi from "./TopNavi";
 
 interface TesterLayoutProps {

@@ -1,7 +1,7 @@
 import { QEditor, QEditorProps } from "@/publish";
 import { TesterLayout } from "@/components/layout";
 import { getExpressionExamples } from "@/examples/getExpressionExamples";
-import { useState } from "react";
+import { JSX, useState } from "react";
 
 function ExpressionTester(): JSX.Element {
   const examples = getExpressionExamples();

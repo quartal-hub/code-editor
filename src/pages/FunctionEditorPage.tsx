@@ -1,3 +1,5 @@
+import { JSX } from "react";
+
 function FunctionEditor(): JSX.Element {
   return (
     <div style={{ padding: "40px", textAlign: "center" }}>

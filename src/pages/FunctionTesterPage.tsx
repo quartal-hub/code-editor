@@ -1,5 +1,6 @@
 import { QEditor } from "@/publish";
 import { TesterLayout } from "@/components/layout";
+import { JSX } from "react";
 
 function FunctionTester(): JSX.Element {
   return (

@@ -1,14 +1,36 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, JSX } from "react";
 import { MonacoEditor } from "@/components/editors";
 import { useMonacoSetup, useQEditorPropsFromQuery } from "@/hooks";
 
 function MonacoEditorPage(): JSX.Element {
   const { initialize, setCompilerOptions, setLibraries } = useMonacoSetup();
-  const { code: hashCode, lang, mode, updateHash } = useQEditorPropsFromQuery("monaco");
-  const readOnly = mode === "read-only";
-  
-  // Local state for code (can be updated from hash or messages)
+  const { code: hashCode, lang, mode, url, updateHash } = useQEditorPropsFromQuery("monaco");
+  const [loading, setLoading] = useState<boolean>(false);
+  const [readOnly, setReadOnly] = useState<boolean>(mode === "read-only");
   const [code, setCode] = useState<string>(hashCode ?? "");
+  
+  async function fetchCodeFromUrl(url: string) {
+    setLoading(true);
+    try {
+      const response = await fetch(url);
+      const text = await response.text();
+      setCode(text);
+    } catch (error) {
+      console.error("Error fetching code from URL:", error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  
+  useEffect(() => {
+    if (url) {
+      setReadOnly(true);
+      fetchCodeFromUrl(url);
+    } else {
+      setReadOnly(mode === "read-only");
+    }
+  }, [url, mode]);
 
   // Setup compiler options and libraries
   useEffect(() => {
@@ -97,13 +119,17 @@ function MonacoEditorPage(): JSX.Element {
   }, []);
 
   return (
-    <MonacoEditor
-      code={code}
-      lang={lang}
-      readOnly={readOnly}
-      onCodeChange={handleCodeChange}
-      onMonacoMount={initialize}
-    />
+    <>
+      {loading ? <div className="text-center">Loading from {url}...</div> : (
+        <MonacoEditor
+          code={code}
+          lang={lang}
+          readOnly={readOnly}
+          onCodeChange={handleCodeChange}
+          onMonacoMount={initialize}
+        />
+      )}
+    </>
   );
 }
 

@@ -1,4 +1,4 @@
-import { useMemo, useRef, useEffect } from "react";
+import { useMemo, useRef, useEffect, JSX } from "react";
 import { QEditorProps } from "./model";
 
 const typeToRoute: Record<QEditorProps["type"], string> = {
@@ -14,6 +14,7 @@ function QEditor({
   type,
   mode = "default",
   code,
+  url,
   lang,
   data,
   onChange,
@@ -26,6 +27,7 @@ function QEditor({
     const base64Data = data ? btoa(JSON.stringify(data || {})) : "";
     const hashParams = new URLSearchParams();
     if (code) hashParams.set("code", code);
+    if (url) hashParams.set("url", url);
     if (lang) hashParams.set("lang", lang);
     if (mode) hashParams.set("mode", mode);
     if (base64Data) hashParams.set("data", base64Data);
@@ -42,6 +44,7 @@ function QEditor({
     const base64Data = data ? btoa(JSON.stringify(data || {})) : "";
     const hashParams = new URLSearchParams();
     if (code) hashParams.set("code", code);
+    if (url) hashParams.set("url", url);
     if (lang) hashParams.set("lang", lang);
     if (mode) hashParams.set("mode", mode);
     if (base64Data) hashParams.set("data", base64Data);
@@ -55,7 +58,7 @@ function QEditor({
       // This will cause a reload but is a fallback
       console.warn("Could not update iframe hash directly:", error);
     }
-  }, [code, lang, mode, data, baseRoute]);
+  }, [code, url, lang, mode, data, baseRoute]);
 
   // Listen for messages from iframe (for onChange and hash updates)
   useEffect(() => {
@@ -76,7 +79,7 @@ function QEditor({
     return () => {
       window.removeEventListener("message", handleMessage);
     };
-  }, [onChange, lang, mode, data]);
+  }, [onChange, url, lang, mode, data]);
 
   return (
     <iframe

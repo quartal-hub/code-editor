@@ -1,4 +1,4 @@
-import { Suspense, lazy } from "react";
+import { JSX, Suspense, lazy } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 // Lazy load all page components for code splitting

@@ -1,4 +1,5 @@
 import { LeftNavi, TesterLayout } from "@/components/layout";
+import { JSX } from "react";
 
 function Home(): JSX.Element {
   return (

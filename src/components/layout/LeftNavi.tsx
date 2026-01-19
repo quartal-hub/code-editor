@@ -1,5 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { navItems } from "./navItems";
+import { JSX } from "react";
 
 export interface NavItem {
   path: string;

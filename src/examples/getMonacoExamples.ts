@@ -55,6 +55,24 @@ sayHello(Greetings.GoodMorning, "Typescript");`,
                 lang: "javascript",
                 mode: "read-only",
             },
-        }
+        }, 
+        {
+            title: "Salaxy SCSS, from URL",
+            descr: "A small SASS-file from CDN (salaxy.scss).",
+            props: {
+                type: "monaco",
+                lang: "scss",
+                url: "https://cdn.salaxy.com/skins/sass/salaxy.scss",
+            },
+        },
+        {
+            title: "Salaxy CSS, from URL",
+            descr: "Salaxy CSS, from URL, pretty big file.",
+            props: {
+                type: "monaco",
+                lang: "css",
+                url: "https://cdn.salaxy.com/skins/bs5/salaxy.css",
+            },
+        },
     ];
 }

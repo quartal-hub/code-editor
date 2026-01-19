@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { JSX, useEffect, useState } from "react";
 import { ClassEditor } from "@/components/editors";
 import { useMonacoSetup, useQEditorPropsFromQuery } from "@/hooks";
 
@@ -65,7 +65,6 @@ function ClassEditorPage(): JSX.Element {
         code={code}
         readOnly={readOnly}
         onCodeChange={handleCodeChange}
-        onMonacoMount={initialize}
       />
     </div>
   );

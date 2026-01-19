@@ -1,6 +1,7 @@
 import { QEditor } from "@/publish";
 import { TesterLayout } from "@/components/layout";
 import { getClassExamples } from "@/examples/getClassExamples";
+import { JSX } from "react";
 
 const testCode = getClassExamples()[1].props.code;
 

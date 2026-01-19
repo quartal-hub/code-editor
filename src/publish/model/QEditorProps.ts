@@ -10,6 +10,11 @@ export interface QEditorProps {
     mode?: string;
     /** Code to show in the editor. Used in simple single-file usecases. */
     code?: string;
+    /**
+     * URL of the code to show in the editor. Alternative to code. 
+     * URL must support anonymous access.
+     */
+    url?: string;
     /** Language of the code to show in the editor. Used together with code in single-file usecases. */
     lang?: string;
     /**

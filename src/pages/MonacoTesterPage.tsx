@@ -1,7 +1,7 @@
 import { QEditor, QEditorProps } from "@/publish";
 import { TesterLayout } from "@/components/layout";
 import { getMonacoExamples } from "@/examples/getMonacoExamples";
-import { useState } from "react";
+import { JSX, useState } from "react";
 
 function MonacoTester(): JSX.Element {
 

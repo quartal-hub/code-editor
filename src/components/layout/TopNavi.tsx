@@ -1,5 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { navItems } from "./navItems";
+import { JSX } from "react";
 
 function TopNavi(): JSX.Element {
   const location = useLocation();

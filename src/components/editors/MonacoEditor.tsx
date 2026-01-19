@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback, JSX } from "react";
 import Editor, { OnMount, OnChange, type Monaco } from "@monaco-editor/react";
 
 interface MonacoEditorProps {
@@ -8,6 +8,7 @@ interface MonacoEditorProps {
   readOnly?: boolean;
   /** The code to show in the editor. */
   code?: string;
+
   /** Extra Monaco editor options to merge into the editor options. */
   options?: Record<string, unknown>;
 

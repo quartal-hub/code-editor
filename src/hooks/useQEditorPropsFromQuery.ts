@@ -14,8 +14,10 @@ function useQEditorPropsFromQuery(type: QEditorProps["type"]): QEditorProps & {
   const getProps = (): QEditorProps => {
     // Read from hash instead of query parameters
     const hash = window.location.hash.substring(1); // Remove the '#' character
+    console.log("hash", hash);
     const params = new URLSearchParams(hash);
     const code = params.get("code") ?? "";
+    const url = params.get("url") ?? undefined;
     const lang = params.get("lang") ?? undefined;
     const mode = params.get("mode") ?? undefined;
     let data: Record<string, unknown> | undefined = undefined;
@@ -30,6 +32,7 @@ function useQEditorPropsFromQuery(type: QEditorProps["type"]): QEditorProps & {
     }
     return {
       code,
+      url,
       lang,
       mode,
       data,

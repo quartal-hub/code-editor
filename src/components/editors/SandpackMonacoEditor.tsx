@@ -5,6 +5,7 @@ import {
   FileTabs,
   useSandpack,
 } from "@codesandbox/sandpack-react";
+import { JSX } from "react";
 
 function SandpackMonacoEditor(): JSX.Element {
   const { code, updateCode } = useActiveCode();

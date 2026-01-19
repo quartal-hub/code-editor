@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { JSX, useEffect } from "react";
 import { ExpressionEditor as ExpressionEditorPanel } from "@/components/editors";
 import { useMonacoSetup, useQEditorPropsFromQuery } from "@/hooks";
 
