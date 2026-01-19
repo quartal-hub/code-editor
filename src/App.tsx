@@ -2,19 +2,19 @@ import { Suspense, lazy } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 // Lazy load all page components for code splitting
-const Home = lazy(() => import("./pages/Home"));
-const MonacoEditorPage = lazy(() => import("./pages/MonacoEditor"));
-const SkinEditor = lazy(() => import("./pages/SkinEditor"));
-const ExpressionEditor = lazy(() => import("./pages/ExpressionEditor"));
-const FunctionEditor = lazy(() => import("./pages/FunctionEditor"));
-const ClassEditor = lazy(() => import("./pages/ClassEditor"));
-const ProjectEditor = lazy(() => import("./pages/ProjectEditor"));
-const MonacoTester = lazy(() => import("./pages/MonacoTester"));
-const SkinTester = lazy(() => import("./pages/SkinTester"));
-const ExpressionTester = lazy(() => import("./pages/ExpressionTester"));
-const FunctionTester = lazy(() => import("./pages/FunctionTester"));
-const ClassTester = lazy(() => import("./pages/ClassTester"));
-const ProjectTester = lazy(() => import("./pages/ProjectTester"));
+const Home = lazy(() => import("./pages/HomePage"));
+const MonacoEditorPage = lazy(() => import("./pages/MonacoEditorPage"));
+const SkinEditor = lazy(() => import("./pages/SkinEditorPage"));
+const ExpressionEditor = lazy(() => import("./pages/ExpressionEditorPage"));
+const FunctionEditor = lazy(() => import("./pages/FunctionEditorPage"));
+const ClassEditor = lazy(() => import("./pages/ClassEditorPage"));
+const ProjectEditor = lazy(() => import("./pages/ProjectEditorPage"));
+const MonacoTester = lazy(() => import("./pages/MonacoTesterPage"));
+const SkinTester = lazy(() => import("./pages/SkinTesterPage"));
+const ExpressionTester = lazy(() => import("./pages/ExpressionTesterPage"));
+const FunctionTester = lazy(() => import("./pages/FunctionTesterPage"));
+const ClassTester = lazy(() => import("./pages/ClassTesterPage"));
+const ProjectTester = lazy(() => import("./pages/ProjectTesterPage"));
 
 // Loading fallback component
 function LoadingFallback(): JSX.Element {

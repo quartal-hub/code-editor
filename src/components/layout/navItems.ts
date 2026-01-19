@@ -28,7 +28,7 @@ export const navItems: NavItem[] = [
   },
   {
     path: "/skin-tester",
-    label: "TODO: Skin Editor",
+    label: "Skin Editor",
     description: "Visual editor for Bootstrap based skins",
   },
   {

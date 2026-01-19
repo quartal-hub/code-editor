@@ -35,6 +35,7 @@ export function getClassExamples(): QEditorExample[] {
                 code: `
 import type { Calculation, HelpersRoot, RowContext, RowTypeScripts, UserDefinedRow } from "@salaxy/core";
 
+/** Räätälöity hallityspalkkio, jossa perushinta on 21 €/h ja ylityöpalkkio on 1,5 kertaa perushinta. */
 export class hallitus_2 implements RowTypeScripts {
     /**
      * Custom function to set the price for the specified row type.
@@ -53,6 +54,7 @@ export class hallitus_2 implements RowTypeScripts {
     }
 }
 
+/** Ylityöpalkkio, kun kun vuorokautinen työaika ylittyy (50% korotus) */
 export class ylityo_vrk_50 implements RowTypeScripts {
     /**
      * Custom function to set the price for the specified row type.
@@ -124,6 +126,7 @@ export class ylityo_vrk_50 implements RowTypeScripts {
 
 }
 
+/** Palkallinen poissaolo */
 export class poissaolopalkallinen implements RowTypeScripts {
 
     /**
@@ -178,6 +181,7 @@ export class SampleScript1 {
     }
 }
 
+/** Yleiset apufunktiot */
 export class Helpers {
 
     public static round(value: number): number {

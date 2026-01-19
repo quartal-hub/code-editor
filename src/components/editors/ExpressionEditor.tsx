@@ -17,6 +17,22 @@ export interface ExpressionEditorProps {
   onMonacoMount?: (monaco: Monaco) => void;
 }
 
+/**
+ * This is a temporary hack for demo purposes: Need to think through the final solution for this.
+ * 
+ * - Remove leading and trailing whitespace from the code.
+ * - If the code starts with "return ", remove the "return " and the whitespace after it.
+ * 
+ */
+function tempTrimCode(code: string | undefined): string {
+  let trimmedCode = code?.trim() ?? "";
+  if (!code) return "";
+  if (trimmedCode.startsWith("return ")) {
+    trimmedCode = trimmedCode.slice(6).trim();
+  }
+  return trimmedCode;
+}
+
 function ExpressionEditor({
   code = "",
   lang = "javascript",
@@ -27,13 +43,13 @@ function ExpressionEditor({
   onCommit,
   onMonacoMount,
 }: ExpressionEditorProps): JSX.Element {
-  const [originalCode, setOriginalCode] = useState<string>(code ?? "");
-  const [currentCode, setCurrentCode] = useState<string>(code ?? "");
+  const [originalCode, setOriginalCode] = useState<string>(tempTrimCode(code));
+  const [currentCode, setCurrentCode] = useState<string>(tempTrimCode(code));
   const editorRef = useRef<{ getValue: () => string; triggerSuggest: () => void } | null>(null);
 
   // Update original code when prop changes
   useEffect(() => {
-    const newCode = code ?? "";
+    const newCode = tempTrimCode(code);
     setOriginalCode(newCode);
     if (mode === "excel") {
       if (currentCode === originalCode) {

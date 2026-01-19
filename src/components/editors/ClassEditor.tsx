@@ -335,7 +335,8 @@ function ClassEditor({ code, readOnly = false, onCodeChange }: ClassEditorProps)
       )}
       {activeTab === "vibe-coding" && (
         <div className="h-100 border rounded" style={{ minHeight: 0 }}>
-          TODO: Add vibe coding here
+          <h3>Vibe coding</h3>
+          <p>TODO: Add vibe coding here</p>
         </div>
       )}
       {activeTab === "tester" && (
