@@ -15,16 +15,16 @@
     "@babel/parser": "^7.28.6"
   },
   "peerDependencies": {
-    "@codesandbox/sandpack-react": "^2.4.0",
-    "@monaco-editor/react": "^4.6.0",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "@codesandbox/sandpack-react": "^2.20.0",
+    "@monaco-editor/react": "^4.7.0",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3"
   },
   "devDependencies": {
-    "@types/react": "^19.0.0",
-    "@types/react-dom": "^19.0.0",
-    "@vitejs/plugin-react": "^4.2.1",
-    "typescript": "^5.3.3",
-    "vite": "^5.0.8"
+    "@types/react": "^19.2.3",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^5.1.2",
+    "typescript": "^5.9.3",
+    "vite": "^6.2.0"
   }
 }

@@ -1,5 +1,6 @@
-import { useMemo, useRef, useEffect, JSX } from "react";
-import { QEditorProps } from "./model";
+import { useMemo, useRef, useEffect } from "react";
+import type { JSX } from "react";
+import type { QEditorProps } from "./model";
 
 const typeToRoute: Record<QEditorProps["type"], string> = {
   monaco: "/monaco",

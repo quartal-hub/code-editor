@@ -1,4 +1,4 @@
-import { QEditorProps } from "@/publish";
+import type { QEditorProps } from "@/publish";
 
 /** Data structure for a QEditor examples */
 export interface QEditorExample {

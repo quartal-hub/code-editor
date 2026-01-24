@@ -1,4 +1,4 @@
-import { CodeFile } from "./CodeFile";
+import type { CodeFile } from "./CodeFile";
 
 /**
  * A set of code files in a project that may contain multiple files.

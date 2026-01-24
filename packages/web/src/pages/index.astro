@@ -1,0 +1,17 @@
+---
+import TesterLayout from "@/layouts/TesterLayout.astro";
+import LeftNavi from "@/components/layout/LeftNavi.vue";
+import { navItems } from "@/data/navItems";
+
+const currentPath = Astro.url.pathname;
+---
+
+<TesterLayout title="Quartal Hub, Code UI">
+  <div>
+    <p class="lead">
+      Provides a set of code editors for Quartal Hub.
+      These editors are typically used as embedded in Quartal Hub user interfaces as well as external UIs that utilize Quartal Hub components.
+    </p>
+    <LeftNavi navItems={navItems} currentPath={currentPath} />
+  </div>
+</TesterLayout>

@@ -1,0 +1,18 @@
+---
+import "../index.css";
+
+const { title } = Astro.props;
+const SKIN_URL = "https://cdn.quartal.com/css/quartal-www.css";
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <link id="quartal-skin-link" rel="stylesheet" href={SKIN_URL} />
+  </head>
+  <body class="h-100">
+    <slot />
+  </body>
+</html>

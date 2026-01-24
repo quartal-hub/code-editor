@@ -1,0 +1,8 @@
+---
+import TesterLayout from "@/layouts/TesterLayout.astro";
+import MonacoTester from "@/components/pages/testers/MonacoTester";
+---
+
+<TesterLayout title="Monaco Editor Tester">
+  <MonacoTester client:only="react" />
+</TesterLayout>

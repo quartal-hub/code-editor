@@ -1,4 +1,5 @@
 {
+  "extends": "astro/tsconfigs/strict",
   "compilerOptions": {
     "target": "ESNext",
     "useDefineForClassFields": true,
@@ -17,6 +18,7 @@
     "paths": {
       "@/*": ["./src/*"]
     },
+    "types": ["astro/client"],
 
     /* Linting */
     "strict": true,
@@ -24,6 +26,5 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src"],
-  "references": [{ "path": "./tsconfig.node.json" }]
+  "include": ["src", "astro.config.mjs"]
 }

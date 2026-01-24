@@ -1,4 +1,4 @@
-import { QEditorExample } from "./QEditorExample";
+import type { QEditorExample } from "./QEditorExample";
 
 export function getClassExamples(): QEditorExample[] {
     return [

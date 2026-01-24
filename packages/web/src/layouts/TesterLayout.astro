@@ -1,0 +1,27 @@
+---
+import "../index.css";
+import TopNavi from "@/components/layout/TopNavi.vue";
+import { navItems } from "@/data/navItems";
+
+const { title } = Astro.props;
+const currentPath = Astro.url.pathname;
+const SKIN_URL = "https://cdn.quartal.com/css/quartal-www.css";
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <link id="quartal-skin-link" rel="stylesheet" href={SKIN_URL} />
+  </head>
+  <body class="h-100">
+    <div class="h-100">
+      <TopNavi navItems={navItems} currentPath={currentPath} />
+      <div class="container h-100">
+        <h1 class="my-3">{title}</h1>
+        <slot />
+      </div>
+    </div>
+  </body>
+</html>
