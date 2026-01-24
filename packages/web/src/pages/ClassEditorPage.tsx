@@ -1,6 +1,6 @@
 import { JSX, useEffect, useState } from "react";
-import { ClassEditor } from "@/components/editors";
-import { useMonacoSetup, useQEditorPropsFromQuery } from "@/hooks";
+import { ClassEditor, useMonacoSetup } from "react-editors";
+import { useQEditorPropsFromQuery } from "@/hooks";
 
 function ClassEditorPage(): JSX.Element {
   const { initialize, setCompilerOptions, setLibraries } = useMonacoSetup();

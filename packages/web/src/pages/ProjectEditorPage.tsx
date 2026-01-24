@@ -3,7 +3,7 @@ import {
   SandpackLayout,
   SandpackPreview,
 } from "@codesandbox/sandpack-react";
-import { SandpackMonacoEditor } from "@/components/editors";
+import { SandpackMonacoEditor } from "react-editors";
 import { JSX } from "react";
 
 function ProjectEditor(): JSX.Element {

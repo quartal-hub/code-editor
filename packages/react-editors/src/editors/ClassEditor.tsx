@@ -1,8 +1,8 @@
 import { JSX, useCallback, useEffect, useMemo, useState } from "react";
 import MonacoEditor from "./MonacoEditor";
 import ExpressionEditor from "./ExpressionEditor";
-import { ClassParser, type ClassInfo, type ParsedMethod } from "@/helpers/classParser";
-import { useMonacoSetup } from "@/hooks";
+import { ClassParser, type ClassInfo, type ParsedMethod } from "../helpers/classParser";
+import { useMonacoSetup } from "../hooks";
 
 export interface ClassEditorProps {
   /** Full source file containing the class(es). */

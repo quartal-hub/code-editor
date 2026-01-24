@@ -1,6 +1,6 @@
 import { JSX, useEffect } from "react";
-import { ExpressionEditor as ExpressionEditorPanel } from "@/components/editors";
-import { useMonacoSetup, useQEditorPropsFromQuery } from "@/hooks";
+import { ExpressionEditor as ExpressionEditorPanel, useMonacoSetup } from "react-editors";
+import { useQEditorPropsFromQuery } from "@/hooks";
 
 function ExpressionEditor(): JSX.Element {
   const { code, lang, mode: modeProp, updateHash } = useQEditorPropsFromQuery("expression");
