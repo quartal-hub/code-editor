@@ -157,7 +157,7 @@ function MonacoEditor({
     <div style={{ width: "100%", height: "100%" }}>
       <Editor
         height="100%"
-        language={"javascript"}
+        language={lang}
         theme={theme || "vs-dark"}
         value={editorCode}
         onChange={handleEditorChange}

@@ -1,12 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/vue3";
 import TopNavi from "../components/TopNavi.vue";
-import { navItems } from "../data/navItems";
+import { TestData } from "./TestData";
 
 const meta = {
   title: "Layout/TopNavi",
   component: TopNavi,
   args: {
-    navItems,
+    navItems: TestData.getNavItems(),
     currentPath: "/test/monaco",
   },
 } satisfies Meta<typeof TopNavi>;

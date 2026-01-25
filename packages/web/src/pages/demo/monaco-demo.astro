@@ -1,0 +1,8 @@
+---
+import TesterLayout from "@/layouts/TesterLayout.astro";
+import MonacoVueTester from "@/components/pages/testers/MonacoVueTester.vue";
+---
+
+<TesterLayout title="Monaco Editor (Vue) Tester">
+  <MonacoVueTester client:only="vue" />
+</TesterLayout>

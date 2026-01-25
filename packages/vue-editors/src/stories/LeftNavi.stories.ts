@@ -1,12 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/vue3";
 import LeftNavi from "../components/LeftNavi.vue";
-import { navItems } from "../data/navItems";
+import { TestData } from "./TestData";
 
 const meta = {
   title: "Layout/LeftNavi",
   component: LeftNavi,
   args: {
-    navItems,
+    navItems: TestData.getNavItems(),
     currentPath: "/test/monaco",
   },
 } satisfies Meta<typeof LeftNavi>;

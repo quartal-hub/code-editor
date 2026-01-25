@@ -52,6 +52,13 @@ importers:
         version: 6.4.1
 
   packages/vue-editors:
+    dependencies:
+      '@monaco-editor/loader':
+        specifier: ^1.7.0
+        version: 1.7.0
+      monaco-editor:
+        specifier: ^0.55.1
+        version: 0.55.1
     devDependencies:
       '@storybook/vue3-vite':
         specifier: 10.2.0
