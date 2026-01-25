@@ -1,0 +1,31 @@
+{
+  "name": "vue-editors",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "main": "src/index.ts",
+  "module": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "dev": "storybook dev -p 6006",
+    "build": "vite build",
+    "lint": "eslint \"src/**/*.{ts,tsx,vue}\""
+  },
+  "peerDependencies": {
+    "vue": "^3.5.27"
+  },
+  "devDependencies": {
+    "@storybook/vue3-vite": "10.2.0",
+    "@typescript-eslint/eslint-plugin": "^7.18.0",
+    "@typescript-eslint/parser": "^7.18.0",
+    "@vitejs/plugin-vue": "^5.2.1",
+    "eslint": "^9.39.2",
+    "eslint-plugin-vue": "^9.28.0",
+    "storybook": "10.2.0",
+    "typescript": "^5.9.3",
+    "vite": "^6.2.0",
+    "vue": "^3.5.27"
+  }
+}

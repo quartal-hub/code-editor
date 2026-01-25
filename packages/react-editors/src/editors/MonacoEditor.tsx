@@ -1,5 +1,7 @@
-import { useEffect, useRef, useCallback, JSX } from "react";
-import Editor, { OnMount, OnChange, type Monaco } from "@monaco-editor/react";
+import type { JSX } from "react";
+import { useEffect, useRef, useCallback } from "react";
+import type { Monaco, OnMount, OnChange } from "@monaco-editor/react";
+import Editor from "@monaco-editor/react";
 
 interface MonacoEditorProps {
   /** The language of the code to show in the editor. */

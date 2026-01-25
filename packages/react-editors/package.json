@@ -9,7 +9,8 @@
     ".": "./src/index.ts"
   },
   "scripts": {
-    "build": "vite build"
+    "build": "vite build",
+    "lint": "eslint \"src/**/*.{ts,tsx}\""
   },
   "dependencies": {
     "@babel/parser": "^7.28.6"
@@ -21,9 +22,12 @@
     "react-dom": "^19.2.3"
   },
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.53.1",
+    "@typescript-eslint/parser": "^8.53.1",
     "@types/react": "^19.2.3",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.2",
+    "eslint": "^9.39.2",
     "typescript": "^5.9.3",
     "vite": "^6.2.0"
   }

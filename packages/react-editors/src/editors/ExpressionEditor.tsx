@@ -1,4 +1,5 @@
-import { JSX, useEffect, useRef, useState } from "react";
+import type { JSX } from "react";
+import { useEffect, useRef, useState } from "react";
 import MonacoEditor from "./MonacoEditor";
 import type { Monaco } from "@monaco-editor/react";
 

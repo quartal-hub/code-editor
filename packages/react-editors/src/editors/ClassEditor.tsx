@@ -1,4 +1,5 @@
-import { JSX, useCallback, useEffect, useMemo, useState } from "react";
+import type { JSX } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import MonacoEditor from "./MonacoEditor";
 import ExpressionEditor from "./ExpressionEditor";
 import { ClassParser, type ClassInfo, type ParsedMethod } from "../helpers/classParser";
