@@ -1,0 +1,47 @@
+---
+import { getClassExamples } from "@/examples/getClassExamples";
+
+const examples = getClassExamples();
+const firstExampleProps = examples[0].props;
+---
+
+<div class="lead">
+  Class editor for Quartal Hub scripts. Select a sample to load it into the editor.
+</div>
+<div class="row mt-3 h-50">
+  <div class="col-3" style="max-height: 50vh; overflow-y: auto;">
+    <div class="list-group">
+      {examples.map((example, index) => (
+        <button
+          class="list-group-item list-group-item-action"
+          type="button"
+          data-index={index}
+        >
+          <div>{example.title}</div>
+          <div class="text-muted"><small>{example.descr}</small></div>
+        </button>
+      ))}
+    </div>
+  </div>
+  <div class="col-9" style="height: 50vh;">
+    <q-editor style="display: block; width: 100%; height: 100%;" {...firstExampleProps}></q-editor>
+  </div>
+</div>
+
+<script type="module" define:vars={{ examples }}>
+  import { defineQEditorElement } from "/src/publish/QEditorElement";
+  defineQEditorElement();
+
+  const editor = document.querySelector("q-editor");
+  const buttons = document.querySelectorAll("[data-index]");
+
+  buttons.forEach((button) => {
+    button.addEventListener("click", () => {
+      const index = Number(button.getAttribute("data-index"));
+      const example = examples[index];
+      if (example) {
+        editor.applyProps(example.props);
+      }
+    });
+  });
+</script>

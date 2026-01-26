@@ -1,8 +1,17 @@
 ---
 import TesterLayout from "@/layouts/TesterLayout.astro";
-import ProjectTester from "@/components/pages/testers/ProjectTester";
+import { getTodoExamples } from "@/examples/getTodoExamples";
+
+const examples = getTodoExamples("project");
+const firstExampleProps = examples[0].props;
+
 ---
 
 <TesterLayout title="Project Editor Tester">
-  <ProjectTester client:only="react" />
+  <q-editor style="display: block; width: 100%; height: 100%;" {...firstExampleProps}></q-editor>
 </TesterLayout>
+
+<script type="module" define:vars={{ examples }}>
+  import { defineQEditorElement } from "/src/publish/QEditorElement";
+  defineQEditorElement();
+</script>

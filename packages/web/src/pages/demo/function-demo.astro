@@ -1,8 +1,17 @@
 ---
 import TesterLayout from "@/layouts/TesterLayout.astro";
-import FunctionTester from "@/components/pages/testers/FunctionTester";
+import { getTodoExamples } from "@/examples/getTodoExamples";
+
+const examples = getTodoExamples("function");
+const firstExampleProps = examples[0].props;
+
 ---
 
 <TesterLayout title="Function Editor Tester">
-  <FunctionTester client:only="react" />
+  <q-editor style="display: block; width: 100%; height: 100%;" {...firstExampleProps}></q-editor>
 </TesterLayout>
+
+<script type="module" define:vars={{ examples }}>
+  import { defineQEditorElement } from "/src/publish/QEditorElement";
+  defineQEditorElement();
+</script>

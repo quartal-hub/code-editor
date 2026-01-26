@@ -18,17 +18,7 @@ function useQEditorPropsFromQuery(type: QEditorProps["type"]): QEditorProps & {
 
   // Function to update the hash with new code
   const updateHash = useCallback((code: string) => {
-    const currentProps = PageHelpers.getPropsFromHash(type);
-    const base64Data = currentProps.data ? btoa(JSON.stringify(currentProps.data || {})) : "";
-    const hashParams = new URLSearchParams();
-    hashParams.set("code", code);
-    if (currentProps.lang) hashParams.set("lang", currentProps.lang);
-    if (currentProps.mode) hashParams.set("mode", currentProps.mode);
-    if (base64Data) hashParams.set("data", base64Data);
-    const hash = hashParams.toString();
-    
-    // Update this window's hash (the iframe's hash)
-    window.location.hash = hash ? `#${hash}` : "";
+    PageHelpers.updateHash(type, code);
   }, []);
 
   useEffect(() => {

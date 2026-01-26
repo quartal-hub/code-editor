@@ -1,8 +1,8 @@
 ---
 import EditorLayout from "@/layouts/EditorLayout.astro";
-import ExpressionEditor from "@/components/pages/editors/ExpressionEditor";
+import ExpressionEditorPage from "@/components/pages/ExpressionEditorPage.vue";
 ---
 
 <EditorLayout title="Expression Editor">
-  <ExpressionEditor client:only="react" />
+  <ExpressionEditorPage client:only="vue" />
 </EditorLayout>

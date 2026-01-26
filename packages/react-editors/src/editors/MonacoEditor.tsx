@@ -6,6 +6,11 @@ import Editor from "@monaco-editor/react";
 interface MonacoEditorProps {
   /** The language of the code to show in the editor. */
   lang?: string;
+  /**
+   * The path of the file to show in the editor.
+   * If you leave lang empty, the language will be inferred from the path.
+   */
+  path?: string;
   /** If true, the editor is read only. */
   readOnly?: boolean;
   /** The code to show in the editor. */
@@ -40,7 +45,8 @@ interface MonacoEditorProps {
 }
 
 function MonacoEditor({
-  lang = "javascript",
+  lang,
+  path,
   readOnly = false,
   code: editorCode = "",
   options,
@@ -156,8 +162,8 @@ function MonacoEditor({
   return (
     <div style={{ width: "100%", height: "100%" }}>
       <Editor
-        height="100%"
         language={lang}
+        path={path}
         theme={theme || "vs-dark"}
         value={editorCode}
         onChange={handleEditorChange}

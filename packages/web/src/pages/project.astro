@@ -1,8 +1,19 @@
 ---
+import { ProjectHelpers } from "@/helpers";
 import EditorLayout from "@/layouts/EditorLayout.astro";
-import ProjectEditor from "@/components/pages/editors/ProjectEditor";
+import { ProjectEditor } from "react-editors";
+
+// HACK: Hardcoded path for testing.
+const fsModule = await (Function("return import('node:fs')")() as Promise<any>);
+const pathModule = await (Function("return import('node:path')")() as Promise<any>);
+ProjectHelpers.setNodeModules({
+  fs: fsModule.default ?? fsModule,
+  path: pathModule.default ?? pathModule,
+});
+const project = ProjectHelpers.readProjectFolderNode("C:/Users/OlliPerttilä/salaxy-script-test/salaxy-scripts-test1");
+
 ---
 
 <EditorLayout title="Project Editor">
-  <ProjectEditor client:only="react" />
+  <ProjectEditor client:only="react" project={project} />
 </EditorLayout>

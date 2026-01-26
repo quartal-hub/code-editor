@@ -1,8 +1,8 @@
 ---
 import EditorLayout from "@/layouts/EditorLayout.astro";
-import ClassEditor from "@/components/pages/editors/ClassEditor";
+import ClassEditorPage from "@/components/pages/ClassEditorPage.vue";
 ---
 
 <EditorLayout title="Class Editor">
-  <ClassEditor client:only="react" />
+  <ClassEditorPage client:only="vue" />
 </EditorLayout>

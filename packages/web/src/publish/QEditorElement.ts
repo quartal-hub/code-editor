@@ -160,22 +160,21 @@ export class QEditorElement extends HTMLElement {
     this.onChangeHandler = handler;
   }
 
+  /**
+   * Sets the known custom properties of the QEditorElement: type, mode, url, code, lang, data.
+   * Especially useful in updating the editor from test data.
+   */
   public applyProps(props: Partial<QEditorProps>): void {
     if (!props) {
       return;
     }
 
-    if (props.type) this.type = props.type;
-    if (props.mode !== undefined) this.mode = props.mode;
-    if (props.url) {
-      this.url = props.url;
-      this.code = undefined;
-    } else {
-      this.url = undefined;
-      this.code = props.code;
-    }
-    if (props.lang !== undefined) this.lang = props.lang;
-    if (props.data !== undefined) this.data = props.data;
+    this.type = props.type;
+    this.mode = props.mode || undefined;
+    this.url = props.url;
+    this.code = props.code;
+    this.lang = props.lang || "";
+    this.data = props.data;
   }
 
   private parseDataAttribute(value: string | null): Record<string, unknown> | undefined {
