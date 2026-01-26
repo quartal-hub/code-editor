@@ -32,11 +32,6 @@ export const navItems: NavItem[] = [
     description: "Project editor for Quartal Hub business logic tools and Quartal Hub UXs",
   },
   {
-    path: "/demo/skin-demo",
-    label: "Skin Editor",
-    description: "Visual editor for Bootstrap based skins",
-  },
-  {
     path: "/demo/function-demo",
     label: "Function Editor",
     description: "Editor for a single function within a class",

@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import type { JSX } from "react";
-import { MonacoEditor as MonacoEditorPanel, useMonacoSetup } from "react-editors";
+import { MonacoEditor, useMonacoSetup } from "react-editors";
 import { useQEditorPropsFromQuery } from "@/hooks";
+import { TempLibrariesSupport } from "@/helpers/TempLibrariesSupport";
 
-function MonacoEditor(): JSX.Element {
+/** Bridges the data flow from the parent window to the Monaco editor (react version) and back. */
+function MonacoEditorReact(): JSX.Element {
   const { initialize, setCompilerOptions, setLibraries } = useMonacoSetup();
   const { code: hashCode, lang, mode, url, updateHash } = useQEditorPropsFromQuery("monaco");
   const [loading, setLoading] = useState<boolean>(false);
@@ -35,37 +37,8 @@ function MonacoEditor(): JSX.Element {
   // Setup compiler options and libraries
   useEffect(() => {
     setCompilerOptions();
-
     // TODO: Make this configurable from the parent page.
-    setLibraries([
-      {
-        type: "module",
-        name: "@salaxy/core",
-        url: "/libs/core/salaxy-lib-core.d.ts",
-      },
-      {
-        type: "context",
-        code: `
-      import { HelpersRoot, CompanyAccountSettings, Employment, Calculation, UserDefinedRow } from "@salaxy/core";
-
-      // Enums used by sxy helper functions:
-      import { CalculationRowType } from "@salaxy/core";
-
-      declare global {
-        /** The sxy helper functions. */
-        declare var sxy: HelpersRoot;
-        /** The company account settings. */
-        declare var settings: CompanyAccountSettings;
-        /** The employment. */
-        declare var employment: Employment;
-        /** The calculation. */
-        declare var calculation: Calculation;
-        /** The user defined row. */
-        declare var row: UserDefinedRow;
-      }
-      `,
-      },
-    ]);
+    setLibraries(TempLibrariesSupport.getSalaxyCoreLibrary());
   }, [setCompilerOptions, setLibraries]);
 
   // Update local code when hash changes
@@ -123,7 +96,7 @@ function MonacoEditor(): JSX.Element {
       {loading ? (
         <div className="text-center">Loading from {url}...</div>
       ) : (
-        <MonacoEditorPanel
+        <MonacoEditor
           code={code}
           lang={lang}
           readOnly={readOnly}
@@ -135,4 +108,4 @@ function MonacoEditor(): JSX.Element {
   );
 }
 
-export default MonacoEditor;
+export default MonacoEditorReact;

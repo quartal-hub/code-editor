@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { onMounted, onBeforeUnmount, ref, shallowRef, watch } from "vue";
 import loader from "@monaco-editor/loader";
-import type * as MonacoType from "monaco-editor";
+
+// TODO: Check if we can get the MonacoEditor type from the monaco-types package.
+//       If not => Remove monaco-type dependency.
 
 type CursorPosition = { lineNumber: number; column: number } | null;
 
@@ -12,6 +14,8 @@ type CursorPosition = { lineNumber: number; column: number } | null;
   readOnly?: boolean;
   /** The code to show in the editor. */
   code?: string;
+  /** The URL of the code to show in the editor. Alternative to code. */
+  url?: string;
   /** Extra Monaco editor options to merge into the editor options. */
   options?: Record<string, unknown>;
   /**
@@ -30,12 +34,12 @@ const props = withDefaults(defineProps<MonacoEditorProps>(), {
 
  const emit = defineEmits<{
    (event: "code-change", code: string, cursorPosition?: CursorPosition): void;
-   (event: "monaco-mount", monacoInstance: typeof import("monaco-editor")): void;
+   (event: "monaco-mount", monacoInstance: any): void;
  }>();
 
 const containerRef = ref<HTMLDivElement | null>(null);
-const editorRef = shallowRef<MonacoType.editor.IStandaloneCodeEditor | null>(null);
-const monacoRef = shallowRef<typeof import("monaco-editor") | null>(null);
+const editorRef = shallowRef<any | null>(null);
+const monacoRef = shallowRef<any | null>(null);
 const debounceTimeoutRef = { value: 0 as number };
 
 const exposeApi = {

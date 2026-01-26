@@ -1,8 +1,8 @@
 ---
 import EditorLayout from "@/layouts/EditorLayout.astro";
-import MonacoEditor from "@/components/pages/editors/MonacoEditor";
+import MonacoEditorPage from "@/components/pages/MonacoEditorPage.vue";
 ---
 
 <EditorLayout title="Monaco Editor">
-  <MonacoEditor client:only="react" />
+  <MonacoEditorPage client:only="vue" />
 </EditorLayout>

@@ -1,8 +1,10 @@
 ---
 import TesterLayout from "@/layouts/TesterLayout.astro";
-import MonacoTester from "@/components/pages/testers/MonacoTester";
+import MonacoTester from "@/components/testers/MonacoTester.astro";
 ---
 
 <TesterLayout title="Monaco Editor Tester">
-  <MonacoTester client:only="react" />
+  <MonacoTester
+    description="This is the basic Monaco code editor for editing miscellaneous single code files, typically JSON for data, CSS / skins, JS/TS or HTML."
+    type="monaco-react" />
 </TesterLayout>

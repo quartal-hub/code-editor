@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import type { QEditorProps } from "@/publish/model";
+import { PageHelpers } from "@/helpers";
 
 /**
  * Parses the URL hash and returns an object with the QEditorProps interface.
@@ -11,41 +12,13 @@ import type { QEditorProps } from "@/publish/model";
 function useQEditorPropsFromQuery(type: QEditorProps["type"]): QEditorProps & {
   updateHash: (code: string) => void;
 } {
-  const getProps = (): QEditorProps => {
-    // Read from hash instead of query parameters
-    const hash = window.location.hash.substring(1); // Remove the '#' character
-    console.log("hash", hash);
-    const params = new URLSearchParams(hash);
-    const code = params.get("code") ?? "";
-    const url = params.get("url") ?? undefined;
-    const lang = params.get("lang") ?? undefined;
-    const mode = params.get("mode") ?? undefined;
-    let data: Record<string, unknown> | undefined = undefined;
-    const dataStr = params.get("data");
-    if (dataStr) {
-      try {
-        // Attempt base64 decode and JSON parse
-        data = JSON.parse(atob(dataStr));
-      } catch {
-        data = undefined;
-      }
-    }
-    return {
-      code,
-      url,
-      lang,
-      mode,
-      data,
-      type,
-    };
-  };
 
   // Using state to observe query string changes
-  const [props, setProps] = useState<QEditorProps>(getProps);
+  const [props, setProps] = useState<QEditorProps>(PageHelpers.getPropsFromHash(type));
 
   // Function to update the hash with new code
   const updateHash = useCallback((code: string) => {
-    const currentProps = getProps();
+    const currentProps = PageHelpers.getPropsFromHash(type);
     const base64Data = currentProps.data ? btoa(JSON.stringify(currentProps.data || {})) : "";
     const hashParams = new URLSearchParams();
     hashParams.set("code", code);
@@ -60,7 +33,7 @@ function useQEditorPropsFromQuery(type: QEditorProps["type"]): QEditorProps & {
 
   useEffect(() => {
     const handleHashChange = () => {
-      setProps(getProps());
+      setProps(PageHelpers.getPropsFromHash(type));
     };
     
     // Primary event for hash changes

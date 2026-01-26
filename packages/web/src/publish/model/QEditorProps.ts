@@ -2,7 +2,7 @@
 export interface QEditorProps {
 
     /** Type of the editor to show. */
-    type: "monaco" | "skin" | "expression" | "function" | "class" | "project";
+    type: "monaco" | "monaco-react" | "expression" | "function" | "class" | "project";
     /**
      * Type specific set of modes for the editor.
      * Typically at least "default", "read-only".

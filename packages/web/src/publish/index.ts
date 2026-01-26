@@ -1,3 +1,4 @@
 export * from "./model";
 export { default as QEditor } from "./QEditor";
+export { QEditorElement, defineQEditorElement } from "./QEditorElement";
 

@@ -1,8 +1,10 @@
 ---
 import TesterLayout from "@/layouts/TesterLayout.astro";
-import MonacoVueTester from "@/components/pages/testers/MonacoVueTester.vue";
+import MonacoTester from "@/components/testers/MonacoTester.astro";
 ---
 
 <TesterLayout title="Monaco Editor (Vue) Tester">
-  <MonacoVueTester client:only="vue" />
+  <MonacoTester
+    description="This is the basic Monaco code editor for editing miscellaneous single code files, typically JSON for data, CSS / skins, JS/TS or HTML."
+    type="monaco" />
 </TesterLayout>

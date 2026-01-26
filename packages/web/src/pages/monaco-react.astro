@@ -1,0 +1,8 @@
+---
+import EditorLayout from "@/layouts/EditorLayout.astro";
+import MonacoEditorPage from "@/components/pages/MonacoEditorPage";
+---
+
+<EditorLayout title="Monaco Editor">
+  <MonacoEditorPage client:only="react" />
+</EditorLayout>

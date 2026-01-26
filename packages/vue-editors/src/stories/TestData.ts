@@ -1,4 +1,4 @@
-import { NavItem } from "../model";
+import type { NavItem } from "../model";
 
 export class TestData {
 
