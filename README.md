@@ -44,3 +44,6 @@ These things still need to be addressed:
   2. Pass the code etc. parameters using events.
   3. Pass changes back as events.
   4. When changes in the iframe parent, send changes as events, not as query params.
+- Package handling
+  - Move SandpackMonacoPackages and SandpackMonacoSync to code-editors-core as much as possible and remove TODOs/HACKs
+  - Refactor ClassEditor.vue to use the same logic
