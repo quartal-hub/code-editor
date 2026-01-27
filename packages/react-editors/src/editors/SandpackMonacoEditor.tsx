@@ -6,8 +6,7 @@ import {
   useSandpack,
 } from "@codesandbox/sandpack-react";
 import type { JSX } from "react";
-import { toFileUri } from "./SandpackMonacoSync";
-import SandpackMonacoSync from "./SandpackMonacoSync";
+import { SandpackMonacoSync } from "./SandpackMonacoSync";
 import { useEffect, useRef } from "react";
 
 function SandpackMonacoEditor(): JSX.Element {
@@ -46,7 +45,7 @@ function SandpackMonacoEditor(): JSX.Element {
         <Editor
           width="100%"
           height="100%"
-          path={toFileUri(sandpack.activeFile)}
+          path={SandpackMonacoSync.filePathToUri(sandpack.activeFile) ?? ""}
           theme="vs-dark"
           value={code}
           onChange={(value) => updateCode(value || "")}

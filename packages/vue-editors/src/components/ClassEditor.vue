@@ -3,6 +3,7 @@ import { computed, onBeforeUnmount, ref, shallowRef, watch } from "vue";
 import MonacoEditor from "./MonacoEditor.vue";
 import ExpressionEditor from "./ExpressionEditor.vue";
 import { ClassParser, type ClassInfo, type ParsedMethod } from "../helpers/classParser";
+import { PackageCache } from "code-editors-core";
 
 export interface ClassEditorProps {
   /** Full source file containing the class(es). */
@@ -14,7 +15,7 @@ export interface ClassEditorProps {
 type MonacoDisposable = { dispose: () => void };
 
 type MonacoLibrary =
-  | { type: "module"; name: string; url: string }
+  | { type: "module"; name: string }
   | { type: "context"; code: string };
 
 const props = withDefaults(defineProps<ClassEditorProps>(), {
@@ -36,16 +37,18 @@ const activeTab = ref<string>("class-editor");
 const monacoRef = shallowRef<any | null>(null);
 const libDisposables = ref<MonacoDisposable[]>([]);
 
+const packageCache = new PackageCache();
+
+// HACK: Use common libraries in code-editors-core package to handle these.
 const libraries: MonacoLibrary[] = [
   {
     type: "module",
     name: "@salaxy/core",
-    url: "/libs/core/salaxy-lib-core.d.ts",
   },
   {
     type: "context",
     code: `
-      import { HelpersRoot, UserDefinedRow, RowContext } from "@salaxy/core";
+      imp${"o"}rt { HelpersRoot, UserDefinedRow, RowContext } from "@salaxy/core";
       declare global {
         /** The row that is being process as part of calculation. */
         declare var row: UserDefinedRow;
@@ -82,12 +85,11 @@ function getDefaultCompilerOptions(monacoInstance: any): any {
   };
 }
 
-async function loadModuleLibrary(lib: { name: string; url: string }): Promise<string> {
-  const response = await fetch(lib.url);
-  if (!response.ok) {
-    throw new Error(`Failed to fetch library from ${lib.url}: ${response.statusText}`);
+async function loadModuleLibrary(lib: { name: string }): Promise<string> {
+  const code = await packageCache.getTypes(lib.name);
+  if (!code) {
+    throw new Error(`Failed to fetch library types for ${lib.name}`);
   }
-  const code = await response.text();
   return `declare module '${lib.name}' {\n${code}\n}`;
 }
 

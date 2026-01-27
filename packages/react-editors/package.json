@@ -13,7 +13,8 @@
     "lint": "eslint \"src/**/*.{ts,tsx}\""
   },
   "dependencies": {
-    "@babel/parser": "^7.28.6"
+    "@babel/parser": "^7.28.6",
+    "code-editors-core": "workspace:^"
   },
   "peerDependencies": {
     "@codesandbox/sandpack-react": "^2.20.0",

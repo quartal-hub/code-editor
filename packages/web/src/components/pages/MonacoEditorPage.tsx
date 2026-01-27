@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import type { JSX } from "react";
 import { MonacoEditor, useMonacoSetup } from "react-editors";
 import { useQEditorPropsFromQuery } from "@/hooks";
-import { TempLibrariesSupport } from "@/helpers/TempLibrariesSupport";
 
 /** Bridges the data flow from the parent window to the Monaco editor (react version) and back. */
 function MonacoEditorReact(): JSX.Element {
@@ -38,7 +37,7 @@ function MonacoEditorReact(): JSX.Element {
   useEffect(() => {
     setCompilerOptions();
     // TODO: Make this configurable from the parent page.
-    setLibraries(TempLibrariesSupport.getSalaxyCoreLibrary());
+    // TODO: Set the libraries using the same mechanisms as the Sandpack editor.
   }, [setCompilerOptions, setLibraries]);
 
   // Update local code when hash changes

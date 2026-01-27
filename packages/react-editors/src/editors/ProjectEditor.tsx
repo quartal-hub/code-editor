@@ -1,7 +1,6 @@
 import {
   SandpackProvider,
   SandpackLayout,
-  SandpackPreview,
   SandpackFileExplorer,
   SandpackTranspiledCode,
 } from "@codesandbox/sandpack-react";
