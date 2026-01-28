@@ -46,9 +46,13 @@ const libraries: MonacoLibrary[] = [
     name: "@salaxy/core",
   },
   {
+    type: "module",
+    name: "@salaxy/expressions",
+  },
+  {
     type: "context",
     code: `
-      imp${"o"}rt { HelpersRoot, UserDefinedRow, RowContext } from "@salaxy/core";
+      imp${"o"}rt { CalculationRowSource, CalculationRowType, HelpersRoot, UserDefinedRow, RowContext } from "@salaxy/core";
       declare global {
         /** The row that is being process as part of calculation. */
         declare var row: UserDefinedRow;

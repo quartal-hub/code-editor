@@ -14,12 +14,20 @@ const SKIN_URL = "https://cdn.quartal.com/css/quartal-www.css";
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title}</title>
     <link id="quartal-skin-link" rel="stylesheet" href={SKIN_URL} />
+    <style>
+      .editor-container {
+        height: calc(100vh - 120px);
+        overflow: hidden;
+      }
+    </style>
   </head>
   <body class="h-100">
     <div class="h-100">
       <TopNavi navItems={navItems} currentPath={currentPath} />
-      <div class="container h-100">
-        <h1 class="my-3">{title}</h1>
+      <div class="editor-container">
+        <div class="container">
+          <h1 class="my-3">{title}</h1>
+        </div>
         <slot />
       </div>
     </div>

@@ -25,8 +25,12 @@ function useQEditorPropsFromQuery(type: QEditorProps["type"]) {
       result.value = PageHelpers.getPropsFromHash(type);
       if (result.value.url) {
         const response = await fetch(result.value.url);
+        if (!response.ok) {
+          result.value.code = `// Error loading code from ${result.value.url}: ${response.statusText}`;  
+          return;
+        }
         const text = await response.text();
-        result.value.code = text;
+        result.value.code = text;  
       }
       // console.log("handleHashChange", result.value);
     } finally {
