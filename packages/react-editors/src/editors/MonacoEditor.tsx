@@ -2,6 +2,7 @@ import type { JSX } from "react";
 import { useEffect, useRef, useCallback } from "react";
 import type { Monaco, OnMount, OnChange } from "@monaco-editor/react";
 import Editor from "@monaco-editor/react";
+import type { QEditorChangeEventData, QEditorMountEventData } from "@quartal/code-editors-core";
 
 interface MonacoEditorProps {
   /** The language of the code to show in the editor. */
@@ -28,12 +29,12 @@ interface MonacoEditorProps {
   /**
    * Callback when code changes (for local tracking, e.g., hash updates).
    */
-  onCodeChange?: (code: string, cursorPosition?: { lineNumber: number; column: number } | null) => void;
+  onChange?: (data: QEditorChangeEventData) => void;
 
   /**
    * Callback when Monaco instance is mounted (for setup hooks like useMonacoSetup).
    */
-  onMonacoMount?: (monaco: Monaco) => void;
+  onEditorMount?: (data: QEditorMountEventData) => void;
 
   /**
    * Ref to expose editor instance methods.
@@ -51,8 +52,8 @@ function MonacoEditor({
   code: editorCode = "",
   options,
   theme = "vs-dark",
-  onCodeChange,
-  onMonacoMount,
+  onChange,
+  onEditorMount,
   editorRef: externalEditorRef,
 }: MonacoEditorProps): JSX.Element {
   const editorRef = useRef<ReturnType<Monaco["editor"]["create"]> | null>(null);
@@ -91,9 +92,9 @@ function MonacoEditor({
       noSyntaxValidation: false,
     });
 
-    // Call onMonacoMount callback if provided (for setup hooks)
-    if (onMonacoMount) {
-      onMonacoMount(monacoInstance);
+    // Call onEditorMount callback if provided (for setup hooks)
+    if (onEditorMount) {
+      onEditorMount({ editor: editorInstance, api: monacoInstance });
     }
   };
 
@@ -105,9 +106,16 @@ function MonacoEditor({
 
     const newCode = editorRef.current.getValue() || "";
 
-    // Call onCodeChange callback if provided (for local tracking, e.g., hash updates)
-    if (onCodeChange) {
-      debounce(() => onCodeChange(newCode, editorRef.current.getPosition()), 250)();
+    // Call onChange callback if provided (for local tracking, e.g., hash updates)
+    if (onChange) {
+      debounce(
+        () =>
+          onChange({
+            code: newCode,
+            cursorPosition: editorRef.current.getPosition() ?? undefined,
+          }),
+        250
+      )();
     }
   };
 

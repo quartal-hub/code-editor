@@ -12,11 +12,6 @@ export const navItems: NavItem[] = [
     description: "Vue version of the stand-alone Monaco editor for editing single files",
   },
   {
-    path: "/demo/monaco-react-demo",
-    label: "Monaco Editor (React/Sandpack)",
-    description: "React/Sandpack version of the stand-alone Monaco editor: This is used with Sandpack and other React based editor tools.",
-  },
-  {
     path: "/demo/expression-demo",
     label: "Expression Editor",
     description: "Simple excel-like expression editor",
@@ -32,8 +27,18 @@ export const navItems: NavItem[] = [
     description: "Project editor for Quartal Hub business logic tools and Quartal Hub UXs",
   },
   {
+    path: "/demo/excalidraw-demo",
+    label: "Excalidraw Editor",
+    description: "Excalidraw editor for editing and displaying drawings and diagrams",
+  },
+  {
     path: "/demo/function-demo",
     label: "Function Editor",
     description: "Editor for a single function within a class",
+  },
+  {
+    path: "/demo/monaco-react-demo",
+    label: "Monaco Editor (React/Sandpack)",
+    description: "React/Sandpack version of the stand-alone Monaco editor: This is used with Sandpack and other React based editor tools.",
   },
 ];

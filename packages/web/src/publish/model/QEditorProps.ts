@@ -1,8 +1,10 @@
+import type { QEditorChangeEventData } from "@quartal/code-editors-core";
+
 /** Properties for the QEditor component. */
 export interface QEditorProps {
 
     /** Type of the editor to show. */
-    type: "monaco" | "monaco-react" | "expression" | "function" | "class" | "project";
+    type: "monaco" | "monaco-react" | "expression" | "function" | "class" | "project" | "excalidraw";
     /**
      * Type specific set of modes for the editor.
      * Typically at least "default", "read-only".
@@ -23,5 +25,5 @@ export interface QEditorProps {
      */
     data?: Record<string, unknown>;
     /** Event that is triggered when the code changes. */
-    onChange?: (value: unknown) => void;
+    onChange?: (value: QEditorChangeEventData) => void;
   }

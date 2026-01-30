@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
 import MonacoEditor from "./MonacoEditor.vue";
+import type { QEditorChangeEventData, QEditorMountEventData } from "@quartal/code-editors-core";
 
 type ExpressionMode = "plain" | "excel";
 
@@ -19,10 +20,8 @@ const props = withDefaults(defineProps<ExpressionEditorProps>(), {
 });
 
 const emit = defineEmits<{
-  (event: "code-change", code: string): void;
-  (event: "draft-change", code: string): void;
-  (event: "commit", code: string): void;
-  (event: "monaco-mount", monacoInstance: unknown): void;
+  (event: "on-change", data: QEditorChangeEventData): void;
+  (event: "on-editor-mount", data: QEditorMountEventData): void;
 }>();
 
 function tempTrimCode(code: string | undefined): string {
@@ -75,16 +74,17 @@ const options = {
 
 const isPlainMode = computed(() => props.mode === "plain");
 
-function handlePlainModeChange(newCode: string): void {
-  currentCode.value = newCode;
-  emit("code-change", newCode);
+function handlePlainModeChange(data: QEditorChangeEventData): void {
+  const nextCode = data.code ?? "";
+  currentCode.value = nextCode;
+  emit("on-change", { code: nextCode });
 }
 
 function handleCheck(): void {
   const newCode = editorRef.value?.getValue() ?? currentCode.value;
   originalCode.value = newCode;
   currentCode.value = newCode;
-  emit("commit", newCode);
+  emit("on-change", { code: newCode });
 }
 
 function handleClose(): void {
@@ -95,13 +95,13 @@ function handleFunction(): void {
   editorRef.value?.triggerSuggest();
 }
 
-function handleExcelModeChange(newCode: string): void {
-  currentCode.value = newCode;
-  emit("draft-change", newCode);
+function handleExcelModeChange(data: QEditorChangeEventData): void {
+  const nextCode = data.code ?? "";
+  currentCode.value = nextCode;
 }
 
-function handleMonacoMount(monacoInstance: unknown): void {
-  emit("monaco-mount", monacoInstance);
+function handleEditorMount(data: QEditorMountEventData): void {
+  emit("on-editor-mount", data);
 }
 </script>
 
@@ -113,8 +113,8 @@ function handleMonacoMount(monacoInstance: unknown): void {
       :read-only="props.readOnly"
       theme="vs-light"
       :options="options"
-      @code-change="handlePlainModeChange"
-      @monaco-mount="handleMonacoMount"
+      @on-change="handlePlainModeChange"
+      @on-editor-mount="handleEditorMount"
     />
   </div>
   <div v-else class="h-100">
@@ -164,8 +164,8 @@ function handleMonacoMount(monacoInstance: unknown): void {
             :read-only="props.readOnly"
             theme="vs-light"
             :options="options"
-            @code-change="handleExcelModeChange"
-            @monaco-mount="handleMonacoMount"
+            @on-change="handleExcelModeChange"
+            @on-editor-mount="handleEditorMount"
           />
         </div>
       </div>

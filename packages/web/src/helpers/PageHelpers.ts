@@ -43,7 +43,6 @@ export class PageHelpers {
     if (base64Data) hashParams.set("data", base64Data);
     const hash = hashParams.toString();
     window.location.hash = hash ? `#${hash}` : "";
-    console.log("updateHash", hash);
   }
 
 }

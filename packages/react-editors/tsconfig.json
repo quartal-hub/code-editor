@@ -12,7 +12,7 @@
     "isolatedModules": true,
     "noEmit": true,
     "paths": {
-      "code-editors-core": ["../code-editors-core/src/index.ts"],
+      "@quartal/code-editors-core": ["../code-editors-core/src/index.ts"],
     },
     "jsx": "react-jsx",
     "strict": true,

@@ -36,6 +36,8 @@ TODO-list
 
 These things still need to be addressed:
 
+- Make sure all editors emit QEditorChangeEventData
+  - Go through the contents: Probably at least a data model.
 - index.html: Optimize the used fonts before going to production:
   - Quartal fonts not needed in editors, only in the main page
   - Select the Material icons that are used to make package smaller.

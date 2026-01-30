@@ -32,18 +32,22 @@ function useQEditorPropsFromQuery(type: QEditorProps["type"]) {
         const text = await response.text();
         result.value.code = text;  
       }
-      // console.log("handleHashChange", result.value);
     } finally {
       isLoading.value = false;
       isUpdatingHash = false;
     }
   }
-  function updateHash(code: string): void {
-    if (isUpdatingHash) { return; };
+  function updateHash(code: string | undefined): void {
+    if (
+      isUpdatingHash // Updating TO hash => do not loop back any more.
+      || result.value.url // Source is based on URL => Do not update hash.
+      // TODO: Add case where communication is based on events => Do not update hash.
+    ) { 
+      return;
+    };
     isUpdatingHash = true;
     try {
-      PageHelpers.updateHash(type, code);
-      // console.log("updateHash", code);
+      PageHelpers.updateHash(type, code ?? "");
     } finally {
       isUpdatingHash = false;
     }

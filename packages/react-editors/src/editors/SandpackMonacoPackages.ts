@@ -1,6 +1,6 @@
 import type { Monaco } from "@monaco-editor/react";
 import type { SandpackFile, SandpackFiles } from "@codesandbox/sandpack-react";
-import { PackageCache } from "code-editors-core";
+import { PackageCache } from "@quartal/code-editors-core";
 
 /** Used properties from project package.json file. */
 interface PackageJsonFile {

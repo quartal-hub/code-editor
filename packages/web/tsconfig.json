@@ -16,7 +16,8 @@
     "jsx": "react-jsx",
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@quartal/code-editors-core": ["../code-editors-core/src/index.ts"],
     },
     "types": ["astro/client"],
 

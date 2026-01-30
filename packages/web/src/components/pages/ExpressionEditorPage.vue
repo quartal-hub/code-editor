@@ -2,6 +2,7 @@
 import { computed, onMounted } from "vue";
 import { ExpressionEditor } from "vue-editors";
 import { useQEditorPropsFromQuery } from "@/composables";
+import type { QEditorChangeEventData } from "@quartal/code-editors-core";
 
 const { props, updateCode, isLoading } = useQEditorPropsFromQuery("expression");
 
@@ -20,16 +21,10 @@ function notifyParent(codeValue: string): void {
   }
 }
 
-function handlePlainChange(newCode: string): void {
-  if (mode.value !== "plain") return;
-  updateCode(newCode);
-  notifyParent(newCode);
-}
-
-function handleCommit(newCode: string): void {
-  if (mode.value !== "excel") return;
-  updateCode(newCode);
-  notifyParent(newCode);
+function handleChange(data: QEditorChangeEventData): void {
+  const nextCode = data.code ?? "";
+  updateCode(nextCode);
+  notifyParent(nextCode);
 }
 
 onMounted(() => {
@@ -47,7 +42,6 @@ onMounted(() => {
     :lang="lang"
     :mode="mode"
     :read-only="readOnly"
-    @code-change="handlePlainChange"
-    @commit="handleCommit"
+    @on-change="handleChange"
   />
 </template>

@@ -1,15 +1,17 @@
+import type { QEditorChangeEventData } from "@quartal/code-editors-core";
 import type { QEditorProps } from "./model";
 
 const typeToRoute: Record<QEditorProps["type"], string> = {
   monaco: "/monaco",
   "monaco-react": "/monaco-react",
+  excalidraw: "/excalidraw",
   expression: "/expression",
   function: "/function",
   class: "/class",
   project: "/project",
 };
 
-type ChangeHandler = (value: unknown) => void;
+type ChangeHandler = (value: QEditorChangeEventData) => void;
 
 export class QEditorElement extends HTMLElement {
   private iframe: HTMLIFrameElement | null = null;
@@ -23,15 +25,17 @@ export class QEditorElement extends HTMLElement {
       return;
     }
 
-    if (event.data?.code !== undefined) {
-      this.dispatchEvent(
-        new CustomEvent("qeditor-change", {
-          detail: event.data.code,
-        }),
-      );
-      if (this.onChangeHandler) {
-        this.onChangeHandler(event.data.code);
-      }
+    const payload = this.normalizeChangeEvent(event.data);
+    if (!payload) {
+      return;
+    }
+    this.dispatchEvent(
+      new CustomEvent("qeditor-change", {
+        detail: payload,
+      }),
+    );
+    if (this.onChangeHandler) {
+      this.onChangeHandler(payload);
     }
   };
 
@@ -198,6 +202,30 @@ export class QEditorElement extends HTMLElement {
   private handleIframeLoad = (): void => {
     this.iframeLoaded = true;
   };
+
+  private normalizeChangeEvent(raw: unknown): QEditorChangeEventData | null {
+    if (!raw || typeof raw !== "object") {
+      return null;
+    }
+    const record = raw as Record<string, unknown>;
+    const nested = record.data;
+    const candidate = (nested && typeof nested === "object") ? (nested as Record<string, unknown>) : record;
+
+    const hasPayload =
+      "code" in candidate
+      || "data" in candidate
+      || "cursorPosition" in candidate;
+
+    if (!hasPayload) {
+      return null;
+    }
+
+    const payload = candidate as QEditorChangeEventData;
+    if (payload.code !== undefined && typeof payload.code !== "string") {
+      return { data: payload.code };
+    }
+    return payload;
+  }
 
   private buildHash(): string {
     const hashParams = new URLSearchParams();

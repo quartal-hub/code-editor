@@ -3,7 +3,8 @@ import { computed, onBeforeUnmount, ref, shallowRef, watch } from "vue";
 import MonacoEditor from "./MonacoEditor.vue";
 import ExpressionEditor from "./ExpressionEditor.vue";
 import { ClassParser, type ClassInfo, type ParsedMethod } from "../helpers/classParser";
-import { PackageCache } from "code-editors-core";
+import { PackageCache } from "@quartal/code-editors-core";
+import type { QEditorChangeEventData, QEditorMountEventData } from "@quartal/code-editors-core";
 
 export interface ClassEditorProps {
   /** Full source file containing the class(es). */
@@ -23,7 +24,7 @@ const props = withDefaults(defineProps<ClassEditorProps>(), {
 });
 
 const emit = defineEmits<{
-  (event: "code-change", newCode: string): void;
+  (event: "on-change", data: QEditorChangeEventData): void;
 }>();
 
 const errorMsg = ref<string>("");
@@ -134,8 +135,8 @@ async function setupMonaco(monacoInstance: unknown): Promise<void> {
   await applyLibraries(monaco);
 }
 
-function handleMonacoMount(monacoInstance: unknown): void {
-  void setupMonaco(monacoInstance);
+function handleMonacoMount(data: QEditorMountEventData): void {
+  void setupMonaco(data.api);
 }
 
 watch(
@@ -213,7 +214,7 @@ function saveMethod(): void {
   const before = props.code.slice(0, selectedMethod.value.start + 1);
   const after = props.code.slice(selectedMethod.value.end - 1);
   const newSource = `${before}\n${editorContent.value}\n${after}`;
-  emit("code-change", newSource);
+  emit("on-change", { code: newSource });
 }
 
 function handleAddClass(): void {
@@ -229,7 +230,7 @@ function handleAddClass(): void {
 
   const snippet = `\n\nexport class ${newName} {\n\n}\n`;
   const updated = `${props.code}${snippet}`;
-  emit("code-change", updated);
+  emit("on-change", { code: updated });
   selectedClassName.value = newName;
 }
 
@@ -253,11 +254,12 @@ function handleAddMethod(): void {
 
   const insertionPoint = classInfo.bodyEnd - 1;
   const updated = `${props.code.slice(0, insertionPoint)}${methodSnippet}${props.code.slice(insertionPoint)}`;
-  emit("code-change", updated);
+  emit("on-change", { code: updated });
 }
 
-function handleMethodDraftChange(newCode: string): void {
-  editorContent.value = newCode;
+function handleEditorCodeChange(data: QEditorChangeEventData): void {
+  const nextCode = data.code ?? "";
+  editorContent.value = nextCode;
 }
 
 onBeforeUnmount(() => {
@@ -324,15 +326,14 @@ function getIndentAtIndex(source: string, index: number): string {
         <ExpressionEditor
           :code="editorContent"
           lang="typescript"
-          @draft-change="handleMethodDraftChange"
-          @commit="handleMethodDraftChange"
-          @monaco-mount="handleMonacoMount"
+          @on-change="handleEditorCodeChange"
+          @on-editor-mount="handleMonacoMount"
         />
       </div>
       <div class="d-flex flex-grow-1" style="min-height: 0;">
         <div class="card flex-shrink-0" style="width: 260px; overflow-y: auto;">
           <div class="card-body flex-grow-0 flex-shrink-0">
-            <h3>Classes</h3>
+            <h3>Rivityypit</h3>
             <div v-if="classList.length === 0" class="text-muted small fst-italic mb-2">No classes found.</div>
           </div>
           <div class="list-group list-group-flush">
@@ -354,13 +355,13 @@ function getIndentAtIndex(source: string, index: number): string {
               :disabled="props.readOnly"
               @click="handleAddClass"
             >
-              + Add class...
+              + Lisää rivityyppi...
             </button>
           </div>
         </div>
         <div class="card flex-shrink-0 ms-2" style="width: 260px; overflow-y: auto;">
           <div class="card-body flex-grow-0 flex-shrink-0">
-            <h3>Functions</h3>
+            <h3>Funktiot</h3>
             <div v-if="methodsForSelectedClass.length === 0" class="text-muted small fst-italic mb-2">
               {{ selectedClassName ? "No methods found in class." : "Select a class to view methods." }}
             </div>
@@ -385,7 +386,7 @@ function getIndentAtIndex(source: string, index: number): string {
               :disabled="!selectedClassName || props.readOnly"
               @click="handleAddMethod"
             >
-              + Add function...
+              + Lisää funktio...
             </button>
           </div>
         </div>
@@ -443,7 +444,7 @@ function getIndentAtIndex(source: string, index: number): string {
           tabSize: 2,
           automaticLayout: true,
         }"
-        @monaco-mount="handleMonacoMount"
+        @on-editor-mount="handleMonacoMount"
       />
     </div>
 

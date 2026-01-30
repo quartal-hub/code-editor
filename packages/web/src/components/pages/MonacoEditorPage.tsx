@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import type { JSX } from "react";
 import { MonacoEditor, useMonacoSetup } from "react-editors";
+import type { QEditorChangeEventData, QEditorMountEventData } from "@quartal/code-editors-core";
 import { useQEditorPropsFromQuery } from "@/hooks";
 
 /** Bridges the data flow from the parent window to the Monaco editor (react version) and back. */
@@ -63,17 +64,18 @@ function MonacoEditorReact(): JSX.Element {
   }, []);
 
   // Handle code changes: update hash and send to parent
-  const handleCodeChange = (newCode: string, cursorPosition?: { lineNumber: number; column: number } | null) => {
-    setCode(newCode);
-    updateHash(newCode);
+  const handleCodeChange = (data: QEditorChangeEventData) => {
+    const nextCode = data.code ?? "";
+    setCode(nextCode);
+    updateHash(nextCode);
 
     // Send to parent window (for QEditor's onChange callback)
     if (window.self !== window.top) {
       try {
         window.parent.postMessage(
           {
-            code: newCode,
-            cursorPosition: cursorPosition,
+            code: data.code,
+            cursorPosition: data.cursorPosition,
           },
           "*"
         );
@@ -99,8 +101,8 @@ function MonacoEditorReact(): JSX.Element {
           code={code}
           lang={lang}
           readOnly={readOnly}
-          onCodeChange={handleCodeChange}
-          onMonacoMount={initialize}
+          onChange={handleCodeChange}
+          onEditorMount={(eventData: QEditorMountEventData) => initialize(eventData.api)}
         />
       )}
     </>

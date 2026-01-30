@@ -1,5 +1,5 @@
 {
-  "name": "code-editors-core",
+  "name": "@quartal/code-editors-core",
   "private": true,
   "version": "0.0.0",
   "type": "module",

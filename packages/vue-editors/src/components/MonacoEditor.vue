@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted, onBeforeUnmount, ref, shallowRef, watch } from "vue";
 import loader from "@monaco-editor/loader";
+import type { QEditorChangeEventData, QEditorMountEventData } from "@quartal/code-editors-core";
 
 // TODO: Check if we can get the MonacoEditor type from the monaco-types package.
 //       If not => Remove monaco-type dependency.
@@ -32,10 +33,10 @@ const props = withDefaults(defineProps<MonacoEditorProps>(), {
   theme: "vs-dark",
 });
 
- const emit = defineEmits<{
-   (event: "code-change", code: string, cursorPosition?: CursorPosition): void;
-   (event: "monaco-mount", monacoInstance: any): void;
- }>();
+const emit = defineEmits<{
+  (event: "on-change", data: QEditorChangeEventData): void;
+  (event: "on-editor-mount", data: QEditorMountEventData): void;
+}>();
 
 const containerRef = ref<HTMLDivElement | null>(null);
 const editorRef = shallowRef<any | null>(null);
@@ -54,7 +55,8 @@ defineExpose(exposeApi);
 function scheduleEmit(code: string, cursorPosition?: CursorPosition): void {
   window.clearTimeout(debounceTimeoutRef.value);
   debounceTimeoutRef.value = window.setTimeout(() => {
-    emit("code-change", code, cursorPosition ?? null);
+    emit("on-change", { code, cursorPosition: cursorPosition ?? undefined });
+    console.log("Emitting code change:", code, cursorPosition);
   }, 250);
 }
 
@@ -88,7 +90,7 @@ async function initializeEditor(): Promise<void> {
      }
    }
 
-   emit("monaco-mount", monacoInstance);
+  emit("on-editor-mount", { editor: editorRef.value, api: monacoInstance });
 
   editorRef.value!.onDidChangeModelContent(() => {
     const editor = editorRef.value;
