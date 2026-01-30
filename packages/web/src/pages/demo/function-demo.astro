@@ -11,7 +11,4 @@ const firstExampleProps = examples[0].props;
   <q-editor style="display: block; width: 100%; height: 100%;" {...firstExampleProps}></q-editor>
 </TesterLayout>
 
-<script type="module" define:vars={{ examples }}>
-  import { defineQEditorElement } from "/src/publish/QEditorElement";
-  defineQEditorElement();
-</script>
+<script type="module" src="/qrtl-code-editor.js"></script>

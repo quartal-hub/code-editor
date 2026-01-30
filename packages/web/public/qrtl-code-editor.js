@@ -1,7 +1,4 @@
-import type { QEditorChangeEventData } from "@quartal/code-editors-core";
-import type { QEditorProps } from "./model";
-
-const typeToRoute: Record<QEditorProps["type"], string> = {
+const typeToRoute = {
   monaco: "/monaco",
   "monaco-react": "/monaco-react",
   excalidraw: "/excalidraw",
@@ -11,16 +8,14 @@ const typeToRoute: Record<QEditorProps["type"], string> = {
   project: "/project",
 };
 
-type ChangeHandler = (value: QEditorChangeEventData) => void;
-
 export class QEditorElement extends HTMLElement {
-  private iframe: HTMLIFrameElement | null = null;
-  private dataValue: Record<string, unknown> | undefined;
-  private onChangeHandler: ChangeHandler | undefined;
-  private lastBaseRoute: string | null = null;
-  private iframeLoaded = false;
+  iframe = null;
+  dataValue = undefined;
+  onChangeHandler = undefined;
+  lastBaseRoute = null;
+  iframeLoaded = false;
 
-  private readonly messageHandler = (event: MessageEvent): void => {
+  messageHandler = (event) => {
     if (this.iframe?.contentWindow !== event.source) {
       return;
     }
@@ -39,11 +34,11 @@ export class QEditorElement extends HTMLElement {
     }
   };
 
-  public static get observedAttributes(): string[] {
+  static get observedAttributes() {
     return ["type", "mode", "code", "url", "lang", "data"];
   }
 
-  public connectedCallback(): void {
+  connectedCallback() {
     if (!this.shadowRoot) {
       this.attachShadow({ mode: "open" });
     }
@@ -62,12 +57,12 @@ export class QEditorElement extends HTMLElement {
     this.updateIframeSrc();
   }
 
-  public disconnectedCallback(): void {
+  disconnectedCallback() {
     window.removeEventListener("message", this.messageHandler);
     this.iframe?.removeEventListener("load", this.handleIframeLoad);
   }
 
-  public attributeChangedCallback(name: string, oldValue: string | null, newValue: string | null): void {
+  attributeChangedCallback(name, oldValue, newValue) {
     if (oldValue === newValue) {
       return;
     }
@@ -79,11 +74,11 @@ export class QEditorElement extends HTMLElement {
     this.updateIframeSrc();
   }
 
-  public get type(): QEditorProps["type"] | undefined {
-    return (this.getAttribute("type") as QEditorProps["type"] | null) ?? undefined;
+  get type() {
+    return this.getAttribute("type") ?? undefined;
   }
 
-  public set type(value: QEditorProps["type"] | undefined) {
+  set type(value) {
     if (value) {
       this.setAttribute("type", value);
     } else {
@@ -91,11 +86,11 @@ export class QEditorElement extends HTMLElement {
     }
   }
 
-  public get mode(): string | undefined {
+  get mode() {
     return this.getAttribute("mode") ?? undefined;
   }
 
-  public set mode(value: string | undefined) {
+  set mode(value) {
     if (value) {
       this.setAttribute("mode", value);
     } else {
@@ -103,11 +98,11 @@ export class QEditorElement extends HTMLElement {
     }
   }
 
-  public get code(): string | undefined {
+  get code() {
     return this.getAttribute("code") ?? undefined;
   }
 
-  public set code(value: string | undefined) {
+  set code(value) {
     if (value) {
       this.setAttribute("code", value);
     } else {
@@ -115,11 +110,11 @@ export class QEditorElement extends HTMLElement {
     }
   }
 
-  public get url(): string | undefined {
+  get url() {
     return this.getAttribute("url") ?? undefined;
   }
 
-  public set url(value: string | undefined) {
+  set url(value) {
     if (value) {
       this.setAttribute("url", value);
     } else {
@@ -127,11 +122,11 @@ export class QEditorElement extends HTMLElement {
     }
   }
 
-  public get lang(): string {
+  get lang() {
     return this.getAttribute("lang") ?? "";
   }
 
-  public set lang(value: string) {
+  set lang(value) {
     if (value) {
       this.setAttribute("lang", value);
     } else {
@@ -139,14 +134,14 @@ export class QEditorElement extends HTMLElement {
     }
   }
 
-  public get data(): Record<string, unknown> | undefined {
+  get data() {
     if (this.dataValue) {
       return this.dataValue;
     }
     return this.parseDataAttribute(this.getAttribute("data"));
   }
 
-  public set data(value: Record<string, unknown> | undefined) {
+  set data(value) {
     this.dataValue = value;
     if (value) {
       this.setAttribute("data", JSON.stringify(value));
@@ -156,11 +151,11 @@ export class QEditorElement extends HTMLElement {
     this.updateIframeSrc();
   }
 
-  public get onChange(): ChangeHandler | undefined {
+  get onChange() {
     return this.onChangeHandler;
   }
 
-  public set onChange(handler: ChangeHandler | undefined) {
+  set onChange(handler) {
     this.onChangeHandler = handler;
   }
 
@@ -168,7 +163,7 @@ export class QEditorElement extends HTMLElement {
    * Sets the known custom properties of the QEditorElement: type, mode, url, code, lang, data.
    * Especially useful in updating the editor from test data.
    */
-  public applyProps(props: Partial<QEditorProps>): void {
+  applyProps(props) {
     if (!props) {
       return;
     }
@@ -181,35 +176,35 @@ export class QEditorElement extends HTMLElement {
     this.data = props.data;
   }
 
-  private parseDataAttribute(value: string | null): Record<string, unknown> | undefined {
+  parseDataAttribute(value) {
     if (!value) {
       return undefined;
     }
 
     try {
-      return JSON.parse(value) as Record<string, unknown>;
+      return JSON.parse(value);
     } catch (error) {
       console.warn("Invalid QEditor data attribute JSON:", error);
       return undefined;
     }
   }
 
-  private getBaseRoute(): string {
+  getBaseRoute() {
     const type = this.type ?? "monaco";
     return typeToRoute[type] || "/monaco";
   }
 
-  private handleIframeLoad = (): void => {
+  handleIframeLoad = () => {
     this.iframeLoaded = true;
   };
 
-  private normalizeChangeEvent(raw: unknown): QEditorChangeEventData | null {
+  normalizeChangeEvent(raw) {
     if (!raw || typeof raw !== "object") {
       return null;
     }
-    const record = raw as Record<string, unknown>;
+    const record = raw;
     const nested = record.data;
-    const candidate = (nested && typeof nested === "object") ? (nested as Record<string, unknown>) : record;
+    const candidate = (nested && typeof nested === "object") ? nested : record;
 
     const hasPayload =
       "code" in candidate
@@ -220,14 +215,14 @@ export class QEditorElement extends HTMLElement {
       return null;
     }
 
-    const payload = candidate as QEditorChangeEventData;
+    const payload = candidate;
     if (payload.code !== undefined && typeof payload.code !== "string") {
       return { data: payload.code };
     }
     return payload;
   }
 
-  private buildHash(): string {
+  buildHash() {
     const hashParams = new URLSearchParams();
     const data = this.data;
     const base64Data = data ? btoa(JSON.stringify(data || {})) : "";
@@ -242,7 +237,7 @@ export class QEditorElement extends HTMLElement {
     return hashParams.toString();
   }
 
-  private updateIframeSrc(): void {
+  updateIframeSrc() {
     if (!this.iframe) {
       return;
     }
@@ -267,9 +262,11 @@ export class QEditorElement extends HTMLElement {
   }
 }
 
-export const defineQEditorElement = (tagName = "q-editor"): void => {
+export const defineQEditorElement = (tagName = "q-editor") => {
   if (customElements.get(tagName)) {
     return;
   }
   customElements.define(tagName, QEditorElement);
 };
+
+defineQEditorElement();

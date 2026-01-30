@@ -6,12 +6,99 @@ import { navItems } from "@/data";
 const currentPath = Astro.url.pathname;
 ---
 
+<script type="module" src="/qrtl-code-editor.js"></script>
 <TesterLayout title="Quartal Hub, Code UI">
-  <div class="container">
+  <div class="container" style="max-height: calc(100vh - 220px); overflow-y: auto;">
     <p class="lead">
-      Provides a set of code editors for Quartal Hub.
-      These editors are typically used as embedded in Quartal Hub user interfaces as well as external UIs that utilize Quartal Hub components.
+      Provides a set of code editors for Quartal Hub. These editors are
+      typically used as embedded in Quartal Hub user interfaces as well as
+      external UIs that utilize Quartal Hub components.
     </p>
-    <LeftNavi navItems={navItems} currentPath={currentPath} />
+    <div class="row">
+      <div class="col-3">
+        <LeftNavi navItems={navItems} currentPath={currentPath} />
+      </div>
+      <div class="col-9">
+        <h1>Usage</h1>
+        <p class="lead">
+          All the code editors are available through <strong
+            ><code>q-editor</code></strong
+          > component. The component is a <a
+            href="https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/is"
+            target="_blank">custom element</a
+          >.<br />
+          As such it can be used in any HTML page and in any framework.
+        </p>
+        <div style="width: 100%; height: 150px;">
+          <q-editor type="monaco" lang="html" code="loading..."></q-editor>
+        </div>
+        ...renders as:
+        <div style="width: 100%; height: 150px;">
+          <q-editor
+            type="monaco"
+            lang="javascript"
+            code="console.log('Hello, world!');"></q-editor>
+        </div>
+        <h2 class="mt-3">Attributes</h2>
+        <ul>
+          <li>
+            <code>type</code> - Type of the editor to show. Can be <code
+              >monaco</code
+            >, <code>monaco-react</code>, <code>expression</code>, <code
+              >function</code
+            >, <code>class</code>, <code>project</code>, <code>excalidraw</code
+            >.
+          </li>
+          <li>
+            <code>lang</code> - Language of the code to show in the editor. Used together
+            with code in single-file usecases.
+          </li>
+          <li>
+            <code>code</code> - Code to show in the editor. Used in simple single-file
+            usecases.
+          </li>
+          <li>
+            <code>url</code> - URL of the code to show in the editor. Alternative
+            to code. URL must support anonymous access.
+          </li>
+          <li>
+            <code>data</code> - Full data to pass to the editor. Used in complex usecases.
+            Each editor type defines its own data structure as an interface.
+          </li>
+          <li>
+            <code>onChange</code> - Event that is triggered when the code changes.
+          </li>
+        </ul>
+        <h2 class="mt-3">Use directly as pages</h2>
+        <p class="lead">
+          The <code>q-editor</code> component is essentially just an iframe that loads the code editor.
+          As such, you can also access the editors directly as pages:
+        </p>
+        <ul>
+          <li><a href="https://code.quartal.com/monaco" target="_blank">https://code.quartal.com/monaco</a> - Monaco editor</li>
+          <li><a href="https://code.quartal.com/monaco-react" target="_blank">https://code.quartal.com/monaco-react</a> - Monaco editor (React version)</li>
+          <li><a href="https://code.quartal.com/expression" target="_blank">https://code.quartal.com/expression</a> - Expression editor</li>
+          <li><a href="https://code.quartal.com/function" target="_blank">https://code.quartal.com/function</a> - Function editor</li>
+          <li><a href="https://code.quartal.com/class" target="_blank">https://code.quartal.com/class</a> - Class editor</li>
+          <li><a href="https://code.quartal.com/project" target="_blank">https://code.quartal.com/project</a> - Project editor</li>
+          <li><a href="https://code.quartal.com/excalidraw" target="_blank">https://code.quartal.com/excalidraw</a> - Excalidraw editor</li>
+        </ul>
+        <p>&nbsp;</p>
+      </div>
+    </div>
   </div>
+  <script type="module">
+    const sample1 =
+      `<div style="width: 100%; height: 150px;">
+      <!-- Set the size of parent container. Editor takes 100% of height and width. -->
+      <q-editor type="monaco" lang="javascript" code="console.log('Hello, world!');"></q-editor>
+</div>
+
+<!-- Load the component at the end of the page. -->
+<` +
+      `script type="module" src="https://code.quartal.com/qrtl-code-editor.js"></` +
+      `script>`;
+    `;`;
+    document.querySelector("q-editor").code = sample1;
+  </script>
 </TesterLayout>
