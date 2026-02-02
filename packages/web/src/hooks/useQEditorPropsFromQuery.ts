@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import type { QEditorProps } from "@/publish/model";
+import type { QEditorProps } from "@quartal/code-editors-core";
 import { PageHelpers } from "@/helpers";
 
 /**

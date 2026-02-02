@@ -1,10 +1,9 @@
-import type { Project } from "@/model/Project";
+import type { Project } from "@quartal/code-editors-core";
 
 /**
  * Helper class for project editor related operations.
  */
 export class ProjectHelpers {
-  private static nodeModules: Partial<Record<"fs" | "path", any>> = {};
 
   /** Takes a Project object and returns a base64 encoded string. */
   public static projectToBase64(project: Project): string {
@@ -16,53 +15,6 @@ export class ProjectHelpers {
     return JSON.parse(atob(base64));
   }
 
-  /** Server-side helper method (mainly for testing and loading initial data) for reading a project from file system. */
-  public static readProjectFolderNode(folderPath: string): Project {
-    const fs = ProjectHelpers.getNodeModule("fs");
-    const path = ProjectHelpers.getNodeModule("path");
-    const project: Project = {
-      files: {},
-      customSetup: {
-        dependencies: {},
-        devDependencies: {},
-      },
-    };
-
-    const readFolder = (currentPath: string): void => {
-      const entries = fs.readdirSync(currentPath, { withFileTypes: true }) as Array<{
-        name: string;
-        isDirectory: () => boolean;
-        isFile: () => boolean;
-      }>;
-      for (const entry of entries) {
-        if (entry.isDirectory()) {
-          if (ProjectHelpers.getExcludedFolders().has(entry.name)) {
-            continue;
-          }
-          readFolder(path.join(currentPath, entry.name));
-          continue;
-        }
-        if (!entry.isFile()) {
-          continue;
-        }
-        if (ProjectHelpers.getExcludedFiles().has(entry.name)) {
-          continue;
-        }
-        const fullPath = path.join(currentPath, entry.name);
-        const relativePath = path.relative(folderPath, fullPath).split(path.sep).join("/");
-        const fileKey = `/${relativePath}`;
-        const code = fs.readFileSync(fullPath, "utf8") as string;
-        project.files[fileKey] = { code };
-
-        if (entry.name === "package.json") {
-          ProjectHelpers.applyPackageJson(project, code);
-        }
-      }
-    };
-
-    readFolder(folderPath);
-    return project;
-  }
 
   private static getExcludedFolders(): Set<string> {
     return new Set([
@@ -140,31 +92,6 @@ export class ProjectHelpers {
     return project;
   }
 
-  public static setNodeModules(modules: { fs?: any; path?: any }): void {
-    if (modules.fs) {
-      ProjectHelpers.nodeModules.fs = modules.fs;
-    }
-    if (modules.path) {
-      ProjectHelpers.nodeModules.path = modules.path;
-    }
-  }
-
-  private static getNodeModule(moduleName: "fs" | "path"): any {
-    const globalAny = globalThis as any;
-    if (ProjectHelpers.nodeModules[moduleName]) {
-      return ProjectHelpers.nodeModules[moduleName];
-    }
-    if (moduleName === "fs" && globalAny.fs) {
-      return globalAny.fs;
-    }
-    if (moduleName === "path" && globalAny.path) {
-      return globalAny.path;
-    }
-    if (typeof globalAny.require === "function") {
-      return globalAny.require(moduleName);
-    }
-    throw new Error(`Node module "${moduleName}" is not available in this environment.`);
-  }
 
   private static applyPackageJson(project: Project, packageJsonContent: string): void {
     try {

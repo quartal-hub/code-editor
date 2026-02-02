@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { NavItem } from "../model";
+import type { NavItem } from "@quartal/code-editors-core";
 
 interface Props {
   navItems: NavItem[];

@@ -5,7 +5,7 @@ import type { QEditorChangeEventData, QEditorMountEventData } from "@quartal/cod
 import { useQEditorPropsFromQuery } from "@/hooks";
 
 /** Bridges the data flow from the parent window to the Monaco editor (react version) and back. */
-function MonacoEditorReact(): JSX.Element {
+function MonacoEditorReactPage(): JSX.Element {
   const { initialize, setCompilerOptions, setLibraries } = useMonacoSetup();
   const { code: hashCode, lang, mode, url, updateHash } = useQEditorPropsFromQuery("monaco");
   const [loading, setLoading] = useState<boolean>(false);
@@ -109,4 +109,4 @@ function MonacoEditorReact(): JSX.Element {
   );
 }
 
-export default MonacoEditorReact;
+export default MonacoEditorReactPage;

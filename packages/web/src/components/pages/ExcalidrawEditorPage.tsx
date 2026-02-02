@@ -37,7 +37,7 @@ function ExcalidrawEditorPage(): JSX.Element {
       const text = await response.text();
       setScene(parseScene(text));
     } catch (error) {
-      console.error("Error fetching Excalidraw data from URL:", error);
+      console.error(`Error fetching Excalidraw data from URL '${targetUrl}':`, error);
     } finally {
       setLoading(false);
     }

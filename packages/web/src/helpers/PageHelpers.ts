@@ -1,4 +1,4 @@
-import type { QEditorProps } from "@/publish/model";
+import type { QEditorProps } from "@quartal/code-editors-core";
 
 export class PageHelpers {
 

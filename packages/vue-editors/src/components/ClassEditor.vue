@@ -291,31 +291,11 @@ function getIndentAtIndex(source: string, index: number): string {
       <li class="nav-item">
         <a
           class="nav-link"
-          :class="{ active: activeTab === 'vibe-coding' || !activeTab }"
-          href="#vibe-coding"
-          @click.prevent="activeTab = 'vibe-coding'"
-        >
-          Vibe coding
-        </a>
-      </li>
-      <li class="nav-item">
-        <a
-          class="nav-link"
           :class="{ active: activeTab === 'full-source-code' || !activeTab }"
           href="#full-source-code"
           @click.prevent="activeTab = 'full-source-code'"
         >
           Full source code
-        </a>
-      </li>
-      <li class="nav-item">
-        <a
-          class="nav-link"
-          :class="{ active: activeTab === 'tester' || !activeTab }"
-          href="#tester"
-          @click.prevent="activeTab = 'tester'"
-        >
-          Tester
         </a>
       </li>
     </ul>
@@ -446,20 +426,6 @@ function getIndentAtIndex(source: string, index: number): string {
         }"
         @on-editor-mount="handleMonacoMount"
       />
-    </div>
-
-    <div v-if="activeTab === 'vibe-coding'" class="h-100 border rounded" style="min-height: 0;">
-      <h3>Vibe coding</h3>
-      <p>TODO: Add vibe coding here</p>
-    </div>
-
-    <div v-if="activeTab === 'tester'" class="border-top p-2" style="height: 220px; overflow: auto;">
-      <div class="border-bottom py-2">
-        <div class="d-flex align-items-center justify-content-between">
-          <h3>Tester</h3>
-        </div>
-      </div>
-      TODO: Add tester here
     </div>
   </div>
 </template>

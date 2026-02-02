@@ -1,6 +1,6 @@
 import type { JSX } from "react";
 
-function FunctionEditor(): JSX.Element {
+function FunctionEditorPage(): JSX.Element {
   return (
     <div style={{ padding: "40px", textAlign: "center" }}>
       <h1>Function Editor</h1>
@@ -14,4 +14,4 @@ function FunctionEditor(): JSX.Element {
   );
 }
 
-export default FunctionEditor;
+export default FunctionEditorPage;

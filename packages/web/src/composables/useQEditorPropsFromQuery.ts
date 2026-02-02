@@ -1,6 +1,6 @@
 import { onBeforeUnmount, onMounted, ref } from "vue";
 import type { Ref } from "vue";
-import type { QEditorProps } from "@/publish/model";
+import type { QEditorProps } from "@quartal/code-editors-core";
 import { PageHelpers } from "@/helpers";
 
 /**

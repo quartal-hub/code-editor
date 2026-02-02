@@ -1,4 +1,4 @@
-import type { QEditorProps } from "@/publish";
+import type { QEditorProps } from "@quartal/code-editors-core";
 
 /** Data structure for a QEditor examples */
 export interface QEditorExample {

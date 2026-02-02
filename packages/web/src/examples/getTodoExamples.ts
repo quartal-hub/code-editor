@@ -1,4 +1,4 @@
-import type { QEditorProps } from "@/publish";
+import type { QEditorProps } from "@quartal/code-editors-core";
 import type { QEditorExample } from "./QEditorExample";
 
 /** These examples have not been implemented yet. */
