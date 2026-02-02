@@ -1,10 +1,11 @@
 import type { QEditorProps } from "@quartal/code-editors-core";
 
+/** Msc helpers for rendering the pages based on the components. */
 export class PageHelpers {
 
   /**
    * Parses the URL hash and returns an object with the QEditorProps interface.
-   * Uses hash parameters instead of query parameters to avoid iframe reloads.
+   * Uses hash parameters for mutable values to avoid iframe reloads.
    * @param type The type of editor to use. May later be to support editor specific logic. Hardcoded to "type".
    * @returns Object with known hash parameters as keys and their values as values.
    */
@@ -14,7 +15,6 @@ export class PageHelpers {
     const code = params.get("code") ?? "";
     const url = params.get("url") ?? undefined;
     const lang = params.get("lang") ?? undefined;
-    const mode = params.get("mode") ?? undefined;
     let data: Record<string, unknown> | undefined = undefined;
     const dataStr = params.get("data");
     if (dataStr) {
@@ -25,7 +25,79 @@ export class PageHelpers {
         data = undefined;
       }
     }
-    return { code, url, lang, mode, data, type };
+    return { code, url, lang, data, type };
+  }
+
+  /**
+   * Parses query parameters for non-hash values (mode/view/readOnly).
+   */
+  public static getQueryProps(): Pick<QEditorProps, "mode" | "view" | "readOnly"> {
+    const params = new URLSearchParams(window.location.search);
+    const mode = params.get("mode") ?? undefined;
+    const view = params.get("view") ?? undefined;
+    const readOnlyParam = (params.get("readOnly") ?? params.get("read-only") ?? "").toLowerCase().trim();
+    const readOnly = readOnlyParam === "" ? undefined : (readOnlyParam === "true" || readOnlyParam === "1");
+    return { mode: mode as QEditorProps["mode"], view, readOnly };
+  }
+
+  /**
+   * Parses both query and hash params into QEditorProps.
+   */
+  public static getPropsFromLocation(type: QEditorProps["type"]): QEditorProps {
+    const hashProps = PageHelpers.getPropsFromHash(type);
+    const queryProps = PageHelpers.getQueryProps();
+    const mode = queryProps.mode ?? PageHelpers.getDefaultMode();
+    return {
+      ...hashProps,
+      ...queryProps,
+      mode,
+      type,
+    };
+  }
+
+  /**
+   * Fetches a file from a URL and returns the content as a string.
+   * Uses a CORS proxy to avoid CORS issues.
+   * 
+   * @param url The URL to fetch the code from.
+   * @returns The content of the file as a string.
+   * @throws Error if the URL is not provided or is not a valid URL.
+   * @throws Error if the URL is a HTML page, not a text file.
+   * @throws Error if the fetch fails.
+   */
+  public static async fetchCodeFromUrl(url: string | undefined): Promise<string> {
+    if (!url) {
+      throw new Error('No URL provided');
+    }
+    if (!url.startsWith("http")) {
+      throw new Error(`Invalid URL: ${url}. The URL must start with http or https because it is proxied through a CORS proxy.`);
+    }
+    const proxiedUrl = `https://corsproxy.io/?url=${url}`;
+    const response = await fetch(proxiedUrl, {
+      redirect: "error",
+    });
+    if (response.headers.get("Content-Type")?.includes("text/html")) {
+      throw new Error(`Failed to fetch code from URL: ${url}. The URL is a HTML page, not a text file.`);
+    }
+    if (!response.ok) {
+      throw new Error(`Failed to fetch code from URL: ${url}`);
+    }
+    return await response.text();
+  }
+
+  private static getDefaultMode(): QEditorProps["mode"] {
+    if (PageHelpers.isInIframe()) {
+      return "events";
+    }
+    return "browser-files";
+  }
+
+  private static isInIframe(): boolean {
+    try {
+      return window.self !== window.top;
+    } catch {
+      return true;
+    }
   }
 
   /**
@@ -39,7 +111,6 @@ export class PageHelpers {
     const hashParams = new URLSearchParams();
     hashParams.set("code", code);
     if (currentProps.lang) hashParams.set("lang", currentProps.lang);
-    if (currentProps.mode) hashParams.set("mode", currentProps.mode);
     if (base64Data) hashParams.set("data", base64Data);
     const hash = hashParams.toString();
     window.location.hash = hash ? `#${hash}` : "";

@@ -1,4 +1,4 @@
-import type { NavItem } from "vue-editors";
+import type { NavItem } from "@quartal/code-editors-core";
 
 export const navItems: NavItem[] = [
   {
@@ -38,7 +38,7 @@ export const navItems: NavItem[] = [
   },
   {
     path: "/demo/monaco-react-demo",
-    label: "Monaco Editor (React/Sandpack)",
+    label: "Monaco (React)",
     description: "React/Sandpack version of the stand-alone Monaco editor: This is used with Sandpack and other React based editor tools.",
   },
 ];

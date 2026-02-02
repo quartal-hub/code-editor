@@ -24,7 +24,7 @@ export function getExcalidrawExamples(): QEditorExample[] {
           props: {
               type: "excalidraw",
               url: "/examples/excalidraw/salaxy-automate-calc-clipboard.json",
-              mode: "read-only",
+              readOnly: true,
           },
       },
     ];

@@ -13,29 +13,39 @@ export class QEditorElement extends HTMLElement {
   dataValue = undefined;
   onChangeHandler = undefined;
   lastBaseRoute = null;
+  lastQuery = null;
   iframeLoaded = false;
+  attributeUpdateTimer = null;
+  pendingIframeUpdate = false;
+  pendingSetDataUpdate = false;
 
   messageHandler = (event) => {
     if (this.iframe?.contentWindow !== event.source) {
       return;
     }
 
-    const payload = this.normalizeChangeEvent(event.data);
+    const raw = event.data;
+    if (!raw || typeof raw !== "object") {
+      return;
+    }
+    if (raw.type === "editor-ready") {
+      if (this.mode === "events") {
+        this.sendSetData();
+      }
+      return;
+    }
+
+    const payload = this.normalizeChangeEvent(raw);
     if (!payload) {
       return;
     }
-    this.dispatchEvent(
-      new CustomEvent("qeditor-change", {
-        detail: payload,
-      }),
-    );
     if (this.onChangeHandler) {
       this.onChangeHandler(payload);
     }
   };
 
   static get observedAttributes() {
-    return ["type", "mode", "code", "url", "lang", "data"];
+    return ["type", "mode", "view", "read-only", "code", "url", "lang", "data"];
   }
 
   connectedCallback() {
@@ -60,6 +70,10 @@ export class QEditorElement extends HTMLElement {
   disconnectedCallback() {
     window.removeEventListener("message", this.messageHandler);
     this.iframe?.removeEventListener("load", this.handleIframeLoad);
+    if (this.attributeUpdateTimer) {
+      clearTimeout(this.attributeUpdateTimer);
+      this.attributeUpdateTimer = null;
+    }
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
@@ -71,7 +85,37 @@ export class QEditorElement extends HTMLElement {
       this.dataValue = this.parseDataAttribute(newValue);
     }
 
-    this.updateIframeSrc();
+    const shouldSendSetData =
+      (name === "code" || name === "data") && this.mode === "events" && this.iframeLoaded;
+    if (shouldSendSetData) {
+      this.pendingSetDataUpdate = true;
+    } else {
+      this.pendingIframeUpdate = true;
+    }
+
+    this.scheduleAttributeUpdate();
+  }
+
+  scheduleAttributeUpdate() {
+    if (this.attributeUpdateTimer) {
+      clearTimeout(this.attributeUpdateTimer);
+    }
+
+    this.attributeUpdateTimer = setTimeout(() => {
+      this.attributeUpdateTimer = null;
+
+      if (this.pendingIframeUpdate) {
+        this.pendingIframeUpdate = false;
+        this.pendingSetDataUpdate = false;
+        this.updateIframeSrc();
+        return;
+      }
+
+      if (this.pendingSetDataUpdate) {
+        this.pendingSetDataUpdate = false;
+        this.sendSetData();
+      }
+    }, 100);
   }
 
   get type() {
@@ -95,6 +139,30 @@ export class QEditorElement extends HTMLElement {
       this.setAttribute("mode", value);
     } else {
       this.removeAttribute("mode");
+    }
+  }
+
+  get view() {
+    return this.getAttribute("view") ?? undefined;
+  }
+
+  set view(value) {
+    if (value) {
+      this.setAttribute("view", value);
+    } else {
+      this.removeAttribute("view");
+    }
+  }
+
+  get readOnly() {
+    return this.hasAttribute("read-only");
+  }
+
+  set readOnly(value) {
+    if (value) {
+      this.setAttribute("read-only", "");
+    } else {
+      this.removeAttribute("read-only");
     }
   }
 
@@ -170,6 +238,8 @@ export class QEditorElement extends HTMLElement {
 
     this.type = props.type;
     this.mode = props.mode || undefined;
+    this.view = props.view || undefined;
+    this.readOnly = Boolean(props.readOnly);
     this.url = props.url;
     this.code = props.code;
     this.lang = props.lang || "";
@@ -196,6 +266,9 @@ export class QEditorElement extends HTMLElement {
 
   handleIframeLoad = () => {
     this.iframeLoaded = true;
+    if (this.mode === "events") {
+      this.sendSetData();
+    }
   };
 
   normalizeChangeEvent(raw) {
@@ -203,8 +276,15 @@ export class QEditorElement extends HTMLElement {
       return null;
     }
     const record = raw;
-    const nested = record.data;
-    const candidate = (nested && typeof nested === "object") ? nested : record;
+    const candidate = (record.type && typeof record.type === "string")
+      ? record
+      : (record.data && typeof record.data === "object" && record.data.type)
+        ? record.data
+        : record;
+
+    if (candidate.type !== "on-change") {
+      return null;
+    }
 
     const hasPayload =
       "code" in candidate
@@ -215,26 +295,52 @@ export class QEditorElement extends HTMLElement {
       return null;
     }
 
-    const payload = candidate;
-    if (payload.code !== undefined && typeof payload.code !== "string") {
-      return { data: payload.code };
+    if (candidate.code !== undefined && typeof candidate.code !== "string") {
+      return { type: "on-change", data: candidate.code };
     }
-    return payload;
+    return candidate;
   }
 
   buildHash() {
     const hashParams = new URLSearchParams();
     const data = this.data;
     const base64Data = data ? btoa(JSON.stringify(data || {})) : "";
-    const mode = this.mode ?? "default";
+    const mode = this.mode;
 
-    if (this.code) hashParams.set("code", this.code);
-    if (this.url) hashParams.set("url", this.url);
-    if (this.lang) hashParams.set("lang", this.lang);
-    if (mode) hashParams.set("mode", mode);
-    if (base64Data) hashParams.set("data", base64Data);
+    if (mode === "events" || mode === "browser-files") {
+      return "";
+    }
+
+    const includeCode = !mode || mode === "code";
+    const includeUrl = !mode || mode === "url";
+    const includeData = !mode || mode === "code";
+
+    if (includeCode && this.code) hashParams.set("code", this.code);
+    if (includeUrl && this.url) hashParams.set("url", this.url);
+    if ((includeCode || includeUrl) && this.lang) hashParams.set("lang", this.lang);
+    if (includeData && base64Data) hashParams.set("data", base64Data);
 
     return hashParams.toString();
+  }
+
+  buildQuery() {
+    const params = new URLSearchParams();
+    if (this.mode) params.set("mode", this.mode);
+    if (this.view) params.set("view", this.view);
+    if (this.readOnly) params.set("readOnly", "true");
+    return params.toString();
+  }
+
+  sendSetData() {
+    if (!this.iframe?.contentWindow) {
+      return;
+    }
+    const payload = {
+      type: "set-data",
+      code: this.code,
+      data: this.data,
+    };
+    this.iframe.contentWindow.postMessage(payload, "*");
   }
 
   updateIframeSrc() {
@@ -244,12 +350,21 @@ export class QEditorElement extends HTMLElement {
 
     const baseRoute = this.getBaseRoute();
     const hash = this.buildHash();
-    const src = `${baseRoute}${hash ? `#${hash}` : ""}`;
+    const query = this.buildQuery();
+    const src = `${baseRoute}${query ? `?${query}` : ""}${hash ? `#${hash}` : ""}`;
+    console.log("Updating iframe src to:", src);
+
     this.iframe.title = `${this.type ?? "monaco"} Editor`;
 
-    if (!this.iframeLoaded || !this.iframe.contentWindow || this.lastBaseRoute !== baseRoute) {
+    if (
+      !this.iframeLoaded
+      || !this.iframe.contentWindow
+      || this.lastBaseRoute !== baseRoute
+      || this.lastQuery !== query
+    ) {
       this.iframe.src = src;
       this.lastBaseRoute = baseRoute;
+      this.lastQuery = query;
       return;
     }
 
@@ -262,7 +377,7 @@ export class QEditorElement extends HTMLElement {
   }
 }
 
-export const defineQEditorElement = (tagName = "q-editor") => {
+export const defineQEditorElement = (tagName = "qrtl-code-editor") => {
   if (customElements.get(tagName)) {
     return;
   }

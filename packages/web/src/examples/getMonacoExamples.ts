@@ -7,6 +7,7 @@ export function getMonacoExamples(): QEditorExample[] {
             descr: "Simple Hello World in JavaScript, language specified explicitly.",
             props: {
                 type: "monaco",
+                mode: "code",
                 code: `function sayHello() {
     console.log('Hello, JavaScript at ' + new Date().toTimeString());
 }
@@ -20,6 +21,7 @@ sayHello();`,
             descr: "Simple Hello World in TypeScript, language specified explicitly.",
             props: {
                 type: "monaco",
+                mode: "code",
                 code: `enum Greetings {
     Hello = "Hello world",
     GoodMorning = "Good morning"
@@ -43,6 +45,7 @@ sayHello(Greetings.GoodMorning, "Typescript");`,
             descr: "Simple Hello World in JavaScript, no language specified.",
             props: {
                 type: "monaco",
+                mode: "code",
                 code: "console.log('Hello, world!');",
             },
         },
@@ -51,9 +54,10 @@ sayHello(Greetings.GoodMorning, "Typescript");`,
             descr: "Simple Hello World in JavaScript, read only mode.",
             props: {
                 type: "monaco",
+                mode: "code",
                 code: "console.log('Hello, world!');",
                 lang: "javascript",
-                mode: "read-only",
+                readOnly: true,
             },
         }, 
         {
@@ -61,6 +65,7 @@ sayHello(Greetings.GoodMorning, "Typescript");`,
             descr: "A small SASS-file from CDN (salaxy.scss).",
             props: {
                 type: "monaco",
+                mode: "url",
                 lang: "scss",
                 url: "https://cdn.salaxy.com/skins/sass/salaxy.scss",
             },
@@ -70,6 +75,7 @@ sayHello(Greetings.GoodMorning, "Typescript");`,
             descr: "Salaxy CSS, from URL, pretty big file.",
             props: {
                 type: "monaco",
+                mode: "url",
                 lang: "css",
                 url: "https://cdn.salaxy.com/skins/bs5/salaxy.css",
             },

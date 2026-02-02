@@ -25,32 +25,13 @@ function normalizeScene(value: unknown): ExcalidrawSceneData | null {
 
 /** Bridges the data flow from the parent window to the Excalidraw editor (react version) and back. */
 function ExcalidrawEditorPage(): JSX.Element {
-  const { code: hashCode, mode, url, data, updateHash } = useQEditorPropsFromQuery("excalidraw");
-  const [loading, setLoading] = useState<boolean>(false);
-  const [readOnly, setReadOnly] = useState<boolean>(mode === "read-only");
+  const { code: hashCode, mode, readOnly, data, updateHash } = useQEditorPropsFromQuery("excalidraw");
+  const [isReadOnly, setIsReadOnly] = useState<boolean>(Boolean(readOnly));
   const [scene, setScene] = useState<ExcalidrawSceneData | null>(() => normalizeScene(data) ?? parseScene(hashCode));
 
-  async function fetchSceneFromUrl(targetUrl: string) {
-    setLoading(true);
-    try {
-      const response = await fetch(targetUrl);
-      const text = await response.text();
-      setScene(parseScene(text));
-    } catch (error) {
-      console.error(`Error fetching Excalidraw data from URL '${targetUrl}':`, error);
-    } finally {
-      setLoading(false);
-    }
-  }
-
   useEffect(() => {
-    if (url) {
-      setReadOnly(true);
-      fetchSceneFromUrl(url);
-    } else {
-      setReadOnly(mode === "read-only");
-    }
-  }, [url, mode]);
+    setIsReadOnly(Boolean(readOnly));
+  }, [mode, readOnly]);
 
   useEffect(() => {
     const fromData = normalizeScene(data);
@@ -59,14 +40,17 @@ function ExcalidrawEditorPage(): JSX.Element {
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
-      if (event?.data?.code === undefined) {
+      if (event?.data?.type !== "set-data") {
+        return;
+      }
+      if (event.data.data !== undefined) {
+        setScene(normalizeScene(event.data.data));
         return;
       }
       if (typeof event.data.code === "string") {
         setScene(parseScene(event.data.code));
         return;
       }
-      setScene(normalizeScene(event.data.code));
     };
 
     window.addEventListener("message", handleMessage);
@@ -81,12 +65,15 @@ function ExcalidrawEditorPage(): JSX.Element {
       return;
     }
     setScene(nextScene);
-    updateHash(JSON.stringify(nextScene));
+    if (mode === "code") {
+      updateHash(JSON.stringify(nextScene));
+    }
 
-    if (window.self !== window.top) {
+    if (window.self !== window.top && !isReadOnly) {
       try {
         window.parent.postMessage(
           {
+            type: "on-change",
             data: nextScene,
           },
           "*"
@@ -98,19 +85,13 @@ function ExcalidrawEditorPage(): JSX.Element {
   };
 
   useEffect(() => {
-    if (window.self !== window.top) {
-      window.parent.postMessage({ loaded: true }, "*");
+    if (window.self !== window.top && mode === "events") {
+      window.parent.postMessage({ type: "editor-ready" }, "*");
     }
-  }, []);
+  }, [mode]);
 
   return (
-    <>
-      {loading ? (
-        <div className="text-center">Loading from {url}...</div>
-      ) : (
-        <ExcalidrawEditor codeModel={scene ?? undefined} readOnly={readOnly} onChange={handleCodeChange} />
-      )}
-    </>
+    <ExcalidrawEditor codeModel={scene ?? undefined} readOnly={isReadOnly} onChange={handleCodeChange} />
   );
 }
 

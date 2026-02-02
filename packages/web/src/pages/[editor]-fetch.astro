@@ -1,0 +1,37 @@
+---
+import EditorLayout from "@/layouts/EditorLayout.astro";
+
+import UrlWrapper from "@/components/pages/UrlWrapper.vue";
+import UrlWrapperReact from "@/components/pages/UrlWrapperReact.tsx";
+
+export function getStaticPaths() {
+  return [
+    { params: { editor: "monaco" } },
+    { params: { editor: "monaco-react" } },
+    { params: { editor: "excalidraw" } },
+    { params: { editor: "expression" } },
+    { params: { editor: "class" } },
+    { params: { editor: "project" } },
+  ];
+}
+
+const { editor } = Astro.params;
+const normalizedEditor = editor?.toLowerCase();
+
+const titleMap: Record<string, { title: string, platform: string }> = {
+  monaco: { title: "Monaco Editor", platform: "vue" },
+  "monaco-react": { title: "Monaco Editor (React)", platform: "react" },
+  excalidraw: { title: "Excalidraw Editor", platform: "react" },
+  expression: { title: "Expression Editor", platform: "vue" },
+  class: { title: "Class Editor", platform: "vue" },
+  project: { title: "Project Editor", platform: "react" },
+};
+const pageTitle = titleMap[normalizedEditor ?? ""]?.title ?? "Editor";
+const platform = titleMap[normalizedEditor ?? ""]?.platform ?? "unknown";
+---
+
+<EditorLayout title={pageTitle}>
+  {platform === "vue" && <UrlWrapper editor={normalizedEditor as "monaco" | "expression" | "class"} client:only="vue" />}
+  {platform === "react" && <UrlWrapperReact editor={normalizedEditor as "monaco-react" | "excalidraw" | "project"} client:only="react" />}
+  {platform === "unknown" && <div class="alert alert-danger mx-auto w-50 mt-5">Unknown platform for editor "{editor}"</div>}
+</EditorLayout>

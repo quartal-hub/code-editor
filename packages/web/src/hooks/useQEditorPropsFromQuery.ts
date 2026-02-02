@@ -14,7 +14,7 @@ function useQEditorPropsFromQuery(type: QEditorProps["type"]): QEditorProps & {
 } {
 
   // Using state to observe query string changes
-  const [props, setProps] = useState<QEditorProps>(PageHelpers.getPropsFromHash(type));
+  const [props, setProps] = useState<QEditorProps>(PageHelpers.getPropsFromLocation(type));
 
   // Function to update the hash with new code
   const updateHash = useCallback((code: string) => {
@@ -23,7 +23,7 @@ function useQEditorPropsFromQuery(type: QEditorProps["type"]): QEditorProps & {
 
   useEffect(() => {
     const handleHashChange = () => {
-      setProps(PageHelpers.getPropsFromHash(type));
+      setProps(PageHelpers.getPropsFromLocation(type));
     };
     
     // Primary event for hash changes

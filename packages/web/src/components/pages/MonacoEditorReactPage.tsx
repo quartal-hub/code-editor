@@ -7,32 +7,13 @@ import { useQEditorPropsFromQuery } from "@/hooks";
 /** Bridges the data flow from the parent window to the Monaco editor (react version) and back. */
 function MonacoEditorReactPage(): JSX.Element {
   const { initialize, setCompilerOptions, setLibraries } = useMonacoSetup();
-  const { code: hashCode, lang, mode, url, updateHash } = useQEditorPropsFromQuery("monaco");
-  const [loading, setLoading] = useState<boolean>(false);
-  const [readOnly, setReadOnly] = useState<boolean>(mode === "read-only");
+  const { code: hashCode, lang, mode, readOnly, updateHash } = useQEditorPropsFromQuery("monaco");
+  const [isReadOnly, setIsReadOnly] = useState<boolean>(Boolean(readOnly));
   const [code, setCode] = useState<string>(hashCode ?? "");
 
-  async function fetchCodeFromUrl(targetUrl: string) {
-    setLoading(true);
-    try {
-      const response = await fetch(targetUrl);
-      const text = await response.text();
-      setCode(text);
-    } catch (error) {
-      console.error("Error fetching code from URL:", error);
-    } finally {
-      setLoading(false);
-    }
-  }
-
   useEffect(() => {
-    if (url) {
-      setReadOnly(true);
-      fetchCodeFromUrl(url);
-    } else {
-      setReadOnly(mode === "read-only");
-    }
-  }, [url, mode]);
+    setIsReadOnly(Boolean(readOnly));
+  }, [readOnly]);
 
   // Setup compiler options and libraries
   useEffect(() => {
@@ -49,12 +30,17 @@ function MonacoEditorReactPage(): JSX.Element {
   // Listen for messages from parent (for external code updates)
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
-      if (event?.data?.code !== undefined) {
-        setCode(event.data.code);
-
-        // Restore cursor position if provided (would need editor ref for this)
-        // For now, just update the code
+      if (event?.data?.type !== "set-data") {
+        return;
       }
+      if (event.data.code !== undefined) {
+        setCode(String(event.data.code));
+      } else if (event.data.data !== undefined) {
+        setCode(String(event.data.data));
+      }
+
+      // Restore cursor position if provided (would need editor ref for this)
+      // For now, just update the code
     };
 
     window.addEventListener("message", handleMessage);
@@ -67,13 +53,16 @@ function MonacoEditorReactPage(): JSX.Element {
   const handleCodeChange = (data: QEditorChangeEventData) => {
     const nextCode = data.code ?? "";
     setCode(nextCode);
-    updateHash(nextCode);
+    if (mode === "code") {
+      updateHash(nextCode);
+    }
 
     // Send to parent window (for QEditor's onChange callback)
-    if (window.self !== window.top) {
+    if (window.self !== window.top && !isReadOnly) {
       try {
         window.parent.postMessage(
           {
+            type: "on-change",
             code: data.code,
             cursorPosition: data.cursorPosition,
           },
@@ -85,27 +74,21 @@ function MonacoEditorReactPage(): JSX.Element {
     }
   };
 
-  // Send loaded message to parent
+  // Send ready message to parent
   useEffect(() => {
-    if (window.self !== window.top) {
-      window.parent.postMessage({ loaded: true }, "*");
+    if (window.self !== window.top && mode === "events") {
+      window.parent.postMessage({ type: "editor-ready" }, "*");
     }
-  }, []);
+  }, [mode]);
 
   return (
-    <>
-      {loading ? (
-        <div className="text-center">Loading from {url}...</div>
-      ) : (
-        <MonacoEditor
-          code={code}
-          lang={lang}
-          readOnly={readOnly}
-          onChange={handleCodeChange}
-          onEditorMount={(eventData: QEditorMountEventData) => initialize(eventData.api)}
-        />
-      )}
-    </>
+    <MonacoEditor
+      code={code}
+      lang={lang}
+      readOnly={isReadOnly}
+      onChange={handleCodeChange}
+      onEditorMount={(eventData: QEditorMountEventData) => initialize(eventData.api)}
+    />
   );
 }
 

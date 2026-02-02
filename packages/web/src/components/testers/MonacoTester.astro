@@ -37,14 +37,14 @@ const firstExampleProps = examples[0].props;
       </div>
     </div>
     <div class="col-9">
-      <q-editor style="display: block; width: 100%; height: 100%;" {...firstExampleProps}></q-editor>
+      <qrtl-code-editor style="display: block; width: 100%; height: 100%;" {...firstExampleProps}></qrtl-code-editor>
     </div>
   </div>
 </div>
 
 <script type="module" src="/qrtl-code-editor.js"></script>
 <script type="module" define:vars={{ examples }}>
-  const editor = document.querySelector("q-editor");
+  const editor = document.querySelector("qrtl-code-editor");
   const buttons = document.querySelectorAll("[data-index]");
 
   buttons.forEach((button) => {

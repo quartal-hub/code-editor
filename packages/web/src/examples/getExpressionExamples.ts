@@ -16,7 +16,7 @@ export function getExpressionExamples(): QEditorExample[] {
             props: {
                 type: "expression",
                 code: "1 + 2",
-                mode: "read-only",
+                readOnly: true,
             },
         },
         {
@@ -25,7 +25,7 @@ export function getExpressionExamples(): QEditorExample[] {
             props: {
                 type: "expression",
                 code: "1 + 2",
-                mode: "plain",
+                view: "plain",
             },
         },
         {

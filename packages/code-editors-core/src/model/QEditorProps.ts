@@ -6,10 +6,19 @@ export interface QEditorProps {
     /** Type of the editor to show. */
     type: "monaco" | "monaco-react" | "expression" | "function" | "class" | "project" | "excalidraw";
     /**
-     * Type specific set of modes for the editor.
-     * Typically at least "default", "read-only".
+     * Communication mode for the editor.
+     * - "code": code is provided via hash and updates hash on change
+     * - "events": parent sends/receives data via postMessage
+     * - "browser-files": user selects files locally, parent may listen to changes
      */
-    mode?: string;
+    mode?: "code" | "events" | "browser-files";
+    /** Optional view style for editors (e.g. expression "plain" | "excel"). */
+    view?: string;
+    /**
+     * If true, editor is read-only. False is editable.
+     * Default (undefined) depends on the case, typically false.
+     */
+    readOnly?: boolean;
     /** Code to show in the editor. Used in simple single-file usecases. */
     code?: string;
     /**
@@ -22,6 +31,7 @@ export interface QEditorProps {
     /**
      * Full data to pass to the editor. Used in complex usecases.
      * Each editor type defines its own data structure as an interface.
+     * This is not designed to be used in url based UIs.
      */
     data?: Record<string, unknown>;
     /** Event that is triggered when the code changes. */

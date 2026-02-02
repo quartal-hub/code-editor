@@ -11,8 +11,7 @@ import { PageHelpers } from "@/helpers";
  * @returns Object with props as refs
  */
 function useQEditorPropsFromQuery(type: QEditorProps["type"]) {
-  const isLoading = ref<boolean>(false);
-  const result = ref<QEditorProps>(PageHelpers.getPropsFromHash(type));
+  const result = ref<QEditorProps>(PageHelpers.getPropsFromLocation(type));
 
   // HACK: There is a bit too much updating back-and-forth here (uncomment the console.log).
   //       Refactor in a way that updating from/to hash is very explicit and happens to one direction only.
@@ -20,31 +19,17 @@ function useQEditorPropsFromQuery(type: QEditorProps["type"]) {
   async function handleHashChange(): Promise<void> {
     if (isUpdatingHash) { return; };
     isUpdatingHash = true;
-    isLoading.value = true;
-    try {
-      result.value = PageHelpers.getPropsFromHash(type);
-      if (result.value.url) {
-        const response = await fetch(result.value.url);
-        if (!response.ok) {
-          result.value.code = `// Error loading code from ${result.value.url}: ${response.statusText}`;  
-          return;
-        }
-        const text = await response.text();
-        result.value.code = text;  
-      }
-    } finally {
-      isLoading.value = false;
-      isUpdatingHash = false;
-    }
+    result.value = PageHelpers.getPropsFromLocation(type);
+    isUpdatingHash = false;
   }
   function updateHash(code: string | undefined): void {
+    result.value.code = code ?? "";
     if (
       isUpdatingHash // Updating TO hash => do not loop back any more.
-      || result.value.url // Source is based on URL => Do not update hash.
-      // TODO: Add case where communication is based on events => Do not update hash.
-    ) { 
+      || result.value.mode !== "code" // Only code mode updates hash.
+    ) {
       return;
-    };
+    }
     isUpdatingHash = true;
     try {
       PageHelpers.updateHash(type, code ?? "");
@@ -67,8 +52,6 @@ function useQEditorPropsFromQuery(type: QEditorProps["type"]) {
     props: result as Ref<QEditorProps>,
     /** Function to update the code in the hash. */
     updateCode: (code: string): void => updateHash(code),
-    /** If true, the editor is loading content from the URL. */
-    isLoading: isLoading as Ref<boolean>,
   };
 }
 

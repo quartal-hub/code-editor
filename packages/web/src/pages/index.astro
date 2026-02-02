@@ -4,6 +4,18 @@ import { LeftNavi } from "vue-editors";
 import { navItems } from "@/data";
 
 const currentPath = Astro.url.pathname;
+
+const sample1 =
+      (`<div style="width: 100%; height: 150px;">
+      <!-- Set the size of parent container. Editor takes 100% of height and width. -->
+      <qrtl-code-editor type="monaco" lang="javascript" code="console.log('Hello, world!');"></qrtl-code-editor>
+</div>
+
+<!-- Load the component at the end of the page. -->
+<` +
+      `script type="module" src="https://code.quartal.com/qrtl-code-editor.js"></` +
+      `script>`);
+
 ---
 
 <script type="module" src="/qrtl-code-editor.js"></script>
@@ -22,7 +34,7 @@ const currentPath = Astro.url.pathname;
         <h1>Usage</h1>
         <p class="lead">
           All the code editors are available through <strong
-            ><code>q-editor</code></strong
+            ><code>qrtl-code-editor</code></strong
           > component. The component is a <a
             href="https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/is"
             target="_blank">custom element</a
@@ -30,14 +42,14 @@ const currentPath = Astro.url.pathname;
           As such it can be used in any HTML page and in any framework.
         </p>
         <div style="width: 100%; height: 150px;">
-          <q-editor type="monaco" lang="html" code="loading..."></q-editor>
+          <qrtl-code-editor type="monaco" id="previewEditor" lang="html" code={sample1}></qrtl-code-editor>
         </div>
         ...renders as:
         <div style="width: 100%; height: 150px;">
-          <q-editor
+          <qrtl-code-editor
             type="monaco"
             lang="javascript"
-            code="console.log('Hello, world!');"></q-editor>
+            code="console.log('Hello, world!');"></qrtl-code-editor>
         </div>
         <h2 class="mt-3">Attributes</h2>
         <ul>
@@ -48,6 +60,17 @@ const currentPath = Astro.url.pathname;
               >function</code
             >, <code>class</code>, <code>project</code>, <code>excalidraw</code
             >.
+          </li>
+          <li>
+            <code>mode</code> - Communication mode. Can be <code>url</code>, <code>code</code>,
+            <code>events</code>, or <code>browser-files</code>.
+          </li>
+          <li>
+            <code>view</code> - Optional view style for editors (for example, expression
+            editor <code>plain</code> or <code>excel</code>).
+          </li>
+          <li>
+            <code>read-only</code> - If present, editor is read-only.
           </li>
           <li>
             <code>lang</code> - Language of the code to show in the editor. Used together
@@ -71,7 +94,7 @@ const currentPath = Astro.url.pathname;
         </ul>
         <h2 class="mt-3">Use directly as pages</h2>
         <p class="lead">
-          The <code>q-editor</code> component is essentially just an iframe that loads the code editor.
+          The <code>qrtl-code-editor</code> component is essentially just an iframe that loads the code editor.
           As such, you can also access the editors directly as pages:
         </p>
         <ul>
@@ -87,18 +110,4 @@ const currentPath = Astro.url.pathname;
       </div>
     </div>
   </div>
-  <script type="module">
-    const sample1 =
-      `<div style="width: 100%; height: 150px;">
-      <!-- Set the size of parent container. Editor takes 100% of height and width. -->
-      <q-editor type="monaco" lang="javascript" code="console.log('Hello, world!');"></q-editor>
-</div>
-
-<!-- Load the component at the end of the page. -->
-<` +
-      `script type="module" src="https://code.quartal.com/qrtl-code-editor.js"></` +
-      `script>`;
-    `;`;
-    document.querySelector("q-editor").code = sample1;
-  </script>
 </TesterLayout>
