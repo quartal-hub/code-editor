@@ -18,7 +18,7 @@ function useQEditorPropsFromQuery(type: QEditorProps["type"]): QEditorProps & {
 
   // Function to update the hash with new code
   const updateHash = useCallback((code: string) => {
-    PageHelpers.updateHash(type, code);
+    PageHelpers.updateToHash("code", code);
   }, []);
 
   useEffect(() => {

@@ -65,6 +65,6 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="h-100" style="min-height: 0;">
-    <ClassEditor :code="localCode" :read-only="props.readOnly" @on-change="handleCodeChange" />
+    <ClassEditor :code="localCode" :read-only="props.readOnly" :view="props.view as 'single-class' | 'multi-class'" @on-change="handleCodeChange" />
   </div>
 </template>

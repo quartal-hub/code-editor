@@ -17,7 +17,6 @@ const code = ref<string>('');
 
 const { props: urlProps } = useQEditorPropsFromQuery(props.editor);
 
-
 async function fetchCodeFromUrl(targetUrl: string | undefined) {
   isLoading.value = true;
   error.value = '';
@@ -53,6 +52,6 @@ watch(() => urlProps.value.url, () => {
     </div>
   </div>
   <ExpressionEditor v-else-if="editor === 'expression'" :code="code" :lang="urlProps.lang" :read-only="readOnly" />
-  <ClassEditor v-else-if="editor === 'class'" :code="code" :lang="urlProps.lang" :read-only="readOnly" />
+  <ClassEditor v-else-if="editor === 'class'" :code="code" :lang="urlProps.lang" :read-only="readOnly" :view="urlProps.view as 'single-class' | 'multi-class'" />
   <MonacoEditor v-else :code="code" :lang="urlProps.lang" :read-only="readOnly" />
 </template>

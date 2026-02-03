@@ -24,36 +24,55 @@ const emit = defineEmits<{
   (event: "on-editor-mount", data: QEditorMountEventData): void;
 }>();
 
-function tempTrimCode(code: string | undefined): string {
+function tempTrimCode(code: string | undefined): {
+  /** The code to set in the editor. */
+  nextCode: string;
+  /**
+   * Whether the "return " prefix was trimmed from the code.
+   * Whitespace trimming does not affect this value.
+   */
+  isTrimmed: boolean;
+} {
   let trimmedCode = code?.trim() ?? "";
-  if (!code) return "";
+  if (!trimmedCode) {
+    return { nextCode: "", isTrimmed: false }
+  };
   if (trimmedCode.startsWith("return ")) {
-    trimmedCode = trimmedCode.slice(6).trim();
+    return { nextCode: trimmedCode.slice(6).trim(), isTrimmed: true };
   }
-  return trimmedCode;
+  return { nextCode: trimmedCode, isTrimmed: false };
 }
 
-const originalCode = ref<string>(tempTrimCode(props.code));
-const currentCode = ref<string>(tempTrimCode(props.code));
+const isCodeTrimmed = ref<boolean>(false);
+const originalCode = ref<string>("");
+const currentCode = ref<string>("");
+setCurrentCode(props.code);
+
 const editorRef = ref<{ getValue: () => string; triggerSuggest: () => void } | null>(null);
 
 watch(
   () => [props.code, props.mode],
   () => {
-    const nextCode = tempTrimCode(props.code);
-    const wasSynced = currentCode.value === originalCode.value;
-    originalCode.value = nextCode;
-
-    if (props.mode === "excel") {
-      if (wasSynced) {
-        currentCode.value = nextCode;
-      }
-    } else {
-      currentCode.value = nextCode;
-    }
+    setCurrentCode(props.code);
   },
   { immediate: true }
 );
+
+function setCurrentCode(nextCodeRaw: string): void {
+  const { nextCode, isTrimmed } = tempTrimCode(nextCodeRaw);
+  const wasSynced = currentCode.value === originalCode.value;
+  originalCode.value = nextCode;
+  isCodeTrimmed.value = isTrimmed;
+
+  if (props.mode === "excel") {
+    if (wasSynced) {
+      // TODO: Do not understand this. Test how it works / what is this  if(wasSynced) => (seems to work though...).
+      currentCode.value = nextCode;
+    }
+  } else {
+    currentCode.value = nextCode;
+  }
+}
 
 const options = {
   lineNumbers: "off",
@@ -84,7 +103,11 @@ function handleCheck(): void {
   const newCode = editorRef.value?.getValue() ?? currentCode.value;
   originalCode.value = newCode;
   currentCode.value = newCode;
-  emit("on-change", { code: newCode });
+  let sendCode = newCode;
+  if (isCodeTrimmed.value) {
+    sendCode = `return ${sendCode}`;
+  }
+  emit("on-change", { code: sendCode });
 }
 
 function handleClose(): void {

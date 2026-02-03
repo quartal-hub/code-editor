@@ -39,7 +39,7 @@ export const editorInfo: Record<EditorType, EditorInfo> = {
   },
   function: {
     title: "Function Editor",
-    platform: "react",
+    platform: "vue",
     description: "Editor for a single function within a class",
     fetch: false,
     fs: "none",

@@ -56,7 +56,6 @@ function scheduleEmit(code: string, cursorPosition?: CursorPosition): void {
   window.clearTimeout(debounceTimeoutRef.value);
   debounceTimeoutRef.value = window.setTimeout(() => {
     emit("on-change", { code, cursorPosition: cursorPosition ?? undefined });
-    console.log("Emitting code change:", code, cursorPosition);
   }, 250);
 }
 

@@ -1,0 +1,35 @@
+---
+import EditorLayout from "@/layouts/EditorLayout.astro";
+
+import CodeWrapper from "@/components/pages/CodeWrapper.vue";
+import CodeWrapperReact from "@/components/pages/CodeWrapperReact.tsx";
+
+import { editorInfo, editorList } from "@/data";
+import type { EditorType } from "@quartal/code-editors-core";
+
+export function getStaticPaths() {
+  return editorList.map((editor) => ({ params: { editor } }));
+}
+
+const { editor } = Astro.params;
+const normalizedEditor = editor?.toLowerCase();
+const editorConfig = normalizedEditor ? editorInfo[normalizedEditor as EditorType] : undefined;
+const pageTitle = editorConfig?.title ?? "Editor";
+const platform = editorConfig?.platform ?? "unknown";
+---
+
+<EditorLayout title={pageTitle}>
+  {platform === "vue" && (
+    <CodeWrapper
+      editor={normalizedEditor as "monaco" | "expression" | "class" | "function"}
+      client:only="vue" />
+  )}
+  {platform === "react" && (
+    <CodeWrapperReact
+      editor={normalizedEditor as "monaco-react" | "excalidraw" | "project"}
+      client:only="react" />
+  )}
+  {platform === "unknown" && (
+    <div class="alert alert-danger mx-auto w-50 mt-5">Unknown platform for editor "{editor}"</div>
+  )}
+</EditorLayout>

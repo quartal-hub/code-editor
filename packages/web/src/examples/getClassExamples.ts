@@ -1,12 +1,22 @@
 import type { QEditorExample } from "./QEditorExample";
 
 export function getClassExamples(): QEditorExample[] {
-  return [
+  return [{
+    title: "Salaxy Row types example",
+    descr: "Basic Salaxy Row types example. New JavaScript format with types support.",
+    props: {
+      type: "class",
+      url: "/examples/class-editor/monthlySalary.js",
+      readOnly: false,
+      view: "single-class"
+    },
+  },
     {
-      title: "Simple class",
-      descr: "A simple class with a few methods (inlined).",
+      title: "Simple HelloWorld class",
+      descr: "A simple HelloWorld class with a few methods.",
       props: {
         type: "class",
+        view: "single-class",
         code: `class HelloWorld {
   private _name: string = "World";
 
@@ -38,26 +48,29 @@ export function getClassExamples(): QEditorExample[] {
 }`,
       },
     }, {
-      title: "Row type scripts",
-      descr: "A class with row type scripts",
+      title: "Row type scripts (TS)",
+      descr: "A file with multiple classes with row type scripts (TypeScript / not in use in UI)",
       props: {
         type: "class",
+        view: "multi-class",
         url: "/examples/class-editor/RowTypeScriptsSamples.ts",
       },
     },
     {
       title: "Complex class",
-      descr: "A complex class with a few methods",
+      descr: "A complex class single class with a few methods",
       props: {
         type: "class",
+        view: "single-class",
         url: "/examples/class-editor/SampleScript1.ts",
       },
     },
     {
-      title: "Long runninc (asyc) scripts",
-      descr: "A complex class with a few methods",
+      title: "Long running (asyc) scripts (multi)",
+      descr: "3 complex classes with a few methods",
       props: {
         type: "class",
+        view: "multi-class",
         url: "/examples/class-editor/BeforeCalcScriptsSamples.ts",
       },
     }

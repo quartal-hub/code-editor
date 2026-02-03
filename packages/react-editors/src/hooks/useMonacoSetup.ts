@@ -1,3 +1,4 @@
+import { MonacoHelper } from "@quartal/code-editors-core";
 import { useEffect, useRef, useCallback, useState } from "react";
 
 export interface MonacoLibrary {
@@ -30,33 +31,6 @@ export interface UseMonacoSetupReturn {
   isReady: boolean;
 }
 
-// Default compiler options from MonacoEditor.tsx
-// These will be set using the actual Monaco enum values when Monaco is available
-const getDefaultCompilerOptions = (monaco: any): any => {
-  if (!monaco) {
-    // Fallback values if Monaco not available
-    return {
-      target: 5, // ScriptTarget.ES2020
-      allowNonTsExtensions: true,
-      moduleResolution: 2, // ModuleResolutionKind.NodeJs
-      module: 99, // ModuleKind.ESNext
-      noEmit: true,
-      esModuleInterop: true,
-      allowSyntheticDefaultImports: true,
-    };
-  }
-
-  return {
-    target: monaco.languages.typescript.ScriptTarget.ES2020,
-    allowNonTsExtensions: true,
-    moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
-    module: monaco.languages.typescript.ModuleKind.ESNext,
-    noEmit: true,
-    esModuleInterop: true,
-    allowSyntheticDefaultImports: true,
-  };
-};
-
 /**
  * Hook for setting up Monaco Editor compiler options and libraries.
  * Provides methods to configure Monaco that execute when the instance is ready.
@@ -79,7 +53,7 @@ export function useMonacoSetup(): UseMonacoSetupReturn {
     if (!monaco) return;
 
     const opts = !options || Object.keys(options).length === 0
-      ? getDefaultCompilerOptions(monaco)
+      ? MonacoHelper.getDefaultCompilerOptions(monaco)
       : options;
 
     monaco.languages.typescript.javascriptDefaults.setCompilerOptions(opts);

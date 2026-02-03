@@ -32,7 +32,7 @@ function useQEditorPropsFromQuery(type: QEditorProps["type"]) {
     }
     isUpdatingHash = true;
     try {
-      PageHelpers.updateHash(type, code ?? "");
+      PageHelpers.updateToHash("code", code ?? "");
     } finally {
       isUpdatingHash = false;
     }

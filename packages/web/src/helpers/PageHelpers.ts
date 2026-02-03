@@ -1,7 +1,19 @@
 import type { QEditorProps } from "@quartal/code-editors-core";
 
-/** Msc helpers for rendering the pages based on the components. */
+/** Miscellaneous helpers for rendering the pages based on the components. */
 export class PageHelpers {
+
+  /**
+   * Updates a value to the hash.
+   * Currently, this is always "code" (which is modified), but future impelementations may support other keys to modify.
+   * @param key The key to update. Typically "code".
+   * @param value The value to update the key with.
+   */
+  public static updateToHash(key: string, value: string): void {
+    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    hashParams.set(key, value);
+    window.location.hash = hashParams.toString();
+  }
 
   /**
    * Parses the URL hash and returns an object with the QEditorProps interface.
@@ -103,21 +115,4 @@ export class PageHelpers {
       return true;
     }
   }
-
-  /**
-   * Updates the hash with the new code.
-   * @param type The type of editor to use. May later be to support editor specific logic.
-   * @param code The new code to update the hash with. Other parameters are kept the same as the current props.
-   */
-  public static updateHash(type: QEditorProps["type"], code: string): void {
-    const currentProps = PageHelpers.getPropsFromHash(type);
-    const base64Data = currentProps.data ? btoa(JSON.stringify(currentProps.data || {})) : "";
-    const hashParams = new URLSearchParams();
-    hashParams.set("code", code);
-    if (currentProps.lang) hashParams.set("lang", currentProps.lang);
-    if (base64Data) hashParams.set("data", base64Data);
-    const hash = hashParams.toString();
-    window.location.hash = hash ? `#${hash}` : "";
-  }
-
 }

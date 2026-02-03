@@ -1,23 +1,29 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref, shallowRef, watch } from "vue";
+
+import { MonacoHelper, PackageCache } from "@quartal/code-editors-core";
+import type { QEditorChangeEventData, QEditorMountEventData } from "@quartal/code-editors-core";
+
+import { useClassStructure } from "../composables";
 import MonacoEditor from "./MonacoEditor.vue";
 import ExpressionEditor from "./ExpressionEditor.vue";
-import { ClassParser, type ClassInfo, type ParsedMethod } from "../helpers/classParser";
-import { PackageCache } from "@quartal/code-editors-core";
-import type { QEditorChangeEventData, QEditorMountEventData } from "@quartal/code-editors-core";
+import { SalaxyHelpers } from "../helpers";
 
 export interface ClassEditorProps {
   /** Full source file containing the class(es). */
   code: string;
   /** When true, disable editing and saving. */
   readOnly?: boolean;
+
+  /**
+   * View mode for the class editor.
+   * In "single-class" mode, the given file is expected to contain only one class.
+   * In "multi-class" mode, the given file may have many classes and there buttons for adding / removing them.
+   */
+  view?: "single-class" | "multi-class";  
 }
 
 type MonacoDisposable = { dispose: () => void };
-
-type MonacoLibrary =
-  | { type: "module"; name: string }
-  | { type: "context"; code: string };
 
 const props = withDefaults(defineProps<ClassEditorProps>(), {
   readOnly: false,
@@ -27,68 +33,18 @@ const emit = defineEmits<{
   (event: "on-change", data: QEditorChangeEventData): void;
 }>();
 
-const errorMsg = ref<string>("");
-const classes = ref<ClassInfo[]>([]);
-const methods = ref<ParsedMethod[]>([]);
-const selectedClassName = ref<string | null>(null);
-const selectedMethodIndex = ref<number>(-1);
-const editorContent = ref<string>("");
+const {
+  setCurrentCode, setCurrentMethod, setCurrentMethodBody, setCurrentClass, addMethod, addClass,
+  currentCode, errorMsg, 
+  classes, currentClass, currentClassMethods, currentMethod, currentMethodBody
+} = useClassStructure(props.code);
+
 const activeTab = ref<string>("class-editor");
 
 const monacoRef = shallowRef<any | null>(null);
 const libDisposables = ref<MonacoDisposable[]>([]);
 
 const packageCache = new PackageCache();
-
-// HACK: Use common libraries in code-editors-core package to handle these.
-const libraries: MonacoLibrary[] = [
-  {
-    type: "module",
-    name: "@salaxy/core",
-  },
-  {
-    type: "module",
-    name: "@salaxy/expressions",
-  },
-  {
-    type: "context",
-    code: `
-      imp${"o"}rt { CalculationRowSource, CalculationRowType, HelpersRoot, UserDefinedRow, RowContext } from "@salaxy/core";
-      declare global {
-        /** The row that is being process as part of calculation. */
-        declare var row: UserDefinedRow;
-        /** The calculation context: Calculation, Employment, Company settings, etc. */
-        declare var ctx: RowContext;
-        /** The sxy helper functions. */
-        declare var sxy: HelpersRoot;
-      }
-    `,
-  },
-];
-
-function getDefaultCompilerOptions(monacoInstance: any): any {
-  if (!monacoInstance) {
-    return {
-      target: 5,
-      allowNonTsExtensions: true,
-      moduleResolution: 2,
-      module: 99,
-      noEmit: true,
-      esModuleInterop: true,
-      allowSyntheticDefaultImports: true,
-    };
-  }
-
-  return {
-    target: monacoInstance.languages.typescript.ScriptTarget.ES2020,
-    allowNonTsExtensions: true,
-    moduleResolution: monacoInstance.languages.typescript.ModuleResolutionKind.NodeJs,
-    module: monacoInstance.languages.typescript.ModuleKind.ESNext,
-    noEmit: true,
-    esModuleInterop: true,
-    allowSyntheticDefaultImports: true,
-  };
-}
 
 async function loadModuleLibrary(lib: { name: string }): Promise<string> {
   const code = await packageCache.getTypes(lib.name);
@@ -102,7 +58,7 @@ async function applyLibraries(monacoInstance: any): Promise<void> {
   libDisposables.value.forEach((disposable) => disposable.dispose());
   libDisposables.value = [];
 
-  for (const lib of libraries) {
+  for (const lib of SalaxyHelpers.getTempLibraries()) {
     try {
       let code: string;
       let filePath: string;
@@ -127,11 +83,7 @@ async function applyLibraries(monacoInstance: any): Promise<void> {
 async function setupMonaco(monacoInstance: unknown): Promise<void> {
   const monaco = monacoInstance as any;
   monacoRef.value = monaco;
-
-  const compilerOptions = getDefaultCompilerOptions(monaco);
-  monaco.languages.typescript.javascriptDefaults.setCompilerOptions(compilerOptions);
-  monaco.languages.typescript.typescriptDefaults.setCompilerOptions(compilerOptions);
-
+  MonacoHelper.applyDefaultCompilerOptions(monaco);
   await applyLibraries(monaco);
 }
 
@@ -142,124 +94,59 @@ function handleMonacoMount(data: QEditorMountEventData): void {
 watch(
   () => props.code,
   (code) => {
-    try {
-      errorMsg.value = "";
-      const parsedMethods = ClassParser.parseMethods(code ?? "");
-      const parsedClasses = ClassParser.parseClasses(code ?? "");
-      methods.value = parsedMethods;
-      classes.value = parsedClasses;
-
-      const classNames = parsedClasses.map((item) => item.name);
-      if (selectedClassName.value && classNames.includes(selectedClassName.value)) {
-        return;
-      }
-      selectedClassName.value = classNames.length > 0 ? classNames[0] : null;
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : String(err);
-      errorMsg.value = `Syntax Error: ${msg}`;
-      classes.value = [];
-      methods.value = [];
-      selectedClassName.value = null;
-      selectedMethodIndex.value = -1;
-      editorContent.value = "";
-    }
+    setCurrentCode(code);
   },
   { immediate: true }
 );
-
-const classList = computed(() => classes.value);
-
-const methodsForSelectedClass = computed(() => {
-  if (!selectedClassName.value) return [];
-  return methods.value.filter(
-    (method) => method.owner.kind === "class" && method.owner.name === selectedClassName.value
-  );
-});
-
-watch(
-  methodsForSelectedClass,
-  (list) => {
-    if (list.length === 0) {
-      selectedMethodIndex.value = -1;
-      return;
-    }
-    if (selectedMethodIndex.value < 0 || selectedMethodIndex.value >= list.length) {
-      selectedMethodIndex.value = 0;
-    }
-  },
-  { immediate: true }
-);
-
-const selectedMethod = computed(() => {
-  const list = methodsForSelectedClass.value;
-  if (selectedMethodIndex.value < 0 || selectedMethodIndex.value >= list.length) return null;
-  return list[selectedMethodIndex.value];
-});
-
-watch(selectedMethod, (method) => {
-  if (!method) {
-    editorContent.value = "";
-    return;
-  }
-  editorContent.value = (method.content ?? "").replace(/^\n/, "");
-});
-
-const selectedMethodName = computed(() => selectedMethod.value?.name ?? "");
 
 function saveMethod(): void {
   if (props.readOnly) return;
-  if (!selectedMethod.value || !selectedMethod.value.editable) return;
+  if (!currentMethod.value || !currentMethod.value.editable) return;
 
-  if (selectedMethod.value.start == null || selectedMethod.value.end == null) return;
-  const before = props.code.slice(0, selectedMethod.value.start + 1);
-  const after = props.code.slice(selectedMethod.value.end - 1);
-  const newSource = `${before}\n${editorContent.value}\n${after}`;
+  if (currentMethod.value.start == null || currentMethod.value.end == null) return;
+  const before = currentCode.value.slice(0, currentMethod.value.start + 1);
+  const after = currentCode.value.slice(currentMethod.value.end - 1);
+  const newSource = `${before}\n${currentMethodBody.value}\n${after}`;
   emit("on-change", { code: newSource });
 }
 
 function handleAddClass(): void {
-  if (props.readOnly) return;
-  const baseName = "NewClass";
-  const existing = new Set(classList.value.map((item) => item.name));
-  let nextIndex = 1;
-  let newName = `${baseName}${nextIndex}`;
-  while (existing.has(newName)) {
-    nextIndex += 1;
-    newName = `${baseName}${nextIndex}`;
+  if (props.readOnly) {
+    return;
   }
-
-  const snippet = `\n\nexport class ${newName} {\n\n}\n`;
-  const updated = `${props.code}${snippet}`;
-  emit("on-change", { code: updated });
-  selectedClassName.value = newName;
+  const className = prompt("Enter the name of the new class:");
+  if (!className) {
+    return;
+  }
+  const isExisting = classes.value.some((item) => item.name === className);
+  if (isExisting) {
+    alert(`Class "${className}" already exists`);
+    return;
+  }
+  addClass(className, SalaxyHelpers.getCodeForClass(className));
+  emit("on-change", { code: currentCode.value });
 }
 
-function handleAddMethod(): void {
-  if (props.readOnly) return;
-  if (!selectedClassName.value) return;
-  const classInfo = classList.value.find((item) => item.name === selectedClassName.value);
-  if (!classInfo) return;
-
-  const existingNames = new Set(methodsForSelectedClass.value.map((method) => method.name));
-  let methodIndex = 1;
-  let methodName = `newMethod${methodIndex}`;
-  while (existingNames.has(methodName)) {
-    methodIndex += 1;
-    methodName = `newMethod${methodIndex}`;
+// HACK: Go through the white space handling logic: Expression editor, getIndentAtIndex and any trimming in composable.
+function handleAddMethod(methodName: string): void {
+  if (props.readOnly) {
+    return
+  };
+  if (!currentClass.value) {
+    return
+  };
+  const isExisting = currentClassMethods.value.some((method) => method.name === methodName);
+  if (isExisting) {
+    alert(`Method "${methodName}" already exists`);
+    return;
   }
-
-  const classIndent = getIndentAtIndex(props.code, classInfo.start);
-  const methodIndent = `${classIndent}  `;
-  const methodSnippet = `\n${methodIndent}public ${methodName}(): void {\n${methodIndent}  \n${methodIndent}}\n${classIndent}`;
-
-  const insertionPoint = classInfo.bodyEnd - 1;
-  const updated = `${props.code.slice(0, insertionPoint)}${methodSnippet}${props.code.slice(insertionPoint)}`;
-  emit("on-change", { code: updated });
+  addMethod(methodName, SalaxyHelpers.getCodeForFunction(methodName) + "\n\n");
+  emit("on-change", { code: currentCode.value });
 }
 
 function handleEditorCodeChange(data: QEditorChangeEventData): void {
   const nextCode = data.code ?? "";
-  editorContent.value = nextCode;
+  setCurrentMethodBody(nextCode, true);
 }
 
 onBeforeUnmount(() => {
@@ -267,16 +154,31 @@ onBeforeUnmount(() => {
   libDisposables.value = [];
 });
 
-function getIndentAtIndex(source: string, index: number): string {
-  const lineStart = source.lastIndexOf("\n", index) + 1;
-  const line = source.slice(lineStart, index);
-  const match = line.match(/^\s*/);
-  return match ? match[0] : "";
-}
+const functions = computed(() => SalaxyHelpers.getRowsInterface().map((item) => {
+  return {
+    ...item,
+    disabled: currentClassMethods.value.some((method) => method.name === item.name),
+  }
+}));
+
 </script>
 
 <template>
-  <div class="d-flex flex-column" style="height: calc(100vh - 200px);">
+  <div class="d-flex flex-column" style="height: calc(100vh);">
+    <div class="btn-group" style="position: absolute; top: 3px; right: 18px;">
+      <button class="btn btn-primary dropdown-toggle" type="button" id="addFunctionDropdown"
+        :class="{ disabled: props.readOnly }"
+        data-bs-toggle="dropdown" aria-expanded="false" data-bs-reference="body">
+        Add function
+      </button>
+      <ul class="dropdown-menu" aria-labelledby="addFunctionDropdown"
+        style="max-height: calc(100vh - 60px); overflow-y: auto;">
+        <li v-for="func in functions" :key="func.name">
+          <a class="dropdown-item" :class="{ disabled: func.disabled }"
+            href="#" @click.prevent="handleAddMethod(func.name)">{{ func.name }}</a>
+        </li>
+      </ul>
+    </div>
     <ul class="nav nav-tabs">
       <li class="nav-item">
         <a
@@ -284,9 +186,7 @@ function getIndentAtIndex(source: string, index: number): string {
           :class="{ active: activeTab === 'class-editor' || !activeTab }"
           href="#class-editor"
           @click.prevent="activeTab = 'class-editor'"
-        >
-          Classes and functions
-        </a>
+        >Classes and functions</a>
       </li>
       <li class="nav-item">
         <a
@@ -302,29 +202,30 @@ function getIndentAtIndex(source: string, index: number): string {
 
     <div v-if="activeTab === 'class-editor'" class="h-100 d-flex flex-column" style="min-height: 0;">
       <div v-if="errorMsg" class="alert alert-danger py-1 px-2 m-3" role="alert">{{ errorMsg }}</div>
+      <div class="form-group m-3">
+        <label for="functionName" class="form-label">Content: </label>
+        <input type="text" class="form-control" v-model="currentMethodBody" />
+      </div>
       <div class="flex-grow-0 flex-shrink-0" style="height: 140px;">
         <ExpressionEditor
-          :code="editorContent"
+          :code="currentMethodBody"
           lang="typescript"
           @on-change="handleEditorCodeChange"
           @on-editor-mount="handleMonacoMount"
         />
       </div>
       <div class="d-flex flex-grow-1" style="min-height: 0;">
-        <div class="card flex-shrink-0" style="width: 260px; overflow-y: auto;">
+        <div class="card flex-shrink-0" style="width: 260px; overflow-y: auto;" v-if="view === 'multi-class'">
           <div class="card-body flex-grow-0 flex-shrink-0">
-            <h3>Rivityypit</h3>
-            <div v-if="classList.length === 0" class="text-muted small fst-italic mb-2">No classes found.</div>
+            <h3>Classes</h3>
+            <div v-if="classes.length === 0" class="text-muted small fst-italic mb-2">No classes found.</div>
           </div>
           <div class="list-group list-group-flush">
             <button
-              v-for="owner in classList"
-              :key="owner.name"
-              type="button"
+              v-for="owner in classes" :key="owner.name"
+              type="button" @click="setCurrentClass(owner)"
               class="list-group-item list-group-item-action d-flex align-items-center"
-              :class="{ active: owner.name === selectedClassName }"
-              @click="selectedClassName = owner.name"
-            >
+              :class="{ active: owner.name === currentClass?.name }">
               <span class="text-truncate">{{ owner.name }}</span>
             </button>
           </div>
@@ -335,70 +236,56 @@ function getIndentAtIndex(source: string, index: number): string {
               :disabled="props.readOnly"
               @click="handleAddClass"
             >
-              + Lisää rivityyppi...
+              + Add class...
             </button>
           </div>
         </div>
-        <div class="card flex-shrink-0 ms-2" style="width: 260px; overflow-y: auto;">
+        <div class="card flex-shrink-0 ms-2" style="width: 260px;">
           <div class="card-body flex-grow-0 flex-shrink-0">
-            <h3>Funktiot</h3>
-            <div v-if="methodsForSelectedClass.length === 0" class="text-muted small fst-italic mb-2">
-              {{ selectedClassName ? "No methods found in class." : "Select a class to view methods." }}
+            <h3>Functions</h3>
+            <div v-if="currentClassMethods.length === 0" class="text-muted small fst-italic mb-2">
+              {{ currentClass?.name ? "No methods found in class." : "Select a class to view methods." }}
             </div>
           </div>
           <div class="list-group list-group-flush">
             <button
-              v-for="(method, index) in methodsForSelectedClass"
-              :key="`${method.name}-${index}`"
-              type="button"
+              v-for="method in currentClassMethods" :key="method.name"
+              type="button" @click="setCurrentMethod(method)"
               class="list-group-item list-group-item-action d-flex align-items-center"
-              :class="{ active: index === selectedMethodIndex }"
-              @click="selectedMethodIndex = index"
-            >
+              :class="{ active: method.name === currentMethod?.name }">
               <strong class="me-2 text-muted">ƒ</strong>
               <span class="text-truncate">{{ method.name }}</span>
             </button>
           </div>
-          <div class="card-body flex-grow-1 d-flex align-items-end">
-            <button
-              type="button"
-              class="btn btn-primary w-100"
-              :disabled="!selectedClassName || props.readOnly"
-              @click="handleAddMethod"
-            >
-              + Lisää funktio...
-            </button>
-          </div>
         </div>
-
-        <div class="flex-grow-1 p-2 d-flex flex-column ms-2" style="min-height: 0;">
-          <div v-if="selectedMethodIndex === -1" class="text-muted fst-italic mt-3">
+        <div class="flex-grow-1 p-2 d-flex flex-column ms-2" style="min-height: 0; overflow-y: auto;">
+          <div v-if="!currentMethod" class="text-muted fst-italic mt-3">
             Select a method on the left to edit its body.
           </div>
           <template v-else>
             <div class="d-flex justify-content-between mb-2">
               <div>
                 <h3>
-                  {{ selectedMethodName }}({{ selectedMethod?.doc.params.map((p) => p.name).join(", ") }})
+                  {{ currentMethod?.name }}({{ currentMethod?.doc.params.map((p) => p.name).join(", ") }})
                   <small class="text-muted">
-                    in {{ `${selectedMethod?.owner.kind} ${selectedMethod?.owner.name}` }}
+                    in {{ `${currentMethod?.owner.kind} ${currentMethod?.owner.name}` }}
                   </small>
                 </h3>
-                <template v-if="selectedMethod">
-                  <p v-if="selectedMethod.doc.description">{{ selectedMethod.doc.description }}</p>
-                  <ul v-if="selectedMethod.doc.params.length">
-                    <li v-for="param in selectedMethod.doc.params" :key="param.name">
+                <template v-if="currentMethod">
+                  <p v-if="currentMethod.doc.description">{{ currentMethod.doc.description }}</p>
+                  <ul v-if="currentMethod.doc.params.length">
+                    <li v-for="param in currentMethod.doc.params" :key="param.name">
                       {{ param.name }}: {{ param.description }}
                     </li>
                   </ul>
-                  <p v-if="selectedMethod.doc.returns">Returns: {{ selectedMethod.doc.returns }}</p>
+                  <p v-if="currentMethod.doc.returns">Returns: {{ currentMethod.doc.returns }}</p>
                 </template>
               </div>
               <div>
                 <button
                   class="btn btn-outline-success btn-sm"
                   type="button"
-                  :disabled="props.readOnly || !selectedMethod?.editable"
+                  :disabled="props.readOnly || !currentMethod?.editable"
                   @click="saveMethod"
                 >
                   TODO: Save Changes
@@ -406,7 +293,7 @@ function getIndentAtIndex(source: string, index: number): string {
               </div>
             </div>
             <div class="text-muted small mt-2">
-              {{ selectedMethod?.editable ? "Only the function body is editable." : "Interface methods are read-only." }}
+              {{ currentMethod?.editable ? "Only the function body is editable." : "Interface methods are read-only." }}
             </div>
           </template>
         </div>
@@ -415,10 +302,10 @@ function getIndentAtIndex(source: string, index: number): string {
 
     <div v-if="activeTab === 'full-source-code'" class="h-100 border rounded" style="min-height: 0;">
       <MonacoEditor
-        :code="props.code"
+        :code="currentCode"
         lang="javascript"
         theme="vs-dark"
-        :read-only="true"
+        :read-only="props.readOnly"
         :options="{
           minimap: { enabled: false },
           tabSize: 2,

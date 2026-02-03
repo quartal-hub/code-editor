@@ -4,7 +4,16 @@ import vue from "@astrojs/vue";
 import path from "path";
 
 export default defineConfig({
-  integrations: [react(), vue()],
+  integrations: [
+    react(),
+    vue({
+      template: {
+        compilerOptions: {
+          isCustomElement: (tag) => tag.startsWith("qrtl-"),
+        },
+      },
+    }),
+  ],
   vite: {
     resolve: {
       alias: {

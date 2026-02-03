@@ -1,13 +1,14 @@
 import type { Monaco } from "@monaco-editor/react";
 import type { SandpackFile, SandpackFiles } from "@codesandbox/sandpack-react";
 import { SandpackMonacoPackages } from "./SandpackMonacoPackages";
+import { MonacoHelper } from "@quartal/code-editors-core";
 
 /**
  * Keeps Monaco models, TypeScript services, and package types in sync with Sandpack files.
  * Monaco is the editor for single files. Sandpack files cover the entire project being edited.
  * Also applies compiler options from tsconfig.json (or default values, if one does not exist) to the Monaco editor.
- * TODO: Separate the compiler options apply into a separate class.
- * Note that packages handling (package.json) is handled by a separate class.
+ * TODO: When creating this code (Vibe coding) there was an issue on refreshing of the services. 
+ *       As such there may be excess refreshes / syncs / timers: Try to remove them and see if the autocomplete still works.
  */
 export class SandpackMonacoSync {
   private readonly monaco: Monaco;
@@ -141,209 +142,19 @@ export class SandpackMonacoSync {
     return typeof file === "string" ? file : file.code;
   }
 
-  private resolveBaseUrl(baseUrl?: string): string | undefined {
-    if (!baseUrl) {
-      return undefined;
-    }
-
-    if (baseUrl.startsWith("/")) {
-      return baseUrl;
-    }
-
-    if (baseUrl.startsWith("./")) {
-      return `/${baseUrl.slice(2)}`;
-    }
-
-    return `/${baseUrl}`;
-  }
-
-  private getTsConfigCode(files: SandpackFiles): string | null {
+  private getTsConfigCode(files: SandpackFiles): string | undefined {
     const match = Object.entries(files).find(([filePath]) =>
       filePath.toLowerCase().endsWith("tsconfig.json")
     );
-
     if (!match) {
-      return null;
+      return undefined;
     }
-
     return this.getFileCode(match[1]);
-  }
-
-  private getModuleResolutionKind(value?: string): number | undefined {
-    if (!value) {
-      return undefined;
-    }
-
-    const normalized = value.toLowerCase();
-    if (
-      normalized === "nodenext" &&
-      "NodeNext" in this.monaco.languages.typescript.ModuleResolutionKind
-    ) {
-      return this.monaco.languages.typescript.ModuleResolutionKind.NodeNext;
-    }
-    if (
-      normalized === "node16" &&
-      "Node16" in this.monaco.languages.typescript.ModuleResolutionKind
-    ) {
-      return this.monaco.languages.typescript.ModuleResolutionKind.Node16;
-    }
-    if (normalized === "node") {
-      return this.monaco.languages.typescript.ModuleResolutionKind.NodeJs;
-    }
-
-    return undefined;
-  }
-
-  private getModuleKind(value?: string): number | undefined {
-    if (!value) {
-      return undefined;
-    }
-
-    const normalized = value.toLowerCase();
-    if (normalized === "esnext") {
-      return this.monaco.languages.typescript.ModuleKind.ESNext;
-    }
-    if (normalized === "es2022") {
-      return this.monaco.languages.typescript.ModuleKind.ES2022;
-    }
-    if (normalized === "es2020") {
-      return this.monaco.languages.typescript.ModuleKind.ES2020;
-    }
-    if (normalized === "commonjs") {
-      return this.monaco.languages.typescript.ModuleKind.CommonJS;
-    }
-
-    return undefined;
-  }
-
-  private getScriptTarget(value?: string): number | undefined {
-    if (!value) {
-      return undefined;
-    }
-
-    const normalized = value.toLowerCase();
-    if (normalized === "esnext") {
-      return this.monaco.languages.typescript.ScriptTarget.ESNext;
-    }
-    if (normalized === "es2022") {
-      return this.monaco.languages.typescript.ScriptTarget.ES2022;
-    }
-    if (normalized === "es2020") {
-      return this.monaco.languages.typescript.ScriptTarget.ES2020;
-    }
-    if (normalized === "es2019") {
-      return this.monaco.languages.typescript.ScriptTarget.ES2019;
-    }
-    if (normalized === "es2018") {
-      return this.monaco.languages.typescript.ScriptTarget.ES2018;
-    }
-    if (normalized === "es2017") {
-      return this.monaco.languages.typescript.ScriptTarget.ES2017;
-    }
-    if (normalized === "es2016") {
-      return this.monaco.languages.typescript.ScriptTarget.ES2016;
-    }
-    if (normalized === "es2015") {
-      return this.monaco.languages.typescript.ScriptTarget.ES2015;
-    }
-
-    return undefined;
-  }
-
-  private getJsxEmit(value?: string): number | undefined {
-    if (!value) {
-      return undefined;
-    }
-
-    const normalized = value.toLowerCase();
-    if (normalized === "react-jsx") {
-      return this.monaco.languages.typescript.JsxEmit.ReactJSX;
-    }
-    if (normalized === "react") {
-      return this.monaco.languages.typescript.JsxEmit.React;
-    }
-
-    return undefined;
-  }
-
-  private applyDefaultCompilerOptions(): void {
-    const moduleResolution =
-      "NodeNext" in this.monaco.languages.typescript.ModuleResolutionKind
-        ? this.monaco.languages.typescript.ModuleResolutionKind.NodeNext
-        : this.monaco.languages.typescript.ModuleResolutionKind.NodeJs;
-
-    const sharedOptions = {
-      moduleResolution,
-      module: this.monaco.languages.typescript.ModuleKind.ESNext,
-      target: this.monaco.languages.typescript.ScriptTarget.ESNext,
-      jsx: this.monaco.languages.typescript.JsxEmit.ReactJSX,
-      allowNonTsExtensions: true,
-      allowImportingTsExtensions: true,
-      resolveJsonModule: true,
-      baseUrl: "/",
-    };
-
-    this.monaco.languages.typescript.typescriptDefaults.setCompilerOptions(sharedOptions);
-    this.monaco.languages.typescript.javascriptDefaults.setCompilerOptions(sharedOptions);
   }
 
   private applyCompilerOptionsFromTsConfig(files: SandpackFiles): boolean {
     const tsConfigCode = this.getTsConfigCode(files);
-    if (!tsConfigCode) {
-      this.applyDefaultCompilerOptions();
-      return false;
-    }
-
-    try {
-      const parsed = JSON.parse(tsConfigCode) as {
-        compilerOptions?: {
-          target?: string;
-          module?: string;
-          moduleResolution?: string;
-          jsx?: string;
-          baseUrl?: string;
-          lib?: string[];
-          paths?: Record<string, string[]>;
-          allowNonTsExtensions?: boolean;
-          allowImportingTsExtensions?: boolean;
-          resolveJsonModule?: boolean;
-          isolatedModules?: boolean;
-          noEmit?: boolean;
-          types?: string[];
-        };
-      };
-
-      const compilerOptions = parsed.compilerOptions;
-      if (!compilerOptions) {
-        this.applyDefaultCompilerOptions();
-        return false;
-      }
-
-      const resolvedBaseUrl = this.resolveBaseUrl(compilerOptions.baseUrl);
-      const sharedOptions = {
-        moduleResolution: this.getModuleResolutionKind(compilerOptions.moduleResolution),
-        module: this.getModuleKind(compilerOptions.module),
-        target: this.getScriptTarget(compilerOptions.target),
-        jsx: this.getJsxEmit(compilerOptions.jsx),
-        allowNonTsExtensions: compilerOptions.allowNonTsExtensions,
-        allowImportingTsExtensions: compilerOptions.allowImportingTsExtensions,
-        resolveJsonModule: compilerOptions.resolveJsonModule,
-        isolatedModules: compilerOptions.isolatedModules,
-        noEmit: compilerOptions.noEmit,
-        baseUrl: resolvedBaseUrl,
-        paths: compilerOptions.paths,
-        lib: compilerOptions.lib,
-        types: compilerOptions.types,
-      };
-
-      this.monaco.languages.typescript.typescriptDefaults.setCompilerOptions(sharedOptions);
-      this.monaco.languages.typescript.javascriptDefaults.setCompilerOptions(sharedOptions);
-      return true;
-    } catch {
-      // Ignore invalid tsconfig content; Monaco will fall back to defaults.
-      this.applyDefaultCompilerOptions();
-      return false;
-    }
+    return MonacoHelper.applyCompilerOptions(this.monaco, tsConfigCode);
   }
 
   private refreshTypeScriptServices(files: SandpackFiles): void {
