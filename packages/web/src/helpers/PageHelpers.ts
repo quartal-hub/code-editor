@@ -69,20 +69,24 @@ export class PageHelpers {
     if (!url) {
       throw new Error('No URL provided');
     }
+    if (url.startsWith("/")) {
+      url = window.location.origin + url;
+    }
     if (!url.startsWith("http")) {
       throw new Error(`Invalid URL: ${url}. The URL must start with http or https because it is proxied through a CORS proxy.`);
     }
-    const proxiedUrl = `https://corsproxy.io/?url=${url}`;
-    const response = await fetch(proxiedUrl, {
-      redirect: "error",
-    });
-    if (response.headers.get("Content-Type")?.includes("text/html")) {
-      throw new Error(`Failed to fetch code from URL: ${url}. The URL is a HTML page, not a text file.`);
-    }
+
+    // HACK: Switch to our own proxy service => This will not work in production.
+
+    const response = await fetch(url);
     if (!response.ok) {
       throw new Error(`Failed to fetch code from URL: ${url}`);
     }
-    return await response.text();
+    const contents = await response.text();
+    if (!contents) {
+      throw new Error(`Failed to fetch code from URL: ${url}. The URL is a HTML page, not a text file.`);
+    }
+    return contents;
   }
 
   private static getDefaultMode(): QEditorProps["mode"] {

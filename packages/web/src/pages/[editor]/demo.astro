@@ -1,0 +1,28 @@
+---
+import type { EditorType } from "@quartal/code-editors-core";
+
+import TesterLayout from "@/layouts/TesterLayout.astro";
+import ExampleWrapper from "@/components/layout/ExampleWrapper.vue";
+import { editorInfo, editorList } from "@/data";
+
+export function getStaticPaths() {
+  return editorList.map((editor) => ({ params: { editor } }));
+}
+
+const { editor } = Astro.params;
+const normalizedEditor = editor?.toLowerCase();
+
+const editorConfig = normalizedEditor ? editorInfo[normalizedEditor as EditorType] : undefined;
+const title = editorConfig?.title ? `${editorConfig.title} demo` : "Editor demo";
+
+const editorType = normalizedEditor as EditorType | undefined;
+---
+
+<TesterLayout title={title}>
+  {editorType && (
+    <ExampleWrapper editor={editorType} client:only="vue" />
+  )}
+  {!editorType && (
+    <div class="alert alert-danger mx-auto w-50 mt-5">Editor "{editor}" not found</div>
+  )}
+</TesterLayout>

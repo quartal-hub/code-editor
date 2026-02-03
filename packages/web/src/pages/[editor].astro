@@ -1,0 +1,36 @@
+---
+import EditorLayout from "@/layouts/EditorLayout.astro";
+import ClassEditorPage from "@/components/pages/ClassEditorPage.vue";
+import ExpressionEditorPage from "@/components/pages/ExpressionEditorPage.vue";
+import FunctionEditorPage from "@/components/pages/FunctionEditorPage";
+import MonacoEditorPage from "@/components/pages/MonacoEditorPage.vue";
+import MonacoEditorReactPage from "@/components/pages/MonacoEditorReactPage";
+import ProjectEditorPage from "@/components/pages/ProjectEditorPage";
+import ExcalidrawEditorPage from "@/components/pages/ExcalidrawEditorPage";
+import { editorInfo, editorList } from "@/data";
+import type { EditorType } from "@quartal/code-editors-core";
+
+export function getStaticPaths() {
+  return editorList.map((editor) => ({ params: { editor } }));
+}
+
+const { editor } = Astro.params;
+const normalizedEditor = editor?.toLowerCase() as EditorType;
+
+const editorConfig = normalizedEditor ? editorInfo[normalizedEditor] : undefined;
+const title = editorConfig?.title ?? "Editor";
+const platform = editorConfig?.platform ?? "unknown";
+---
+
+<EditorLayout title={title}>
+  {normalizedEditor === "class" && <ClassEditorPage client:only="vue" />}
+  {normalizedEditor === "expression" && <ExpressionEditorPage client:only="vue" />}
+  {normalizedEditor === "monaco" && <MonacoEditorPage client:only="vue" />}
+  {normalizedEditor === "function" && <FunctionEditorPage client:only="react" />}
+  {normalizedEditor === "monaco-react" && <MonacoEditorReactPage client:only="react" />}
+  {normalizedEditor === "project" && <ProjectEditorPage client:only="react" />}
+  {normalizedEditor === "excalidraw" && <ExcalidrawEditorPage client:only="react" />}
+  {platform === "unknown" && (
+    <div class="alert alert-danger mx-auto w-50 mt-5">Unknown editor "{editor}"</div>
+  )}
+</EditorLayout>

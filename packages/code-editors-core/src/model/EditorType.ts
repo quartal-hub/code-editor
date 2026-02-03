@@ -1,0 +1,1 @@
+export type EditorType = "class" | "expression" | "function" | "monaco" | "monaco-react" | "project" | "excalidraw";
