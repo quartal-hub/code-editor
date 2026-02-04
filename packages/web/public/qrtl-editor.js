@@ -8,10 +8,34 @@ const typeToRoute = {
   project: "/project",
 };
 
+const defaultEditorBaseUrl = (() => {
+  try {
+    return new URL(".", import.meta.url).href.replace(/\/$/, "");
+  } catch (error) {
+    console.warn("Could not resolve editor base URL:", error);
+    return "";
+  }
+})();
+
+const getEditorBaseUrl = (element) => {
+  const override = element?.getAttribute?.("base-url");
+  if (override) {
+    return override.replace(/\/$/, "");
+  }
+  return defaultEditorBaseUrl;
+};
+
+const buildEditorUrl = (element, path) => {
+  const base = getEditorBaseUrl(element);
+  if (!base) {
+    return path;
+  }
+  return path.startsWith("/") ? `${base}${path}` : `${base}/${path}`;
+};
+
 export class QrtlEditorElement extends HTMLElement {
   iframe = null;
   dataValue = undefined;
-  onChangeHandler = undefined;
   lastBaseRoute = null;
   lastQuery = null;
   iframeLoaded = false;
@@ -37,13 +61,18 @@ export class QrtlEditorElement extends HTMLElement {
     if (!payload) {
       return;
     }
-    if (this.onChangeHandler) {
-      this.onChangeHandler(payload);
-    }
+
+    this.dispatchEvent(
+      new CustomEvent('change', {
+        detail: payload,
+        bubbles: true,
+        composed: true,
+      })
+    );
   };
 
   static get observedAttributes() {
-    return ["type", "view", "read-only", "code", "lang", "data"];
+    return ["type", "view", "read-only", "code", "lang", "data", "base-url"];
   }
 
   connectedCallback() {
@@ -192,14 +221,6 @@ export class QrtlEditorElement extends HTMLElement {
     this.updateIframeSrc();
   }
 
-  get onChange() {
-    return this.onChangeHandler;
-  }
-
-  set onChange(handler) {
-    this.onChangeHandler = handler;
-  }
-
   parseDataAttribute(value) {
     if (!value) {
       return undefined;
@@ -215,7 +236,7 @@ export class QrtlEditorElement extends HTMLElement {
 
   getBaseRoute() {
     const type = this.type ?? "monaco";
-    return typeToRoute[type] || "/monaco";
+    return buildEditorUrl(this, typeToRoute[type] || "/monaco");
   }
 
   handleIframeLoad = () => {
@@ -321,7 +342,7 @@ export class QEditorCodeElement extends HTMLElement {
   lastSrc = null;
 
   static get observedAttributes() {
-    return ["type", "view", "code", "lang", "editable"];
+    return ["type", "view", "code", "lang", "editable", "base-url"];
   }
 
   connectedCallback() {
@@ -410,7 +431,7 @@ export class QEditorCodeElement extends HTMLElement {
 
   getBaseRoute() {
     const type = this.type ?? "monaco";
-    return `${typeToRoute[type] || "/monaco"}/code`;
+    return buildEditorUrl(this, `${typeToRoute[type] || "/monaco"}/code`);
   }
 
   buildHash() {
@@ -451,7 +472,7 @@ export class QEditorUrlElement extends HTMLElement {
   lastSrc = null;
 
   static get observedAttributes() {
-    return ["type", "view", "url", "lang", "editable"];
+    return ["type", "view", "url", "lang", "editable", "base-url"];
   }
 
   connectedCallback() {
@@ -540,7 +561,7 @@ export class QEditorUrlElement extends HTMLElement {
 
   getBaseRoute() {
     const type = this.type ?? "monaco";
-    return `${typeToRoute[type] || "/monaco"}/fetch`;
+    return buildEditorUrl(this, `${typeToRoute[type] || "/monaco"}/fetch`);
   }
 
   buildHash() {
@@ -553,7 +574,7 @@ export class QEditorUrlElement extends HTMLElement {
   buildQuery() {
     const params = new URLSearchParams();
     if (this.view) params.set("view", this.view);
-    if (this.editable) params.set("readOnly", "false");
+    if (!this.editable) params.set("readOnly", "true");
     return params.toString();
   }
 

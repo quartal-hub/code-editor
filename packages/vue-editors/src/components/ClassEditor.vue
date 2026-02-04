@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref, shallowRef, watch } from "vue";
+import { computed, onBeforeUnmount, ref, shallowRef, watch, toRaw } from "vue";
 
 import { MonacoHelper, PackageCache } from "@quartal/code-editors-core";
 import type { QEditorChangeEventData, QEditorMountEventData } from "@quartal/code-editors-core";
@@ -147,6 +147,7 @@ function handleAddMethod(methodName: string): void {
 function handleEditorCodeChange(data: QEditorChangeEventData): void {
   const nextCode = data.code ?? "";
   setCurrentMethodBody(nextCode, true);
+  emit("on-change", { code: toRaw(currentCode.value) });
 }
 
 onBeforeUnmount(() => {

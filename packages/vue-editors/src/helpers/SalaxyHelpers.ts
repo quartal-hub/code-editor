@@ -30,6 +30,9 @@ export class SalaxyHelpers {
         declare var ctx: RowContext;
         /** The sxy helper functions. */
         declare var sxy: HelpersRoot;
+        
+        /** For the beforeCalc scripts. */
+        declare var rows: UserDefinedRow[];
       }
     `,
       },

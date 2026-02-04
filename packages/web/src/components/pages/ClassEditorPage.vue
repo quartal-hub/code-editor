@@ -31,7 +31,7 @@ const messageHandler = (event: MessageEvent): void => {
   if (event?.data?.type !== "set-data") {
     return;
   }
-  editorProps.value = event.data.data as QEditorProps;
+  editorProps.value = event.data as QEditorProps;
   updatedCode.value = editorProps.value?.code ?? "";
 };
 
