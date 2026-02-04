@@ -8,17 +8,17 @@ const currentPath = Astro.url.pathname;
 const sample1 =
       (`<div style="width: 100%; height: 150px;">
       <!-- Set the size of parent container. Editor takes 100% of height and width. -->
-      <qrtl-code-editor type="monaco" lang="javascript" code="console.log('Hello, world!');"></qrtl-code-editor>
+      <qrtl-editor type="monaco" lang="javascript" code="console.log('Hello, world!');"></qrtl-editor>
 </div>
 
 <!-- Load the component at the end of the page. -->
 <` +
-      `script type="module" src="https://code.quartal.com/qrtl-code-editor.js"></` +
+      `script type="module" src="https://code.quartal.com/qrtl-editor.js"></` +
       `script>`);
 
 ---
 
-<script type="module" src="/qrtl-code-editor.js"></script>
+<script type="module" src="/qrtl-editor.js"></script>
 <TesterLayout title="Quartal Hub, Code UI">
   <div class="container" style="max-height: calc(100vh - 220px); overflow-y: auto;">
     <p class="lead">
@@ -26,16 +26,6 @@ const sample1 =
       typically used as embedded in Quartal Hub user interfaces as well as
       external UIs that utilize Quartal Hub components.
     </p>
-    <div class="dropdown">
-      <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-        Dropdown button
-      </button>
-      <ul class="dropdown-menu">
-        <li><a class="dropdown-item" href="#">Action</a></li>
-        <li><a class="dropdown-item" href="#">Another action</a></li>
-        <li><a class="dropdown-item" href="#">Something else here</a></li>
-      </ul>
-    </div>
     <div class="row">
       <div class="col-3">
         <LeftNavi navItems={navItems} currentPath={currentPath} />
@@ -44,7 +34,7 @@ const sample1 =
         <h1>Usage</h1>
         <p class="lead">
           All the code editors are available through <strong
-            ><code>qrtl-code-editor</code></strong
+            ><code>qrtl-editor</code></strong
           > component. The component is a <a
             href="https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/is"
             target="_blank">custom element</a
@@ -52,14 +42,14 @@ const sample1 =
           As such it can be used in any HTML page and in any framework.
         </p>
         <div style="width: 100%; height: 150px;">
-          <qrtl-code-editor type="monaco" id="previewEditor" lang="html" code={sample1}></qrtl-code-editor>
+          <qrtl-editor type="monaco" id="previewEditor" lang="html" code={sample1}></qrtl-editor>
         </div>
         ...renders as:
         <div style="width: 100%; height: 150px;">
-          <qrtl-code-editor
+          <qrtl-editor
             type="monaco"
             lang="javascript"
-            code="console.log('Hello, world!');"></qrtl-code-editor>
+            code="console.log('Hello, world!');"></qrtl-editor>
         </div>
         <h2 class="mt-3">Attributes</h2>
         <ul>
@@ -70,10 +60,6 @@ const sample1 =
               >function</code
             >, <code>class</code>, <code>project</code>, <code>excalidraw</code
             >.
-          </li>
-          <li>
-            <code>mode</code> - Communication mode. Can be <code>url</code>, <code>code</code>,
-            <code>events</code>, or <code>browser-files</code>.
           </li>
           <li>
             <code>view</code> - Optional view style for editors (for example, expression
@@ -102,9 +88,24 @@ const sample1 =
             <code>onChange</code> - Event that is triggered when the code changes.
           </li>
         </ul>
+        <h2 class="mt-3">URL based usage</h2>
+        <p class="lead">
+          There is a separate component <code>qrtl-editor-url</code> that can be used to load code from a URL.
+          This is useful for loading code from a remote source, such as a GitHub repository.
+        </p>
+        <p>The component has the following attributes:</p>
+        <ul>
+          <li><code>url</code> - URL of the code to show in the editor.</li>
+          <li><code>type</code> - Type of the editor to show. See above for possible values.</li>
+          <li><code>lang</code> - Optional possibility to force the language of the code to show in the editor.
+            Typically, the language is detected automatically from the URL.
+          </li>          
+          <li><code>view</code> - Optional view style for editors.</li>
+          <li><code>editable</code> - If present, editor is editable. Default is read-only.</li>
+        </ul>
         <h2 class="mt-3">Use directly as pages</h2>
         <p class="lead">
-          The <code>qrtl-code-editor</code> component is essentially just an iframe that loads the code editor.
+          The <code>qrtl-editor</code> component is essentially just an iframe that loads the code editor.
           As such, you can also access the editors directly as pages:
         </p>
         <ul>

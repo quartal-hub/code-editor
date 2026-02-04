@@ -73,24 +73,23 @@ function getCodeLink(code: string): string {
       <div class="col-9">
         <div v-if="current.props.url">
           <h3>URL link</h3>
-          <div>This is a simple url link and can be opened in a new window:</div>
+          <div>This is a simple url link and can be opened in a new window (or shown in an iframe):</div>
           <div class="text-truncate"><a :href="getUrlLink(current.props.url)" target="_blank">{{ getUrlLink(current.props.url) }}</a></div>
-          <div>
-            Shown using simple iframe:<br/>
-            <iframe :src="getUrlLink(current.props.url)" class="border w-100" style="height: 50vh;"></iframe>
+          <div class="border w-100" style="height: 50vh;">
+            <qrtl-editor-url v-bind="current.props" :editable="current.props.readOnly == false" />
           </div>
         </div>
         <div v-else-if="current.props.code">
           <h3>Code example</h3>
-          <div>This is a code example in hash and can be opened in a new window:</div>
+          <div>This is a code example in hash and can be opened in a new window (or shown in an iframe):</div>
           <div class="text-truncate"><code><a :href="getCodeLink(current.props.code)" target="_blank">{{ getCodeLink(current.props.code) }}</a></code></div>
-          <div>
-            Shown using simple iframe:<br/>
-            <iframe :src="getCodeLink(current.props.code)" class="border w-100" style="height: 50vh;"></iframe>
+          <div class="border w-100" style="height: 50vh;">
+            <qrtl-editor-code v-bind="current.props" :editable="current.props.readOnly === false" />
           </div>
         </div>
-        <qrtl-code-editor v-else style="display: block; width: 100%; height: 100%;"
-          v-bind="current.props"></qrtl-code-editor>
+        <div v-else style="display: block; width: 100%; height: 100%;">
+          <qrtl-editor v-bind="current.props"></qrtl-editor>
+        </div>
       </div>
     </div>
   </div>

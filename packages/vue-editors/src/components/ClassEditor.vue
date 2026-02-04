@@ -202,10 +202,9 @@ const functions = computed(() => SalaxyHelpers.getRowsInterface().map((item) => 
 
     <div v-if="activeTab === 'class-editor'" class="h-100 d-flex flex-column" style="min-height: 0;">
       <div v-if="errorMsg" class="alert alert-danger py-1 px-2 m-3" role="alert">{{ errorMsg }}</div>
-      <div class="form-group m-3">
-        <label for="functionName" class="form-label">Content: </label>
-        <input type="text" class="form-control" v-model="currentMethodBody" />
-      </div>
+      <div class="text-muted px-2 pb-0 pt-1" style="background-color: var(--bs-gray-200);">
+        <small>Try the following entry points:</small> <code>row</code><small> = Current row, </small><code>ctx</code><small> = Context (calc, employment, settings), </small><code>sxy</code><small> = Salaxy helpers.</small>
+      </div> 
       <div class="flex-grow-0 flex-shrink-0" style="height: 140px;">
         <ExpressionEditor
           :code="currentMethodBody"

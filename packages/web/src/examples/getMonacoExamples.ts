@@ -8,6 +8,7 @@ export function getMonacoExamples(): QEditorExample[] {
             props: {
                 type: "monaco",
                 mode: "code",
+                readOnly: false,
                 code: `function sayHello() {
     console.log('Hello, JavaScript at ' + new Date().toTimeString());
 }
@@ -22,6 +23,7 @@ sayHello();`,
             props: {
                 type: "monaco",
                 mode: "code",
+                readOnly: false,
                 code: `enum Greetings {
     Hello = "Hello world",
     GoodMorning = "Good morning"
@@ -46,6 +48,7 @@ sayHello(Greetings.GoodMorning, "Typescript");`,
             props: {
                 type: "monaco",
                 mode: "code",
+                readOnly: false,
                 code: "console.log('Hello, world!');",
             },
         },
@@ -66,12 +69,13 @@ sayHello(Greetings.GoodMorning, "Typescript");`,
             props: {
                 type: "monaco",
                 lang: "scss",
+                readOnly: false,
                 url: "https://cdn.salaxy.com/skins/sass/salaxy.scss",
             },
         },
         {
             title: "Salaxy CSS, from URL",
-            descr: "Salaxy CSS, from URL, pretty big file.",
+            descr: "Salaxy CSS, from URL, pretty big file (defaults to read-only).",
             props: {
                 type: "monaco",
                 lang: "css",

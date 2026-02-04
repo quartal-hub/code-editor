@@ -8,7 +8,7 @@ const typeToRoute = {
   project: "/project",
 };
 
-export class QEditorElement extends HTMLElement {
+export class QrtlEditorElement extends HTMLElement {
   iframe = null;
   dataValue = undefined;
   onChangeHandler = undefined;
@@ -29,9 +29,7 @@ export class QEditorElement extends HTMLElement {
       return;
     }
     if (raw.type === "editor-ready") {
-      if (this.mode === "events") {
-        this.sendSetData();
-      }
+      this.sendSetData();
       return;
     }
 
@@ -45,7 +43,7 @@ export class QEditorElement extends HTMLElement {
   };
 
   static get observedAttributes() {
-    return ["type", "mode", "view", "read-only", "code", "url", "lang", "data"];
+    return ["type", "view", "read-only", "code", "lang", "data"];
   }
 
   connectedCallback() {
@@ -85,8 +83,7 @@ export class QEditorElement extends HTMLElement {
       this.dataValue = this.parseDataAttribute(newValue);
     }
 
-    const shouldSendSetData =
-      (name === "code" || name === "data") && this.mode === "events" && this.iframeLoaded;
+    const shouldSendSetData = (name === "code" || name === "data") && this.iframeLoaded;
     if (shouldSendSetData) {
       this.pendingSetDataUpdate = true;
     } else {
@@ -130,18 +127,6 @@ export class QEditorElement extends HTMLElement {
     }
   }
 
-  get mode() {
-    return this.getAttribute("mode") ?? undefined;
-  }
-
-  set mode(value) {
-    if (value) {
-      this.setAttribute("mode", value);
-    } else {
-      this.removeAttribute("mode");
-    }
-  }
-
   get view() {
     return this.getAttribute("view") ?? undefined;
   }
@@ -175,18 +160,6 @@ export class QEditorElement extends HTMLElement {
       this.setAttribute("code", value);
     } else {
       this.removeAttribute("code");
-    }
-  }
-
-  get url() {
-    return this.getAttribute("url") ?? undefined;
-  }
-
-  set url(value) {
-    if (value) {
-      this.setAttribute("url", value);
-    } else {
-      this.removeAttribute("url");
     }
   }
 
@@ -227,25 +200,6 @@ export class QEditorElement extends HTMLElement {
     this.onChangeHandler = handler;
   }
 
-  /**
-   * Sets the known custom properties of the QEditorElement: type, mode, url, code, lang, data.
-   * Especially useful in updating the editor from test data.
-   */
-  applyProps(props) {
-    if (!props) {
-      return;
-    }
-
-    this.type = props.type;
-    this.mode = props.mode || undefined;
-    this.view = props.view || undefined;
-    this.readOnly = Boolean(props.readOnly);
-    this.url = props.url;
-    this.code = props.code;
-    this.lang = props.lang || "";
-    this.data = props.data;
-  }
-
   parseDataAttribute(value) {
     if (!value) {
       return undefined;
@@ -254,7 +208,7 @@ export class QEditorElement extends HTMLElement {
     try {
       return JSON.parse(value);
     } catch (error) {
-      console.warn("Invalid QEditor data attribute JSON:", error);
+      console.warn("Invalid QrtlEditor data attribute JSON:", error);
       return undefined;
     }
   }
@@ -266,9 +220,7 @@ export class QEditorElement extends HTMLElement {
 
   handleIframeLoad = () => {
     this.iframeLoaded = true;
-    if (this.mode === "events") {
-      this.sendSetData();
-    }
+    this.sendSetData();
   };
 
   normalizeChangeEvent(raw) {
@@ -305,27 +257,14 @@ export class QEditorElement extends HTMLElement {
     const hashParams = new URLSearchParams();
     const data = this.data;
     const base64Data = data ? btoa(JSON.stringify(data || {})) : "";
-    const mode = this.mode;
 
-    if (mode === "events" || mode === "browser-files") {
-      return "";
-    }
-
-    const includeCode = !mode || mode === "code";
-    const includeUrl = !mode || mode === "url";
-    const includeData = !mode || mode === "code";
-
-    if (includeCode && this.code) hashParams.set("code", this.code);
-    if (includeUrl && this.url) hashParams.set("url", this.url);
-    if ((includeCode || includeUrl) && this.lang) hashParams.set("lang", this.lang);
-    if (includeData && base64Data) hashParams.set("data", base64Data);
-
+    if (this.lang) hashParams.set("lang", this.lang);
+    if (base64Data) hashParams.set("data", base64Data);
     return hashParams.toString();
   }
 
   buildQuery() {
     const params = new URLSearchParams();
-    if (this.mode) params.set("mode", this.mode);
     if (this.view) params.set("view", this.view);
     if (this.readOnly) params.set("readOnly", "true");
     return params.toString();
@@ -377,11 +316,287 @@ export class QEditorElement extends HTMLElement {
   }
 }
 
-export const defineQEditorElement = (tagName = "qrtl-code-editor") => {
+export class QEditorCodeElement extends HTMLElement {
+  iframe = null;
+  lastSrc = null;
+
+  static get observedAttributes() {
+    return ["type", "view", "code", "lang", "editable"];
+  }
+
+  connectedCallback() {
+    if (!this.shadowRoot) {
+      this.attachShadow({ mode: "open" });
+    }
+
+    if (!this.iframe) {
+      this.iframe = document.createElement("iframe");
+      this.iframe.style.width = "100%";
+      this.iframe.style.height = "100%";
+      this.iframe.style.border = "none";
+      this.iframe.sandbox.add("allow-scripts", "allow-same-origin", "allow-forms", "allow-popups");
+      this.shadowRoot?.appendChild(this.iframe);
+    }
+
+    this.updateIframeSrc();
+  }
+
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (oldValue === newValue) {
+      return;
+    }
+    this.updateIframeSrc();
+  }
+
+  get type() {
+    return this.getAttribute("type") ?? undefined;
+  }
+
+  set type(value) {
+    if (value) {
+      this.setAttribute("type", value);
+    } else {
+      this.removeAttribute("type");
+    }
+  }
+
+  get view() {
+    return this.getAttribute("view") ?? undefined;
+  }
+
+  set view(value) {
+    if (value) {
+      this.setAttribute("view", value);
+    } else {
+      this.removeAttribute("view");
+    }
+  }
+
+  get code() {
+    return this.getAttribute("code") ?? undefined;
+  }
+
+  set code(value) {
+    if (value) {
+      this.setAttribute("code", value);
+    } else {
+      this.removeAttribute("code");
+    }
+  }
+
+  get lang() {
+    return this.getAttribute("lang") ?? "";
+  }
+
+  set lang(value) {
+    if (value) {
+      this.setAttribute("lang", value);
+    } else {
+      this.removeAttribute("lang");
+    }
+  }
+
+  get editable() {
+    return this.hasAttribute("editable");
+  }
+
+  set editable(value) {
+    if (value) {
+      this.setAttribute("editable", "");
+    } else {
+      this.removeAttribute("editable");
+    }
+  }
+
+  getBaseRoute() {
+    const type = this.type ?? "monaco";
+    return `${typeToRoute[type] || "/monaco"}/code`;
+  }
+
+  buildHash() {
+    const hashParams = new URLSearchParams();
+    if (this.code) hashParams.set("code", this.code);
+    if (this.lang) hashParams.set("lang", this.lang);
+    return hashParams.toString();
+  }
+
+  buildQuery() {
+    const params = new URLSearchParams();
+    if (this.view) params.set("view", this.view);
+    if (!this.editable) params.set("readOnly", "true");
+    return params.toString();
+  }
+
+  updateIframeSrc() {
+    if (!this.iframe) {
+      return;
+    }
+
+    const baseRoute = this.getBaseRoute();
+    const hash = this.buildHash();
+    const query = this.buildQuery();
+    const src = `${baseRoute}${query ? `?${query}` : ""}${hash ? `#${hash}` : ""}`;
+
+    this.iframe.title = `${this.type ?? "monaco"} Editor`;
+
+    if (this.lastSrc !== src) {
+      this.iframe.src = src;
+      this.lastSrc = src;
+    }
+  }
+}
+
+export class QEditorUrlElement extends HTMLElement {
+  iframe = null;
+  lastSrc = null;
+
+  static get observedAttributes() {
+    return ["type", "view", "url", "lang", "editable"];
+  }
+
+  connectedCallback() {
+    if (!this.shadowRoot) {
+      this.attachShadow({ mode: "open" });
+    }
+
+    if (!this.iframe) {
+      this.iframe = document.createElement("iframe");
+      this.iframe.style.width = "100%";
+      this.iframe.style.height = "100%";
+      this.iframe.style.border = "none";
+      this.iframe.sandbox.add("allow-scripts", "allow-same-origin", "allow-forms", "allow-popups");
+      this.shadowRoot?.appendChild(this.iframe);
+    }
+
+    this.updateIframeSrc();
+  }
+
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (oldValue === newValue) {
+      return;
+    }
+    this.updateIframeSrc();
+  }
+
+  get type() {
+    return this.getAttribute("type") ?? undefined;
+  }
+
+  set type(value) {
+    if (value) {
+      this.setAttribute("type", value);
+    } else {
+      this.removeAttribute("type");
+    }
+  }
+
+  get view() {
+    return this.getAttribute("view") ?? undefined;
+  }
+
+  set view(value) {
+    if (value) {
+      this.setAttribute("view", value);
+    } else {
+      this.removeAttribute("view");
+    }
+  }
+
+  get url() {
+    return this.getAttribute("url") ?? undefined;
+  }
+
+  set url(value) {
+    if (value) {
+      this.setAttribute("url", value);
+    } else {
+      this.removeAttribute("url");
+    }
+  }
+
+  get lang() {
+    return this.getAttribute("lang") ?? "";
+  }
+
+  set lang(value) {
+    if (value) {
+      this.setAttribute("lang", value);
+    } else {
+      this.removeAttribute("lang");
+    }
+  }
+
+  get editable() {
+    return this.hasAttribute("editable");
+  }
+
+  set editable(value) {
+    if (value) {
+      this.setAttribute("editable", "");
+    } else {
+      this.removeAttribute("editable");
+    }
+  }
+
+  getBaseRoute() {
+    const type = this.type ?? "monaco";
+    return `${typeToRoute[type] || "/monaco"}/fetch`;
+  }
+
+  buildHash() {
+    const hashParams = new URLSearchParams();
+    if (this.url) hashParams.set("url", this.url);
+    if (this.lang) hashParams.set("lang", this.lang);
+    return hashParams.toString();
+  }
+
+  buildQuery() {
+    const params = new URLSearchParams();
+    if (this.view) params.set("view", this.view);
+    if (this.editable) params.set("readOnly", "false");
+    return params.toString();
+  }
+
+  updateIframeSrc() {
+    if (!this.iframe) {
+      return;
+    }
+
+    const baseRoute = this.getBaseRoute();
+    const hash = this.buildHash();
+    const query = this.buildQuery();
+    const src = `${baseRoute}${query ? `?${query}` : ""}${hash ? `#${hash}` : ""}`;
+
+    this.iframe.title = `${this.type ?? "monaco"} Editor`;
+
+    if (this.lastSrc !== src) {
+      this.iframe.src = src;
+      this.lastSrc = src;
+    }
+  }
+}
+
+export const defineQrtlEditorElement = (tagName = "qrtl-editor") => {
   if (customElements.get(tagName)) {
     return;
   }
-  customElements.define(tagName, QEditorElement);
+  customElements.define(tagName, QrtlEditorElement);
 };
 
-defineQEditorElement();
+export const defineQEditorCodeElement = (tagName = "qrtl-editor-code") => {
+  if (customElements.get(tagName)) {
+    return;
+  }
+  customElements.define(tagName, QEditorCodeElement);
+};
+
+export const defineQEditorUrlElement = (tagName = "qrtl-editor-url") => {
+  if (customElements.get(tagName)) {
+    return;
+  }
+  customElements.define(tagName, QEditorUrlElement);
+};
+
+defineQrtlEditorElement();
+defineQEditorCodeElement();
+defineQEditorUrlElement();
