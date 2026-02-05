@@ -121,6 +121,35 @@ export class PageHelpers {
     }
   }
 
+  /**
+   * Sends a message to the parent iframe when a link is opened (only if in iframe).
+   * @param data The link and detail data to send.
+   */
+  public static sendOnLinkOpenMessage(data: { link?: string; detail?: { nativeEvent?: Record<string, unknown> } }): void {
+    if (PageHelpers.isInIframe()) {
+      window.parent.postMessage({ type: "on-link-open", ...data }, "*");
+    }
+  }
+
+  /**
+   * Extracts link-open details from a native event wrapper.
+   */
+  public static getLinkOpenDetail(event: unknown): { nativeEvent: { ctrlKey: boolean; metaKey: boolean; shiftKey: boolean; altKey: boolean; button: number } } | undefined {
+    const nativeEvent = (event as { detail?: { nativeEvent?: MouseEvent } })?.detail?.nativeEvent;
+    if (!nativeEvent) {
+      return undefined;
+    }
+    return {
+      nativeEvent: {
+        ctrlKey: nativeEvent.ctrlKey,
+        metaKey: nativeEvent.metaKey,
+        shiftKey: nativeEvent.shiftKey,
+        altKey: nativeEvent.altKey,
+        button: nativeEvent.button,
+      },
+    };
+  }
+
   /** Checks if the current page is in an iframe. */
   public static isInIframe(): boolean {
     try {

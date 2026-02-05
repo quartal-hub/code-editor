@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { JSX } from "react";
 import { ExcalidrawEditor } from "react-editors";
 import type { ExcalidrawSceneData } from "react-editors";
@@ -69,12 +69,23 @@ function ExcalidrawEditorPage(): JSX.Element {
     PageHelpers.sendOnChangeMessage({ data: nextScene });
   };
 
+  const handleLinkOpen = useCallback((element: { link?: string }, event: unknown) => {
+    const link = typeof element?.link === "string" ? element.link : undefined;
+    const detail = PageHelpers.getLinkOpenDetail(event);
+    PageHelpers.sendOnLinkOpenMessage({ link, detail });
+  }, []);
+
   useEffect(() => {
     PageHelpers.sendIframeReadyMessage();
   }, []);
 
   return (
-    <ExcalidrawEditor codeModel={scene ?? undefined} readOnly={isReadOnly} onChange={handleCodeChange} />
+    <ExcalidrawEditor
+      codeModel={scene ?? undefined}
+      readOnly={isReadOnly}
+      onChange={handleCodeChange}
+      onLinkOpen={handleLinkOpen}
+    />
   );
 }
 

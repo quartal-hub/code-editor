@@ -151,6 +151,12 @@ function CodeWrapperReact({ editor }: CodeWrapperReactProps): JSX.Element {
     [scheduleHashUpdate]
   );
 
+  const handleExcalidrawLinkOpen = useCallback((element: { link?: string }, event: unknown) => {
+    const link = typeof element?.link === "string" ? element.link : undefined;
+    const detail = PageHelpers.getLinkOpenDetail(event);
+    PageHelpers.sendOnLinkOpenMessage({ link, detail });
+  }, []);
+
   const hasProject = useMemo(() => Boolean(project), [project]);
   const hasScene = useMemo(() => Boolean(scene), [scene]);
 
@@ -167,7 +173,12 @@ function CodeWrapperReact({ editor }: CodeWrapperReactProps): JSX.Element {
 
   if (editor === "excalidraw") {
     return hasScene ? (
-      <ExcalidrawEditor codeModel={scene ?? undefined} readOnly={readOnly} onChange={handleExcalidrawChange} />
+      <ExcalidrawEditor
+        codeModel={scene ?? undefined}
+        readOnly={readOnly}
+        onChange={handleExcalidrawChange}
+        onLinkOpen={handleExcalidrawLinkOpen}
+      />
     ) : (
       <div className="alert alert-secondary m-auto mt-5" style={{ width: "fit-content" }}>
         <h2>Waiting for scene data</h2>

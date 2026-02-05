@@ -33,6 +33,26 @@ const buildEditorUrl = (element, path) => {
   return path.startsWith("/") ? `${base}${path}` : `${base}/${path}`;
 };
 
+const normalizeLinkOpenEvent = (raw) => {
+  if (!raw || typeof raw !== "object") {
+    return null;
+  }
+  const record = raw;
+  const candidate = (record.type && typeof record.type === "string")
+    ? record
+    : (record.data && typeof record.data === "object" && record.data.type)
+      ? record.data
+      : record;
+  if (candidate.type !== "on-link-open") {
+    return null;
+  }
+  const hasPayload = "link" in candidate || "detail" in candidate;
+  if (!hasPayload) {
+    return null;
+  }
+  return candidate;
+};
+
 export class QrtlEditorElement extends HTMLElement {
   iframe = null;
   dataValue = undefined;
@@ -54,6 +74,18 @@ export class QrtlEditorElement extends HTMLElement {
     }
     if (raw.type === "editor-ready") {
       this.sendSetData();
+      return;
+    }
+
+    const linkPayload = normalizeLinkOpenEvent(raw);
+    if (linkPayload) {
+      this.dispatchEvent(
+        new CustomEvent('link-open', {
+          detail: linkPayload,
+          bubbles: true,
+          composed: true,
+        })
+      );
       return;
     }
 
@@ -340,6 +372,22 @@ export class QrtlEditorElement extends HTMLElement {
 export class QEditorCodeElement extends HTMLElement {
   iframe = null;
   lastSrc = null;
+  messageHandler = (event) => {
+    if (this.iframe?.contentWindow !== event.source) {
+      return;
+    }
+    const payload = normalizeLinkOpenEvent(event.data);
+    if (!payload) {
+      return;
+    }
+    this.dispatchEvent(
+      new CustomEvent('link-open', {
+        detail: payload,
+        bubbles: true,
+        composed: true,
+      })
+    );
+  };
 
   static get observedAttributes() {
     return ["type", "view", "code", "lang", "editable", "base-url"];
@@ -359,7 +407,12 @@ export class QEditorCodeElement extends HTMLElement {
       this.shadowRoot?.appendChild(this.iframe);
     }
 
+    window.addEventListener("message", this.messageHandler);
     this.updateIframeSrc();
+  }
+
+  disconnectedCallback() {
+    window.removeEventListener("message", this.messageHandler);
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
@@ -470,6 +523,22 @@ export class QEditorCodeElement extends HTMLElement {
 export class QEditorUrlElement extends HTMLElement {
   iframe = null;
   lastSrc = null;
+  messageHandler = (event) => {
+    if (this.iframe?.contentWindow !== event.source) {
+      return;
+    }
+    const payload = normalizeLinkOpenEvent(event.data);
+    if (!payload) {
+      return;
+    }
+    this.dispatchEvent(
+      new CustomEvent('link-open', {
+        detail: payload,
+        bubbles: true,
+        composed: true,
+      })
+    );
+  };
 
   static get observedAttributes() {
     return ["type", "view", "url", "lang", "editable", "base-url"];
@@ -489,7 +558,12 @@ export class QEditorUrlElement extends HTMLElement {
       this.shadowRoot?.appendChild(this.iframe);
     }
 
+    window.addEventListener("message", this.messageHandler);
     this.updateIframeSrc();
+  }
+
+  disconnectedCallback() {
+    window.removeEventListener("message", this.messageHandler);
   }
 
   attributeChangedCallback(name, oldValue, newValue) {

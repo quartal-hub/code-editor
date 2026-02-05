@@ -16,6 +16,17 @@ export type ExcalidrawElement = {
   [key: string]: unknown;
 };
 
+type ExcalidrawLinkElement = ExcalidrawElement & {
+  link?: string;
+};
+
+type ExcalidrawLinkOpenEvent = {
+  detail: {
+    nativeEvent: MouseEvent;
+  };
+  preventDefault: () => void;
+};
+
 export type ExcalidrawSceneData = {
   elements?: readonly ExcalidrawElement[];
   appState?: Partial<ExcalidrawAppState>;
@@ -33,6 +44,7 @@ type ExcalidrawProps = {
   initialData?: ExcalidrawSceneData | null;
   excalidrawAPI?: (api: ExcalidrawImperativeAPI | null) => void;
   onChange?: (elements: readonly ExcalidrawElement[], appState: ExcalidrawAppState, files: ExcalidrawFiles) => void;
+  onLinkOpen?: (element: ExcalidrawLinkElement, event: ExcalidrawLinkOpenEvent) => void;
   onPointerUpdate?: (payload: { x: number; y: number }, button: "down" | "up", pointersMap: unknown) => void;
   viewModeEnabled?: boolean;
   zenModeEnabled?: boolean;
@@ -65,6 +77,8 @@ export interface ExcalidrawEditorProps {
   }) => void;
   /** Ref to expose the Excalidraw API. */
   editorRef?: MutableRefObject<ExcalidrawImperativeAPI | null>;
+  /** Callback when a link element is opened. */
+  onLinkOpen?: (element: ExcalidrawLinkElement, event: ExcalidrawLinkOpenEvent) => void;
   /** Callback when Excalidraw API is mounted. */
   onEditorMount?: (data: QEditorMountEventData) => void;
 }
@@ -116,6 +130,7 @@ function ExcalidrawEditor({
   options,
   onChange,
   onClick,
+  onLinkOpen,
   editorRef: externalEditorRef,
   onEditorMount,
 }: ExcalidrawEditorProps): JSX.Element {
@@ -216,6 +231,18 @@ function ExcalidrawEditor({
   const excalidrawOptions = (options ?? {}) as Partial<ExcalidrawProps>;
   const viewModeEnabled = readOnly || Boolean(excalidrawOptions.viewModeEnabled);
   const zenModeEnabled = readOnly || Boolean(excalidrawOptions.zenModeEnabled);
+  const handleLinkOpen = useCallback<NonNullable<ExcalidrawProps["onLinkOpen"]>>(
+    (element, event) => {
+      if (event?.preventDefault) {
+        event.preventDefault();
+      }
+      const handler = onLinkOpen ?? excalidrawOptions.onLinkOpen;
+      if (handler) {
+        handler(element, event);
+      }
+    },
+    [onLinkOpen, excalidrawOptions.onLinkOpen]
+  );
 
   // Add custom styles to hide Excalidraw UI elements (hamburger menu, controls, icons)
   const excalidrawStyle = `
@@ -255,6 +282,7 @@ function ExcalidrawEditor({
         initialData={sceneFromProps ?? undefined}
         excalidrawAPI={handleApi}
         onChange={handleChange}
+        onLinkOpen={handleLinkOpen}
         onPointerUpdate={handlePointerUpdate}
         viewModeEnabled={viewModeEnabled}
         zenModeEnabled={zenModeEnabled}
