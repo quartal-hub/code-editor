@@ -12,7 +12,7 @@ export function getExpressionExamples(): QEditorExample[] {
         },
         {
             title: "Read only",
-            descr: "Read only mode",
+            descr: "Read only, no edits allowed.",
             props: {
                 type: "expression",
                 code: "1 + 2",
@@ -20,8 +20,8 @@ export function getExpressionExamples(): QEditorExample[] {
             },
         },
         {
-            title: "Plain mode",
-            descr: "Plain mode is just the Monaco editor part without the Excel-like UI",
+            title: "Plain view",
+            descr: "Plain view is just the Monaco editor part without the Excel-like UI",
             props: {
                 type: "expression",
                 code: "1 + 2",

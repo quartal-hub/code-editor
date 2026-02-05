@@ -10,12 +10,10 @@ export function getStaticPaths() {
 }
 
 const { editor } = Astro.params;
-const normalizedEditor = editor?.toLowerCase();
-
-const editorConfig = normalizedEditor ? editorInfo[normalizedEditor as EditorType] : undefined;
+const editorConfig = editorInfo[editor as EditorType];
 const title = editorConfig?.title ? `${editorConfig.title} demo` : "Editor demo";
 
-const editorType = normalizedEditor as EditorType | undefined;
+const editorType = editor as EditorType;
 ---
 
 <TesterLayout title={title}>

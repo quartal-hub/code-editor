@@ -3,11 +3,12 @@ import type { JSX } from "react";
 import { MonacoEditor, useMonacoSetup } from "react-editors";
 import type { QEditorChangeEventData, QEditorMountEventData } from "@quartal/code-editors-core";
 import { useQEditorPropsFromQuery } from "@/hooks";
+import { PageHelpers } from "@/helpers";
 
 /** Bridges the data flow from the parent window to the Monaco editor (react version) and back. */
 function MonacoEditorReactPage(): JSX.Element {
   const { initialize, setCompilerOptions, setLibraries } = useMonacoSetup();
-  const { code: hashCode, lang, mode, readOnly, updateHash } = useQEditorPropsFromQuery("monaco");
+  const { code: hashCode, lang, readOnly } = useQEditorPropsFromQuery("monaco");
   const [isReadOnly, setIsReadOnly] = useState<boolean>(Boolean(readOnly));
   const [code, setCode] = useState<string>(hashCode ?? "");
 
@@ -29,7 +30,12 @@ function MonacoEditorReactPage(): JSX.Element {
 
   // Listen for messages from parent (for external code updates)
   useEffect(() => {
-    const handleMessage = (event: MessageEvent) => {
+
+    if (!PageHelpers.isInIframe()) {
+      return;
+    }
+
+    const handleMessageFromParent = (event: MessageEvent) => {
       if (event?.data?.type !== "set-data") {
         return;
       }
@@ -43,9 +49,9 @@ function MonacoEditorReactPage(): JSX.Element {
       // For now, just update the code
     };
 
-    window.addEventListener("message", handleMessage);
+    PageHelpers.addParentListener(handleMessageFromParent);
     return () => {
-      window.removeEventListener("message", handleMessage);
+      PageHelpers.removeParentListener(handleMessageFromParent);
     };
   }, []);
 
@@ -53,33 +59,12 @@ function MonacoEditorReactPage(): JSX.Element {
   const handleCodeChange = (data: QEditorChangeEventData) => {
     const nextCode = data.code ?? "";
     setCode(nextCode);
-    if (mode === "code") {
-      updateHash(nextCode);
-    }
-
-    // Send to parent window (for QEditor's onChange callback)
-    if (window.self !== window.top && !isReadOnly) {
-      try {
-        window.parent.postMessage(
-          {
-            type: "on-change",
-            code: data.code,
-            cursorPosition: data.cursorPosition,
-          },
-          "*"
-        );
-      } catch (error) {
-        console.warn("Could not send code update to parent window:", error);
-      }
-    }
+    PageHelpers.sendOnChangeMessage(data);
   };
 
-  // Send ready message to parent
   useEffect(() => {
-    if (window.self !== window.top && mode === "events") {
-      window.parent.postMessage({ type: "editor-ready" }, "*");
-    }
-  }, [mode]);
+    PageHelpers.sendIframeReadyMessage();
+  }, []);
 
   return (
     <MonacoEditor

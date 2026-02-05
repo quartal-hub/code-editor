@@ -1,4 +1,4 @@
-import type { QEditorProps } from "@quartal/code-editors-core";
+import type { QEditorChangeEventData, QEditorProps } from "@quartal/code-editors-core";
 
 /** Miscellaneous helpers for rendering the pages based on the components. */
 export class PageHelpers {
@@ -41,15 +41,14 @@ export class PageHelpers {
   }
 
   /**
-   * Parses query parameters for non-hash values (mode/view/readOnly).
+   * Parses query parameters for non-hash values (view/readOnly).
    */
-  public static getQueryProps(): Pick<QEditorProps, "mode" | "view" | "readOnly"> {
+  public static getQueryProps(): Pick<QEditorProps, "view" | "readOnly"> {
     const params = new URLSearchParams(window.location.search);
-    const mode = params.get("mode") ?? undefined;
     const view = params.get("view") ?? undefined;
     const readOnlyParam = (params.get("readOnly") ?? params.get("read-only") ?? "").toLowerCase().trim();
     const readOnly = readOnlyParam === "" ? undefined : (readOnlyParam === "true" || readOnlyParam === "1");
-    return { mode: mode as QEditorProps["mode"], view, readOnly };
+    return { view, readOnly };
   }
 
   /**
@@ -58,11 +57,9 @@ export class PageHelpers {
   public static getPropsFromLocation(type: QEditorProps["type"]): QEditorProps {
     const hashProps = PageHelpers.getPropsFromHash(type);
     const queryProps = PageHelpers.getQueryProps();
-    const mode = queryProps.mode ?? PageHelpers.getDefaultMode();
     return {
       ...hashProps,
       ...queryProps,
-      mode,
       type,
     };
   }
@@ -101,18 +98,64 @@ export class PageHelpers {
     return contents;
   }
 
-  private static getDefaultMode(): QEditorProps["mode"] {
+  /**
+   * Sends a message to the parent iframe that the editor is ready (only if in iframe).
+   */
+  public static sendIframeReadyMessage(): void {
     if (PageHelpers.isInIframe()) {
-      return "events";
+      window.parent.postMessage({ type: "editor-ready" }, "*");
     }
-    return "browser-files";
   }
 
-  private static isInIframe(): boolean {
+  /**
+   * Sends a message to the parent iframe that the code has changed (only if in iframe).
+   * @param data The data to send.
+   */
+  public static sendOnChangeMessage(data: Partial<QEditorChangeEventData>): void {
+    if (PageHelpers.isInIframe()) {
+      const message: QEditorChangeEventData = {
+        ...data,
+        type: "on-change",
+      };
+      window.parent.postMessage(message, "*");
+    }
+  }
+
+  /** Checks if the current page is in an iframe. */
+  public static isInIframe(): boolean {
     try {
       return window.self !== window.top;
     } catch {
-      return true;
+      return false;
     }
   }
+
+  /** Adds a listener to the message event (only if in iframe). */
+  public static addParentListener(callback: (event: MessageEvent) => void): void {
+    if (PageHelpers.isInIframe()) {
+      window.addEventListener("message", callback);
+    }
+  }
+
+  /** Removes a listener from the message event (only if in iframe). */
+  public static removeParentListener(callback: (event: MessageEvent) => void): void {
+    if (PageHelpers.isInIframe()) {
+      window.removeEventListener("message", callback);
+    }
+  }
+
+  /** Adds a listener to the hash change event (also listens to popstate for browser back/forward). */
+  public static addHashChangeListener(callback: () => void): void {
+    // Primary event for hash changes
+    window.addEventListener("hashchange", callback);
+    // Also listen to popstate for browser back/forward
+    window.addEventListener("popstate", callback);
+  }
+
+  /** Removes a listener from the hash change event / popstate event. */
+  public static removeHashChangeListener(callback: () => void): void {
+    window.removeEventListener("hashchange", callback);
+    window.removeEventListener("popstate", callback);
+  }
+
 }

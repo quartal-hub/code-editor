@@ -4,6 +4,7 @@ import { ExcalidrawEditor } from "react-editors";
 import type { ExcalidrawSceneData } from "react-editors";
 import type { QEditorChangeEventData } from "@quartal/code-editors-core";
 import { useQEditorPropsFromQuery } from "@/hooks";
+import { PageHelpers } from "@/helpers";
 
 function parseScene(value?: string | null): ExcalidrawSceneData | null {
   if (!value) {
@@ -25,13 +26,13 @@ function normalizeScene(value: unknown): ExcalidrawSceneData | null {
 
 /** Bridges the data flow from the parent window to the Excalidraw editor (react version) and back. */
 function ExcalidrawEditorPage(): JSX.Element {
-  const { code: hashCode, mode, readOnly, data, updateHash } = useQEditorPropsFromQuery("excalidraw");
+  const { code: hashCode, readOnly, data } = useQEditorPropsFromQuery("excalidraw");
   const [isReadOnly, setIsReadOnly] = useState<boolean>(Boolean(readOnly));
   const [scene, setScene] = useState<ExcalidrawSceneData | null>(() => normalizeScene(data) ?? parseScene(hashCode));
 
   useEffect(() => {
     setIsReadOnly(Boolean(readOnly));
-  }, [mode, readOnly]);
+  }, [readOnly]);
 
   useEffect(() => {
     const fromData = normalizeScene(data);
@@ -39,7 +40,7 @@ function ExcalidrawEditorPage(): JSX.Element {
   }, [data, hashCode]);
 
   useEffect(() => {
-    const handleMessage = (event: MessageEvent) => {
+    const handleMessageFromParent = (event: MessageEvent) => {
       if (event?.data?.type !== "set-data") {
         return;
       }
@@ -53,9 +54,9 @@ function ExcalidrawEditorPage(): JSX.Element {
       }
     };
 
-    window.addEventListener("message", handleMessage);
+    PageHelpers.addParentListener(handleMessageFromParent);
     return () => {
-      window.removeEventListener("message", handleMessage);
+      PageHelpers.removeParentListener(handleMessageFromParent);
     };
   }, []);
 
@@ -65,30 +66,12 @@ function ExcalidrawEditorPage(): JSX.Element {
       return;
     }
     setScene(nextScene);
-    if (mode === "code") {
-      updateHash(JSON.stringify(nextScene));
-    }
-
-    if (window.self !== window.top && !isReadOnly) {
-      try {
-        window.parent.postMessage(
-          {
-            type: "on-change",
-            data: nextScene,
-          },
-          "*"
-        );
-      } catch (error) {
-        console.warn("Could not send Excalidraw update to parent window:", error);
-      }
-    }
+    PageHelpers.sendOnChangeMessage({ data: nextScene });
   };
 
   useEffect(() => {
-    if (window.self !== window.top && mode === "events") {
-      window.parent.postMessage({ type: "editor-ready" }, "*");
-    }
-  }, [mode]);
+    PageHelpers.sendIframeReadyMessage();
+  }, []);
 
   return (
     <ExcalidrawEditor codeModel={scene ?? undefined} readOnly={isReadOnly} onChange={handleCodeChange} />

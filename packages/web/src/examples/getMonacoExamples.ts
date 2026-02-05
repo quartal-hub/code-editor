@@ -5,9 +5,9 @@ export function getMonacoExamples(): QEditorExample[] {
         {
             title: "Hello World, JavaScript",
             descr: "Simple Hello World in JavaScript, language specified explicitly.",
+            mode: "event",
             props: {
                 type: "monaco",
-                mode: "code",
                 readOnly: false,
                 code: `function sayHello() {
     console.log('Hello, JavaScript at ' + new Date().toTimeString());
@@ -20,9 +20,9 @@ sayHello();`,
         {
             title: "Hello World, TypeScript",
             descr: "Simple Hello World in TypeScript, language specified explicitly.",
+            mode: "event",
             props: {
                 type: "monaco",
-                mode: "code",
                 readOnly: false,
                 code: `enum Greetings {
     Hello = "Hello world",
@@ -45,19 +45,19 @@ sayHello(Greetings.GoodMorning, "Typescript");`,
         {
             title: "Hello World, no language",
             descr: "Simple Hello World in JavaScript, no language specified.",
+            mode: "event",
             props: {
                 type: "monaco",
-                mode: "code",
                 readOnly: false,
                 code: "console.log('Hello, world!');",
             },
         },
         {
             title: "Read Only",
-            descr: "Simple Hello World in JavaScript, read only mode.",
+            descr: "Simple Hello World in JavaScript, read only.",
+            mode: "event",
             props: {
                 type: "monaco",
-                mode: "code",
                 code: "console.log('Hello, world!');",
                 lang: "javascript",
                 readOnly: true,
@@ -65,7 +65,7 @@ sayHello(Greetings.GoodMorning, "Typescript");`,
         }, 
         {
             title: "Salaxy SCSS, from URL",
-            descr: "A small SASS-file from CDN (salaxy.scss).",
+            descr: "A small SASS-file from CDN (salaxy.scss).", 
             props: {
                 type: "monaco",
                 lang: "scss",

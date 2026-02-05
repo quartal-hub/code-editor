@@ -312,7 +312,6 @@ export class QrtlEditorElement extends HTMLElement {
     const hash = this.buildHash();
     const query = this.buildQuery();
     const src = `${baseRoute}${query ? `?${query}` : ""}${hash ? `#${hash}` : ""}`;
-    console.log("Updating iframe src to:", src);
 
     this.iframe.title = `${this.type ?? "monaco"} Editor`;
 
@@ -331,7 +330,8 @@ export class QrtlEditorElement extends HTMLElement {
     try {
       this.iframe.contentWindow.location.hash = hash ? `#${hash}` : "";
     } catch (error) {
-      console.warn("Could not update iframe hash directly:", error);
+      // Go through => Is this really needed.
+      console.warn("TODO: Could not update iframe hash directly:", error);
       this.iframe.src = src;
     }
   }

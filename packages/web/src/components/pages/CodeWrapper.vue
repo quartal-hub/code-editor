@@ -62,14 +62,12 @@ const expressionView = computed<"plain" | "excel">(() =>
 
 onMounted(() => {
   readPropsFromLocation();
-  window.addEventListener("hashchange", readPropsFromLocation);
-  window.addEventListener("popstate", readPropsFromLocation);
+  PageHelpers.addHashChangeListener(readPropsFromLocation);
 });
 
 onBeforeUnmount(() => {
   window.clearTimeout(debounceTimeoutRef.value);
-  window.removeEventListener("hashchange", readPropsFromLocation);
-  window.removeEventListener("popstate", readPropsFromLocation);
+  PageHelpers.removeHashChangeListener(readPropsFromLocation);
 });
 </script>
 
@@ -78,7 +76,7 @@ onBeforeUnmount(() => {
     v-if="props.editor === 'expression'"
     :code="code"
     :lang="lang"
-    :mode="expressionView"
+    :view="expressionView"
     :read-only="readOnly"
     @on-change="handleCodeChange"
   />

@@ -17,8 +17,8 @@ export interface ClassEditorProps {
 
   /**
    * View mode for the class editor.
-   * In "single-class" mode, the given file is expected to contain only one class.
-   * In "multi-class" mode, the given file may have many classes and there buttons for adding / removing them.
+   * In "single-class", the given file is expected to contain only one class.
+   * In "multi-class", the given file may have many classes and there buttons for adding / removing them.
    */
   view?: "single-class" | "multi-class";  
 }
@@ -98,6 +98,14 @@ watch(
   },
   { immediate: true }
 );
+
+function handleMonacoCodeChange(data: QEditorChangeEventData): void {
+  if (!data.code) {
+    return;
+  }
+  setCurrentCode(data.code);
+  emit("on-change", { code: data.code });
+}
 
 function saveMethod(): void {
   if (props.readOnly) return;
@@ -312,6 +320,7 @@ const functions = computed(() => SalaxyHelpers.getRowsInterface().map((item) => 
           automaticLayout: true,
         }"
         @on-editor-mount="handleMonacoMount"
+        @on-change="handleMonacoCodeChange"
       />
     </div>
   </div>

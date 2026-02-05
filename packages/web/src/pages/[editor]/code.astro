@@ -12,24 +12,23 @@ export function getStaticPaths() {
 }
 
 const { editor } = Astro.params;
-const normalizedEditor = editor?.toLowerCase();
-const editorConfig = normalizedEditor ? editorInfo[normalizedEditor as EditorType] : undefined;
+const editorConfig = editorInfo[editor as EditorType];
 const pageTitle = editorConfig?.title ?? "Editor";
-const platform = editorConfig?.platform ?? "unknown";
+const platform: "vue" | "react" = editorConfig?.platform;
 ---
 
 <EditorLayout title={pageTitle}>
   {platform === "vue" && (
     <CodeWrapper
-      editor={normalizedEditor as "monaco" | "expression" | "class" | "function"}
+      editor={editor as "monaco" | "expression" | "class" | "function"}
       client:only="vue" />
   )}
   {platform === "react" && (
     <CodeWrapperReact
-      editor={normalizedEditor as "monaco-react" | "excalidraw" | "project"}
+      editor={editor as "monaco-react" | "excalidraw" | "project"}
       client:only="react" />
   )}
-  {platform === "unknown" && (
+  {!platform && (
     <div class="alert alert-danger mx-auto w-50 mt-5">Unknown platform for editor "{editor}"</div>
   )}
 </EditorLayout>

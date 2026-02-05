@@ -8,19 +8,19 @@ type ExpressionMode = "plain" | "excel";
 interface ExpressionEditorProps {
   code?: string;
   lang?: string;
-  mode?: ExpressionMode;
+  view?: ExpressionMode;
   readOnly?: boolean;
 }
 
 const props = withDefaults(defineProps<ExpressionEditorProps>(), {
   code: "",
   lang: "javascript",
-  mode: "excel",
+  view: "excel",
   readOnly: false,
 });
 
 const emit = defineEmits<{
-  (event: "on-change", data: QEditorChangeEventData): void;
+  (event: "on-change", data: Partial<QEditorChangeEventData>): void;
   (event: "on-editor-mount", data: QEditorMountEventData): void;
 }>();
 
@@ -51,7 +51,7 @@ setCurrentCode(props.code);
 const editorRef = ref<{ getValue: () => string; triggerSuggest: () => void } | null>(null);
 
 watch(
-  () => [props.code, props.mode],
+  () => [props.code, props.view],
   () => {
     setCurrentCode(props.code);
   },
@@ -64,7 +64,7 @@ function setCurrentCode(nextCodeRaw: string): void {
   originalCode.value = nextCode;
   isCodeTrimmed.value = isTrimmed;
 
-  if (props.mode === "excel") {
+  if (props.view === "excel") {
     if (wasSynced) {
       // TODO: Do not understand this. Test how it works / what is this  if(wasSynced) => (seems to work though...).
       currentCode.value = nextCode;
@@ -91,7 +91,7 @@ const options = {
   padding: { top: 10, bottom: 10 },
 } as const;
 
-const isPlainMode = computed(() => props.mode === "plain");
+const isPlainMode = computed(() => props.view === "plain");
 
 function handlePlainModeChange(data: QEditorChangeEventData): void {
   const nextCode = data.code ?? "";

@@ -81,11 +81,6 @@ function CodeWrapperReact({ editor }: CodeWrapperReactProps): JSX.Element {
     }
   }, [editor]);
 
-  const updateHash = useCallback(
-    (nextCode: string) => {
-      PageHelpers.updateToHash("code", nextCode);
-    }, []);
-
   const scheduleHashUpdate = useCallback(
     (nextCode: string) => {
       if (debounceTimeoutRef.current !== null) {
@@ -93,19 +88,17 @@ function CodeWrapperReact({ editor }: CodeWrapperReactProps): JSX.Element {
       }
       debounceTimeoutRef.current = window.setTimeout(() => {
         isUpdatingHashRef.current = true;
-        updateHash(nextCode);
+        PageHelpers.updateToHash("code", nextCode);
       }, 250);
     },
-    [updateHash]
+    []
   );
 
   useEffect(() => {
     readPropsFromLocation();
-    window.addEventListener("hashchange", readPropsFromLocation);
-    window.addEventListener("popstate", readPropsFromLocation);
+    PageHelpers.addHashChangeListener(readPropsFromLocation);
     return () => {
-      window.removeEventListener("hashchange", readPropsFromLocation);
-      window.removeEventListener("popstate", readPropsFromLocation);
+      PageHelpers.removeHashChangeListener(readPropsFromLocation);
     };
   }, [readPropsFromLocation]);
 

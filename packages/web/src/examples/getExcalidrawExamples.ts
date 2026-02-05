@@ -20,7 +20,7 @@ export function getExcalidrawExamples(): QEditorExample[] {
         },
         {
           title: "Read-only example",
-          descr: "Read-only mode, the same as the small example.",
+          descr: "Read-only, the same as the small example.",
           props: {
               type: "excalidraw",
               url: "/examples/excalidraw/salaxy-automate-calc-clipboard.json",

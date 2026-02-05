@@ -4,20 +4,21 @@ import { ProjectEditor } from "react-editors";
 import type { Project } from "@quartal/code-editors-core";
 import { ProjectHelpers } from "@quartal/code-editors-core";
 import { useQEditorPropsFromQuery } from "@/hooks";
+import { PageHelpers } from "@/helpers";
 
 function ProjectEditorPage(): JSX.Element {
   const [project, setProject] = useState<Project | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const postMessageTimeoutRef = useRef<number | null>(null);
-  const { data, mode, readOnly } = useQEditorPropsFromQuery("project");
+  const { data, readOnly } = useQEditorPropsFromQuery("project");
 
   const isProjectData = (value: unknown): value is Project => {
     return Boolean(value) && typeof value === "object" && "files" in (value as Record<string, unknown>);
   };
 
   useEffect(() => {
-    const handleMessage = (event: MessageEvent) => {
+    const handleMessageFromParent = (event: MessageEvent) => {
       if (event?.data?.type !== "set-data") {
         return;
       }
@@ -27,9 +28,9 @@ function ProjectEditorPage(): JSX.Element {
       }
     };
 
-    window.addEventListener("message", handleMessage);
+    PageHelpers.addParentListener(handleMessageFromParent);
     return () => {
-      window.removeEventListener("message", handleMessage);
+      PageHelpers.removeParentListener(handleMessageFromParent);
       if (postMessageTimeoutRef.current !== null) {
         window.clearTimeout(postMessageTimeoutRef.current);
       }
@@ -43,10 +44,8 @@ function ProjectEditorPage(): JSX.Element {
   }, [data]);
 
   useEffect(() => {
-    if (window.self !== window.top && mode === "events") {
-      window.parent?.postMessage({ type: "editor-ready" }, "*");
-    }
-  }, [mode]);
+    PageHelpers.sendIframeReadyMessage();
+  }, []);
 
   const handleSelectFolder = useCallback(async () => {
     setError(null);
@@ -72,14 +71,19 @@ function ProjectEditorPage(): JSX.Element {
     postMessageTimeoutRef.current = window.setTimeout(() => {
       window.parent?.postMessage({ type: "on-change", data: nextProject }, "*");
     }, 300);
-  }, [mode, readOnly]);
+  }, [readOnly]);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
       {error ? <div style={{ color: "#d33" }}>{error}</div> : null}
       {project ? (
         <ProjectEditor project={project} onProjectChange={handleProjectChange} />
-      ) : mode === "browser-files" ? (
+      ) : PageHelpers.isInIframe() ? (
+        <div className="alert alert-secondary m-auto mt-5" style={{ width: "fit-content"}}>
+          <h2>Waiting for project data</h2>
+          <div>Send a set-data event from the parent to load a project.</div>
+        </div>
+      ) : (
         <div className="alert alert-primary m-auto mt-5" style={{ width: "fit-content"}}>
           <h2>Select a project folder</h2>
           <div>Select a folder to load a project.</div>
@@ -87,11 +91,6 @@ function ProjectEditorPage(): JSX.Element {
             className="btn btn-default">
             {isLoading ? "Reading project..." : "Select project folder"}
           </button>
-        </div>
-      ) : (
-        <div className="alert alert-secondary m-auto mt-5" style={{ width: "fit-content"}}>
-          <h2>Waiting for project data</h2>
-          <div>Send a set-data event from the parent to load a project.</div>
         </div>
       )}
     </div>

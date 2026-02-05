@@ -15,22 +15,20 @@ export function getStaticPaths() {
 }
 
 const { editor } = Astro.params;
-const normalizedEditor = editor?.toLowerCase() as EditorType;
 
-const editorConfig = normalizedEditor ? editorInfo[normalizedEditor] : undefined;
+const editorConfig = editorInfo[editor as EditorType];
 const title = editorConfig?.title ?? "Editor";
-const platform = editorConfig?.platform ?? "unknown";
 ---
 
 <EditorLayout title={title}>
-  {normalizedEditor === "class" && <ClassEditorPage client:only="vue" />}
-  {normalizedEditor === "expression" && <ExpressionEditorPage client:only="vue" />}
-  {normalizedEditor === "monaco" && <MonacoEditorPage client:only="vue" />}
-  {normalizedEditor === "function" && <FunctionEditorPage client:only="vue" />}
-  {normalizedEditor === "monaco-react" && <MonacoEditorReactPage client:only="react" />}
-  {normalizedEditor === "project" && <ProjectEditorPage client:only="react" />}
-  {normalizedEditor === "excalidraw" && <ExcalidrawEditorPage client:only="react" />}
-  {platform === "unknown" && (
+  {editor === "class" && <ClassEditorPage client:only="vue" />}
+  {editor === "expression" && <ExpressionEditorPage client:only="vue" />}
+  {editor === "monaco" && <MonacoEditorPage client:only="vue" />}
+  {editor === "function" && <FunctionEditorPage client:only="vue" />}
+  {editor === "monaco-react" && <MonacoEditorReactPage client:only="react" />}
+  {editor === "project" && <ProjectEditorPage client:only="react" />}
+  {editor === "excalidraw" && <ExcalidrawEditorPage client:only="react" />}
+  {!editorConfig && (
     <div class="alert alert-danger mx-auto w-50 mt-5">Unknown editor "{editor}"</div>
   )}
 </EditorLayout>

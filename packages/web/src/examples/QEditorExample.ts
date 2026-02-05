@@ -6,6 +6,8 @@ export interface QEditorExample {
     title: string;
     /** Description of the example. */
     descr: string;
+    /** Mode of the example: Currently only "event" in use (TODO: Go through => make consistent) */
+    mode?: "event";
     /** Properties that should be passed to the QEditor component. */
     props: QEditorProps;
 }

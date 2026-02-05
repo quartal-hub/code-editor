@@ -3,6 +3,7 @@ import { onBeforeUnmount, onMounted, ref } from "vue";
 import { ClassEditor } from "vue-editors";
 import { useQEditorPropsFromQuery } from "@/composables";
 import type { QEditorChangeEventData, QEditorProps } from "@quartal/code-editors-core";
+import { PageHelpers } from "@/helpers";
 
 /** Properties that adre passed to the component. */
 const editorProps = ref<QEditorProps | undefined>(undefined);
@@ -12,13 +13,7 @@ const updatedCode = ref<string | undefined>(undefined);
 const { props } = useQEditorPropsFromQuery("class");
 
 function notifyParent(codeValue: string, cursorPosition?: QEditorChangeEventData["cursorPosition"]): void {
-  if (window.self !== window.top) {
-    try {
-      window.parent.postMessage({ type: "on-change", code: codeValue, cursorPosition }, "*");
-    } catch (error) {
-      console.warn("Could not send code update to parent window:", error);
-    }
-  }
+  PageHelpers.sendOnChangeMessage({ code: codeValue, cursorPosition });
 }
 
 function handleCodeChange(data: QEditorChangeEventData): void {
@@ -36,14 +31,12 @@ const messageHandler = (event: MessageEvent): void => {
 };
 
 onMounted(() => {
-  window.addEventListener("message", messageHandler);
-  if (window.self !== window.top && props.value.mode === "events") {
-    window.parent.postMessage({ type: "editor-ready" }, "*");
-  }
+  PageHelpers.addParentListener(messageHandler);
+  PageHelpers.sendIframeReadyMessage();
 });
 
 onBeforeUnmount(() => {
-  window.removeEventListener("message", messageHandler);
+  PageHelpers.removeParentListener(messageHandler);
 });
 </script>
 
