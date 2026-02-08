@@ -308,11 +308,7 @@ export class QrtlEditorElement extends HTMLElement {
 
   buildHash() {
     const hashParams = new URLSearchParams();
-    const data = this.data;
-    const base64Data = data ? btoa(JSON.stringify(data || {})) : "";
-
     if (this.lang) hashParams.set("lang", this.lang);
-    if (base64Data) hashParams.set("data", base64Data);
     return hashParams.toString();
   }
 
