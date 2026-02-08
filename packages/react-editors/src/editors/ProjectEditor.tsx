@@ -49,7 +49,7 @@ function ProjectEditor({ project, onProjectChange }: ProjectEditorProps): JSX.El
   const visibleFiles = Object.keys(project.files || {}).filter(file => file.startsWith("/src/"));
 
   return (
-    <div style={{ width: "100%", height: "80vh" }}>
+    <div style={{ width: "100%", height: "100vh" }}>
       <SandpackProvider
         theme="dark"
         template={project.template as SandpackPredefinedTemplate}
@@ -62,11 +62,8 @@ function ProjectEditor({ project, onProjectChange }: ProjectEditorProps): JSX.El
       >
         <SandpackProjectChangeListener project={project} onProjectChange={onProjectChange} />
         <SandpackLayout>
-          <SandpackFileExplorer initialCollapsedFolder={["/node_modules/", "/@salaxy/"]} />
+          <SandpackFileExplorer initialCollapsedFolder={["/node_modules/", "/@salaxy/"]} style={{ height: "100vh" }} />
           <SandpackMonacoEditor />
-          {/*
-          <SandpackTranspiledCode />
-          */} 
         </SandpackLayout>
       </SandpackProvider>
     </div>

@@ -74,9 +74,10 @@ function ProjectEditorPage(): JSX.Element {
   }, [readOnly]);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: "12px", overflow: "hidden" }}>
       {error ? <div style={{ color: "#d33" }}>{error}</div> : null}
       {project ? (
+        // <div>Project data: <pre>{JSON.stringify(project, null, 2)}</pre></div>
         <ProjectEditor project={project} onProjectChange={handleProjectChange} />
       ) : PageHelpers.isInIframe() ? (
         <div className="alert alert-secondary m-auto mt-5" style={{ width: "fit-content"}}>
