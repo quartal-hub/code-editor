@@ -271,34 +271,22 @@ const functions = computed(() => SalaxyHelpers.getRowsInterface().map((item) => 
             Select a method on the left to edit its body.
           </div>
           <template v-else>
-            <div class="d-flex justify-content-between mb-2">
-              <div>
-                <h3>
-                  {{ currentMethod?.name }}({{ currentMethod?.doc.params.map((p) => p.name).join(", ") }})
-                  <small class="text-muted">
-                    in {{ `${currentMethod?.owner.kind} ${currentMethod?.owner.name}` }}
-                  </small>
-                </h3>
-                <template v-if="currentMethod">
-                  <p v-if="currentMethod.doc.description">{{ currentMethod.doc.description }}</p>
-                  <ul v-if="currentMethod.doc.params.length">
-                    <li v-for="param in currentMethod.doc.params" :key="param.name">
-                      {{ param.name }}: {{ param.description }}
-                    </li>
-                  </ul>
-                  <p v-if="currentMethod.doc.returns">Returns: {{ currentMethod.doc.returns }}</p>
-                </template>
-              </div>
-              <div>
-                <button
-                  class="btn btn-outline-success btn-sm"
-                  type="button"
-                  :disabled="props.readOnly || !currentMethod?.editable"
-                  @click="saveMethod"
-                >
-                  TODO: Save Changes
-                </button>
-              </div>
+            <div>
+              <h3>
+                {{ currentMethod?.name }}({{ currentMethod?.doc.params.map((p) => p.name).join(", ") }})
+                <small class="text-muted">
+                  in {{ `${currentMethod?.owner.kind} ${currentMethod?.owner.name}` }}
+                </small>
+              </h3>
+              <template v-if="currentMethod">
+                <p v-if="currentMethod.doc.description">{{ currentMethod.doc.description }}</p>
+                <ul v-if="currentMethod.doc.params.length">
+                  <li v-for="param in currentMethod.doc.params" :key="param.name">
+                    {{ param.name }}: {{ param.description }}
+                  </li>
+                </ul>
+                <p v-if="currentMethod.doc.returns">Returns: {{ currentMethod.doc.returns }}</p>
+              </template>
             </div>
             <div class="text-muted small mt-2">
               {{ currentMethod?.editable ? "Only the function body is editable." : "Interface methods are read-only." }}
