@@ -79,6 +79,7 @@ root.render(
     },
   },
   customSetup: {
+    entry: "/index.js",
     dependencies: {
       react: "^19.0.0",
       "react-dom": "^19.0.0",

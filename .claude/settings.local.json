@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find c:/src/code/node_modules/.pnpm/@codesandbox+sandpack-react* -name 'SandpackProvider*.d.ts')"
+    ]
+  }
+}

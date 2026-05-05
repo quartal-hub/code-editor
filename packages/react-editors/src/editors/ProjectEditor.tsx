@@ -2,12 +2,12 @@ import {
   SandpackProvider,
   SandpackLayout,
   SandpackFileExplorer,
+  useSandpack,
+  type SandpackFiles,
+  type SandpackPredefinedTemplate,
 } from "@codesandbox/sandpack-react";
-import type { SandpackFiles, SandpackPredefinedTemplate } from "@codesandbox/sandpack-react";
-import { useSandpack } from "@codesandbox/sandpack-react";
 import { SandpackMonacoEditor } from "react-editors";
 import type { JSX } from "react";
-import { useEffect, useMemo } from "react";
 import type { Project } from "@quartal/code-editors-core";
 
 interface ProjectEditorProps {
@@ -15,52 +15,45 @@ interface ProjectEditorProps {
   onProjectChange?: (project: Project) => void;
 }
 
-function SandpackProjectChangeListener({
+/**
+ * Toolbar with a manual "Save" action.
+ * Edits live inside Sandpack until the user explicitly pushes them up to the parent,
+ * which avoids re-rendering the provider on every keystroke.
+ */
+function ProjectEditorToolbar({
   project,
   onProjectChange,
 }: ProjectEditorProps): JSX.Element | null {
   const { sandpack } = useSandpack();
-  const { files } = sandpack;
 
-  const normalizedFiles = useMemo(() => normalizeSandpackFiles(files), [files]);
+  if (!onProjectChange) {
+    return null;
+  }
 
-  useEffect(() => {
-    if (!onProjectChange) {
-      return;
-    }
-    if (areProjectFilesEqual(project.files, normalizedFiles)) {
-      return;
-    }
+  const handleSave = (): void => {
     onProjectChange({
       ...project,
-      files: normalizedFiles,
+      files: normalizeSandpackFiles(sandpack.files),
     });
-  }, [normalizedFiles, onProjectChange, project]);
+  };
 
-  return null;
+  return (
+    <div style={{ display: "flex", justifyContent: "flex-end", padding: "6px 8px", background: "#1e1e1e" }}>
+      <button type="button" className="btn btn-outline-light btn-sm" onClick={handleSave}>Save changes</button>
+    </div>
+  );
 }
 
 function ProjectEditor({ project, onProjectChange }: ProjectEditorProps): JSX.Element {
-
-  const defaultSetup = {
-    dependencies: {},
-  };
-
-  const visibleFiles = Object.keys(project.files || {}).filter(file => file.startsWith("/src/"));
-
   return (
     <div style={{ width: "100%", height: "100vh" }}>
       <SandpackProvider
         theme="dark"
         template={project.template as SandpackPredefinedTemplate}
         files={project.files || {}}
-        customSetup={project.customSetup || defaultSetup}
-        options={{
-          activeFile: "/src/index.ts",
-          visibleFiles: visibleFiles,
-        }}
+        customSetup={project.customSetup}
       >
-        <SandpackProjectChangeListener project={project} onProjectChange={onProjectChange} />
+        <ProjectEditorToolbar project={project} onProjectChange={onProjectChange} />
         <SandpackLayout>
           <SandpackFileExplorer initialCollapsedFolder={["/node_modules/", "/@salaxy/"]} style={{ height: "100vh" }} />
           <SandpackMonacoEditor />
@@ -78,29 +71,6 @@ function normalizeSandpackFiles(files: SandpackFiles): Project["files"] {
     };
   });
   return normalized;
-}
-
-function areProjectFilesEqual(
-  current: Project["files"] | undefined,
-  next: Project["files"]
-): boolean {
-  if (!current) {
-    return Object.keys(next).length === 0;
-  }
-  const currentKeys = Object.keys(current);
-  const nextKeys = Object.keys(next);
-  if (currentKeys.length !== nextKeys.length) {
-    return false;
-  }
-  for (const key of currentKeys) {
-    if (!(key in next)) {
-      return false;
-    }
-    if (current[key]?.code !== next[key]?.code) {
-      return false;
-    }
-  }
-  return true;
 }
 
 export default ProjectEditor;

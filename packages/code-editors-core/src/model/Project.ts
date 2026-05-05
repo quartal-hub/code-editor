@@ -10,5 +10,7 @@ export interface Project {
     dependencies?: Record<string, string>;
     /** The development dependencies that should be installed in the project. */
     devDependencies?: Record<string, string>;
+    /** The entry file path that is the starting point of the bundle process. */
+    entry?: string;
   };
 }
