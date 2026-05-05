@@ -1,5 +1,8 @@
 import type { QEditorExample } from "./QEditorExample";
 import type { Project } from "@/model/Project";
+import { magicMultiplierProject } from "./projects/magicMultiplierProject";
+import { demoSkillsProject } from "./projects/demoSkillsProject";
+import { denoTest1Project } from "./projects/denoTest1Project";
 
 /** These examples have not been implemented yet. */
 export function getProjectExamples(): QEditorExample[] {
@@ -19,6 +22,30 @@ export function getProjectExamples(): QEditorExample[] {
       props: {
         type: "project",
         data: reactProject as unknown as Record<string, unknown>,
+      },
+    },
+    {
+      title: "Magic multiplier skill",
+      descr: "Single-folder Cursor skill with SKILL.md and a TypeScript constant under scripts/.",
+      props: {
+        type: "project",
+        data: magicMultiplierProject as unknown as Record<string, unknown>,
+      },
+    },
+    {
+      title: "Demo skills (collection)",
+      descr: "Folder of demo skills covering signature, transformation, formatting and sub-folder layouts.",
+      props: {
+        type: "project",
+        data: demoSkillsProject as unknown as Record<string, unknown>,
+      },
+    },
+    {
+      title: "Deno: @qrtl-packages/test1",
+      descr: "Snapshot of a Deno hub package (deno.jsonc, .ts imports). Editor only — Sandpack cannot bundle Deno.",
+      props: {
+        type: "project",
+        data: denoTest1Project as unknown as Record<string, unknown>,
       },
     },
   ];
