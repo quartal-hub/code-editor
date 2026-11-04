@@ -14,6 +14,9 @@ function handleCodeChange(data: QEditorChangeEventData): void {
   if (props.value.readOnly) {
     return;
   }
+  // Keep the prop in sync with the editor: otherwise a later set-data with the previous
+  // value would be no change for Vue and the editor would ignore it.
+  code.value = data.code ?? "";
   PageHelpers.sendOnChangeMessage(data);
 }
 
