@@ -12,13 +12,15 @@ const props = defineProps<{
   editor: EditorType;
 }>();
 
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+
 const examples: Readonly<QEditorExample[]> = getExamples(props.editor);
 const editorConfig = editorInfo[props.editor];
 
 const current = ref<QEditorExample | undefined>(examples[0]);
 
 function getUrlLink(url: string): string {
-  let urlLink = `/${props.editor}/fetch#url=${encodeURIComponent(url)}`;
+  let urlLink = `${base}/${props.editor}/fetch#url=${encodeURIComponent(url)}`;
   if (current.value?.props.readOnly === false) {
     // URL Links are read-only by default, so we need to add the read-only flag only if it is false.
     urlLink = urlLink.replace("/fetch#", `/fetch?read-only=false#`);
@@ -30,7 +32,7 @@ function getUrlLink(url: string): string {
 }
 
 function getCodeLink(code: string): string {
-  let url = `/${props.editor}/code#code=${encodeURIComponent(code)}`;
+  let url = `${base}/${props.editor}/code#code=${encodeURIComponent(code)}`;
   // Add to the beginning so that it is easier to observe => Code is long.
   if (current.value?.props.lang) {
     url = url.replace("/code#", `/code#lang=${encodeURIComponent(current.value.props.lang)}&`);

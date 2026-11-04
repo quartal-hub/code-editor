@@ -6,6 +6,7 @@ import { getTodoExamples } from "./getTodoExamples";
 import { getProjectExamples } from "./getProjectExamples";
 import { getMonacoExamples } from "./getMonacoExamples";
 import { getExcalidrawExamples } from "./getExcalidrawExamples";
+import { getMarkdownExamples } from "./getMarkdownExamples";
 
 export function getExamples(editor: EditorType): QEditorExample[] {
   switch (editor) {
@@ -15,6 +16,9 @@ export function getExamples(editor: EditorType): QEditorExample[] {
       return getExcalidrawExamples();
     case "expression":
       return getExpressionExamples();
+    case "markdown":
+    case "markdown-hybrid":
+      return getMarkdownExamples(editor);
     case "monaco":
       return getMonacoExamples();
     case "monaco-react": {

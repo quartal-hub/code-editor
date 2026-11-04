@@ -21,7 +21,7 @@ const platform: "vue" | "react" = editorConfig?.platform;
 
 <EditorLayout title={pageTitle}>
   {platform === "vue" && (
-    <UrlWrapper editor={editor as "monaco" | "expression" | "class"} client:only="vue" />
+    <UrlWrapper editor={editor as "monaco" | "expression" | "class" | "markdown" | "markdown-hybrid"} client:only="vue" />
   )}
   {platform === "react" && (
     <UrlWrapperReact

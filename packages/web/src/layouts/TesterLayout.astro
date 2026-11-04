@@ -1,10 +1,13 @@
 ---
 import "../index.css";
 import { TopNavi } from "vue-editors";
-import { navItems } from "../data";
+import { navItems as rawNavItems } from "../data";
 
 const { title } = Astro.props;
 const currentPath = Astro.url.pathname;
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+// Paths in navItems are site-root-relative: prefix them with the base path (empty in production).
+const navItems = rawNavItems.map((item) => ({ ...item, path: `${base}${item.path}` }));
 const SKIN_URL = "https://cdn.quartal.com/css/quartal-www.css";
 ---
 
@@ -36,6 +39,6 @@ const SKIN_URL = "https://cdn.quartal.com/css/quartal-www.css";
       </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script type="module" src="/qrtl-editor.js"></script>
+    <script type="module" src={`${base}/qrtl-editor.js`}></script>
   </body>
 </html>

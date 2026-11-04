@@ -68,6 +68,22 @@ export const editorInfo: Record<EditorType, EditorInfo> = {
     fetch: true,
     fs: "folder",
   },
+  markdown: {
+    title: "Markdown Editor",
+    platform: "vue",
+    description:
+      "WYSIWYG Markdown editor (Milkdown Crepe) for editing Markdown documents as rendered text.",
+    fetch: true,
+    fs: "file",
+  },
+  "markdown-hybrid": {
+    title: "Markdown Editor (hybrid)",
+    platform: "vue",
+    description:
+      "Obsidian-like hybrid Markdown editor (@vscode/markdown-editor): the text is rendered, but the Markdown markers are shown in the block that is being edited.",
+    fetch: true,
+    fs: "file",
+  },
   excalidraw: {
     title: "Excalidraw Editor",
     platform: "react",

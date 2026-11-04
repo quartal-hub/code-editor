@@ -20,7 +20,7 @@ const platform: "vue" | "react" = editorConfig?.platform;
 <EditorLayout title={pageTitle}>
   {platform === "vue" && (
     <CodeWrapper
-      editor={editor as "monaco" | "expression" | "class" | "function"}
+      editor={editor as "monaco" | "expression" | "class" | "function" | "markdown" | "markdown-hybrid"}
       client:only="vue" />
   )}
   {platform === "react" && (

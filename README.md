@@ -19,6 +19,8 @@ Paths:
   - JS/TS: JavaScript/TypeScript editing without context for a single file
     - Pass the context with methods
   - HTML: Single HTML file
+- `/markdown`: WYSIWYG Markdown editor (Milkdown Crepe)
+- `/markdown-hybrid`: Obsidian-like hybrid Markdown editor (@vscode/markdown-editor): markers are shown in the block being edited
 - `/skin`: Visual editor for Bootstrap based skins
 - `/expression`: Simple excel-like expression editor.
 - `/function`: Editor for a single function within a class
@@ -30,6 +32,13 @@ Paths:
   - Quartal Hub business logic
   - Salaxy business logic
   - Quartal Hub UX editor
+
+GitHub Pages
+============
+
+`.github/workflows/pages.yml` builds `packages/web` and publishes it to GitHub Pages on every push to `main`
+(Settings > Pages > Source must be "GitHub Actions"). The base path comes from `PAGES_BASE_PATH`
+(set by the workflow; defaults to `/`, which is what production at https://code.quartal.com uses).
 
 TODO-list
 =========
