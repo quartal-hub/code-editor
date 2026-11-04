@@ -1,5 +1,7 @@
 const typeToRoute = {
   monaco: "/monaco",
+  markdown: "/markdown",
+  "markdown-hybrid": "/markdown-hybrid",
   "monaco-react": "/monaco-react",
   excalidraw: "/excalidraw",
   expression: "/expression",

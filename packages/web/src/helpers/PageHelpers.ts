@@ -79,7 +79,10 @@ export class PageHelpers {
       throw new Error('No URL provided');
     }
     if (url.startsWith("/")) {
-      url = window.location.origin + url;
+      // Site-relative URLs (e.g. "/examples/x.json") live under the base path when the site is not at the domain root.
+      const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+      const prefix = base && !url.startsWith(`${base}/`) ? base : "";
+      url = window.location.origin + prefix + url;
     }
     if (!url.startsWith("http")) {
       throw new Error(`Invalid URL: ${url}. The URL must start with http or https because it is proxied through a CORS proxy.`);

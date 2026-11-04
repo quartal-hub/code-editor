@@ -12,6 +12,16 @@ export const navItems: NavItem[] = [
     description: "Vue version of the stand-alone Monaco editor for editing single files",
   },
   {
+    path: "/markdown/demo",
+    label: "Markdown Editor",
+    description: "WYSIWYG Markdown editor (Milkdown Crepe)",
+  },
+  {
+    path: "/markdown-hybrid/demo",
+    label: "Markdown (hybrid)",
+    description: "Obsidian-like hybrid Markdown editor: markers are shown in the block being edited",
+  },
+  {
     path: "/expression/demo",
     label: "Expression Editor",
     description: "Simple excel-like expression editor",

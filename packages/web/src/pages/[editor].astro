@@ -4,6 +4,8 @@ import ClassEditorPage from "@/components/pages/ClassEditorPage.vue";
 import ExpressionEditorPage from "@/components/pages/ExpressionEditorPage.vue";
 import FunctionEditorPage from "@/components/pages/FunctionEditorPage.vue";
 import MonacoEditorPage from "@/components/pages/MonacoEditorPage.vue";
+import MarkdownEditorPage from "@/components/pages/MarkdownEditorPage.vue";
+import MarkdownHybridEditorPage from "@/components/pages/MarkdownHybridEditorPage.vue";
 import MonacoEditorReactPage from "@/components/pages/MonacoEditorReactPage";
 import ProjectEditorPage from "@/components/pages/ProjectEditorPage";
 import ExcalidrawEditorPage from "@/components/pages/ExcalidrawEditorPage";
@@ -24,6 +26,8 @@ const title = editorConfig?.title ?? "Editor";
   {editor === "class" && <ClassEditorPage client:only="vue" />}
   {editor === "expression" && <ExpressionEditorPage client:only="vue" />}
   {editor === "monaco" && <MonacoEditorPage client:only="vue" />}
+  {editor === "markdown" && <MarkdownEditorPage client:only="vue" />}
+  {editor === "markdown-hybrid" && <MarkdownHybridEditorPage client:only="vue" />}
   {editor === "function" && <FunctionEditorPage client:only="vue" />}
   {editor === "monaco-react" && <MonacoEditorReactPage client:only="react" />}
   {editor === "project" && <ProjectEditorPage client:only="react" />}

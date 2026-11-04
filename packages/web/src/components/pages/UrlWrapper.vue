@@ -3,12 +3,12 @@ import { useQEditorPropsFromQuery } from '@/composables';
 import { PageHelpers } from '@/helpers';
 import { computed, ref, watch } from 'vue';
 
-import { MonacoEditor, ExpressionEditor, ClassEditor } from 'vue-editors';
+import { MonacoEditor, ExpressionEditor, ClassEditor, MarkdownEditor, MarkdownHybridEditor } from 'vue-editors';
 
 /** Only static parameters coming from Astro, rest are fetched from the query parameters / hash. */
 const props = defineProps<{
   /** Type of the editor to show. */
-  editor: "monaco" | "expression" | "class";
+  editor: "monaco" | "expression" | "class" | "markdown" | "markdown-hybrid";
 }>();
 
 const isLoading = ref<boolean>(true);
@@ -53,5 +53,7 @@ watch(() => urlProps.value.url, () => {
   </div>
   <ExpressionEditor v-else-if="editor === 'expression'" :code="code" :lang="urlProps.lang" :read-only="readOnly" />
   <ClassEditor v-else-if="editor === 'class'" :code="code" :lang="urlProps.lang" :read-only="readOnly" :view="urlProps.view as 'single-class' | 'multi-class'" />
+  <MarkdownEditor v-else-if="editor === 'markdown'" :code="code" :read-only="readOnly" />
+  <MarkdownHybridEditor v-else-if="editor === 'markdown-hybrid'" :code="code" :read-only="readOnly" />
   <MonacoEditor v-else :code="code" :lang="urlProps.lang" :read-only="readOnly" />
 </template>

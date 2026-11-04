@@ -1,11 +1,11 @@
 <script lang="ts" setup>
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import type { QEditorChangeEventData } from "@quartal/code-editors-core";
-import { ClassEditor, ExpressionEditor, FunctionEditor, MonacoEditor } from "vue-editors";
+import { ClassEditor, ExpressionEditor, FunctionEditor, MarkdownEditor, MarkdownHybridEditor, MonacoEditor } from "vue-editors";
 import { PageHelpers } from "@/helpers";
 
 const props = defineProps<{
-  editor: "monaco" | "expression" | "class" | "function";
+  editor: "monaco" | "expression" | "class" | "function" | "markdown" | "markdown-hybrid";
 }>();
 
 const code = ref<string>("");
@@ -93,6 +93,18 @@ onBeforeUnmount(() => {
     :code="code"
     :lang="lang"
     :read-only="readOnly"
+  />
+  <MarkdownEditor
+    v-else-if="props.editor === 'markdown'"
+    :code="code"
+    :read-only="readOnly"
+    @on-change="handleCodeChange"
+  />
+  <MarkdownHybridEditor
+    v-else-if="props.editor === 'markdown-hybrid'"
+    :code="code"
+    :read-only="readOnly"
+    @on-change="handleCodeChange"
   />
   <MonacoEditor
     v-else
