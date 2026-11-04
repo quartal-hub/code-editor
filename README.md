@@ -20,7 +20,8 @@ Paths:
     - Pass the context with methods
   - HTML: Single HTML file
 - `/markdown`: WYSIWYG Markdown editor (Milkdown Crepe)
-- `/markdown-hybrid`: Obsidian-like hybrid Markdown editor (@vscode/markdown-editor): markers are shown in the block being edited
+- `/markdown-hybrid`: Obsidian-like hybrid Markdown editor (@vscode/markdown-editor): markers are shown in the block being edited.
+  For test / evaluation purposes only: use `/markdown` instead
 - `/skin`: Visual editor for Bootstrap based skins
 - `/expression`: Simple excel-like expression editor.
 - `/function`: Editor for a single function within a class

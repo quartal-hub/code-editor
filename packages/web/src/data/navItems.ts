@@ -19,7 +19,7 @@ export const navItems: NavItem[] = [
   {
     path: "/markdown-hybrid/demo",
     label: "Markdown (hybrid)",
-    description: "Obsidian-like hybrid Markdown editor: markers are shown in the block being edited",
+    description: "Obsidian-like hybrid Markdown editor (test / evaluation only: use the Markdown Editor instead)",
   },
   {
     path: "/expression/demo",

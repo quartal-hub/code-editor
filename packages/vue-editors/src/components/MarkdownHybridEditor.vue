@@ -11,7 +11,7 @@ import {
   findNodeOffsetById,
   taskCheckboxRange,
 } from "@vscode/markdown-editor";
-import { autorun } from "@vscode/markdown-editor/observables";
+import { autorun } from "@vscode/observables";
 import "@vscode/markdown-editor/editor.css";
 import "@vscode/markdown-editor/themes/github.css";
 import type { QEditorChangeEventData } from "@quartal/code-editors-core";
@@ -19,6 +19,9 @@ import type { QEditorChangeEventData } from "@quartal/code-editors-core";
 /**
  * Obsidian-like hybrid Markdown editor based on @vscode/markdown-editor:
  * Markdown markers are shown only in the block that is being edited.
+ *
+ * NOTE: For test / evaluation purposes only (the underlying package is a prerelease).
+ * Use MarkdownEditor (the main Markdown editor) instead.
  */
 interface MarkdownHybridEditorProps {
   /** The Markdown to show in the editor. */
@@ -92,7 +95,7 @@ onMounted(() => {
   model.selection.set(Selection.collapsed(0), undefined);
   view = new EditorView(model, {
     classNames: ["github-markdown-theme"],
-    onOpenLink: (url) => window.open(url, "_blank", "noopener"),
+    onOpenLink: (url) => { window.open(url, "_blank", "noopener"); },
     onToggleCheckbox: toggleCheckbox,
   });
   containerRef.value.appendChild(view.element);
