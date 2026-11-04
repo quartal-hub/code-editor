@@ -32,9 +32,9 @@ export const navItems: NavItem[] = [
     description: "Visual editor for a class with properties, expressions, functions, and interfaces",
   },
   {
-    path: "/project/demo",
-    label: "Project Editor",
-    description: "Project editor for Quartal Hub business logic tools and Quartal Hub UXs",
+    path: "/files/demo",
+    label: "Files Editor",
+    description: "Monaco editor for many files, used by the Quartal file explorer",
   },
   {
     path: "/excalidraw/demo",
@@ -49,6 +49,6 @@ export const navItems: NavItem[] = [
   {
     path: "/monaco-react/demo",
     label: "Monaco (React)",
-    description: "React/Sandpack version of the stand-alone Monaco editor: This is used with Sandpack and other React based editor tools.",
+    description: "React version of the stand-alone Monaco editor.",
   },
 ];

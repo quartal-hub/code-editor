@@ -29,10 +29,45 @@ Paths:
   - Properties editor for data structure
   - Expression and functions: add/remove/edit
   - Undersands interfaces: Add remove and validation.
-- `/project`: A project editor: Quartal Hub business logic tools and Quartal Hub UXs
-  - Quartal Hub business logic
-  - Salaxy business logic
-  - Quartal Hub UX editor
+- `/files`: A Monaco editor for many files (Quartal Hub business logic tools, skills, UXs). It has no file list,
+  tabs or storage: the host (the `QFileExplorer` of `@quartal/ui-core`, or any page) owns them and tells the editor
+  which files are open and which one is shown. See "Files editor protocol" below.
+
+Files editor protocol
+=====================
+
+The `/files` page speaks protocol 2 with its parent window (`postMessage`). It never talks to a server and keeps no
+state between loads: the parent reads and writes the files, and that is also why the page needs no authentication.
+The messages are typed in `packages/code-editors-core/src/workspace/WorkspaceFile.ts`. A message is accepted only from
+`window.parent`.
+
+Files are identified by their **address**, e.g. `/data/reports/2026.ts`; it is also the path of the Monaco model, so
+imports between files resolve.
+
+Parent to editor:
+
+| `type` | Fields | Does |
+| --- | --- | --- |
+| `open-file` | `file {address, text, lang?, readOnly?, version?}`, `show?` (default true), `selection?` | Opens a file (a model); shows it unless `show` is false |
+| `show-file` | `address`, `selection?` | Shows an open file; its cursor, scroll and undo history are kept |
+| `close-file` | `address` | Closes a file; pending edits are reported first |
+| `rename-file` | `from`, `to` | Follows a rename or move of a file or folder |
+| `update-file` | `address`, `text`, `version?` | Replaces the text with a change made elsewhere (as an undoable edit; not reported back) |
+| `set-context` | `context {files?, tsconfig?, packageJson?}` | Background files for the language services, the TypeScript options, the dependencies whose types to load |
+| `set-options` | `readOnly?`, `theme?` | Editor-wide options |
+| `set-data` | `data {files, active?, context?}` | Convenience: context from all `files`, and the `active` (or first) file opened |
+
+Editor to parent:
+
+| `type` | Fields | When |
+| --- | --- | --- |
+| `editor-ready` | `protocol: 2` | The page is up (messages sent before Monaco has loaded wait and are applied in order) |
+| `file-change` | `address`, `text`, `version?` | The user edited a file (debounced 250 ms; also when a file is closed or saved). The parent decides what is dirty by comparing with what it last saved |
+| `file-command` | `command: "save"`, `address` | Ctrl/Cmd+S |
+| `file-request` | `address`, `selection?` | The user went to a file that is not open (go to definition): the parent opens it with `open-file` |
+| `file-focus` | `address` | The editor showed another file (the user followed a reference into an open file) |
+
+The single-file `/monaco` page keeps its own messages (`editor-ready`, `set-data`, `on-change`).
 
 GitHub Pages
 ============
@@ -56,5 +91,4 @@ These things still need to be addressed:
   3. Pass changes back as events.
   4. When changes in the iframe parent, send changes as events, not as query params.
 - Package handling
-  - Move SandpackMonacoPackages and SandpackMonacoSync to code-editors-core as much as possible and remove TODOs/HACKs
-  - Refactor ClassEditor.vue to use the same logic
+  - Refactor ClassEditor.vue to use `MonacoPackages` and `WorkspaceModels` (code-editors-core)

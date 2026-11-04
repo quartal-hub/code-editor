@@ -1,12 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { JSX } from "react";
-import type { Project } from "@quartal/code-editors-core";
 import type { ExcalidrawSceneData } from "react-editors";
-import { ExcalidrawEditor, MonacoEditor, ProjectEditor } from "react-editors";
+import { ExcalidrawEditor, MonacoEditor } from "react-editors";
 import type { QEditorChangeEventData } from "@quartal/code-editors-core";
 import { PageHelpers } from "@/helpers";
 
-type ReactCodeEditor = "monaco-react" | "excalidraw" | "project";
+type ReactCodeEditor = "monaco-react" | "excalidraw";
 
 interface CodeWrapperReactProps {
   /** Type of the editor to show. */
@@ -27,21 +26,6 @@ function parseBoolean(value: string | null): boolean | undefined {
   return undefined;
 }
 
-function parseProjectFromCode(code: string): Project | null {
-  if (!code) {
-    return null;
-  }
-  try {
-    const parsed = JSON.parse(code) as Project;
-    if (!parsed || typeof parsed !== "object" || !("files" in parsed)) {
-      return null;
-    }
-    return parsed;
-  } catch {
-    return null;
-  }
-}
-
 function parseSceneFromCode(code: string): ExcalidrawSceneData | null {
   if (!code) {
     return null;
@@ -57,7 +41,6 @@ function CodeWrapperReact({ editor }: CodeWrapperReactProps): JSX.Element {
   const [code, setCode] = useState<string>("");
   const [lang, setLang] = useState<string | undefined>(undefined);
   const [readOnly, setReadOnly] = useState<boolean>(false);
-  const [project, setProject] = useState<Project | null>(null);
   const [scene, setScene] = useState<ExcalidrawSceneData | null>(null);
 
   const isUpdatingHashRef = useRef(false);
@@ -73,9 +56,6 @@ function CodeWrapperReact({ editor }: CodeWrapperReactProps): JSX.Element {
     setCode(nextCode);
     setLang(values.lang ?? undefined);
     setReadOnly(values.readOnly ?? false);
-    if (editor === "project") {
-      setProject(parseProjectFromCode(nextCode));
-    }
     if (editor === "excalidraw") {
       setScene(parseSceneFromCode(nextCode));
     }
@@ -119,20 +99,6 @@ function CodeWrapperReact({ editor }: CodeWrapperReactProps): JSX.Element {
     [scheduleHashUpdate]
   );
 
-  const handleProjectChange = useCallback(
-    (nextProject: Project) => {
-      setProject(nextProject);
-      try {
-        const serialized = JSON.stringify(nextProject);
-        setCode(serialized);
-        scheduleHashUpdate(serialized);
-      } catch {
-        // Ignore serialization errors
-      }
-    },
-    [scheduleHashUpdate]
-  );
-
   const handleExcalidrawChange = useCallback(
     (data: QEditorChangeEventData) => {
       if (!data.data || typeof data.data !== "object") {
@@ -157,19 +123,7 @@ function CodeWrapperReact({ editor }: CodeWrapperReactProps): JSX.Element {
     PageHelpers.sendOnLinkOpenMessage({ link, detail });
   }, []);
 
-  const hasProject = useMemo(() => Boolean(project), [project]);
   const hasScene = useMemo(() => Boolean(scene), [scene]);
-
-  if (editor === "project") {
-    return hasProject ? (
-      <ProjectEditor project={project as Project} onProjectChange={handleProjectChange} />
-    ) : (
-      <div className="alert alert-secondary m-auto mt-5" style={{ width: "fit-content" }}>
-        <h2>Waiting for project data</h2>
-        <div>Provide project JSON in the hash to load a project.</div>
-      </div>
-    );
-  }
 
   if (editor === "excalidraw") {
     return hasScene ? (

@@ -20,7 +20,7 @@ function MonacoEditorReactPage(): JSX.Element {
   useEffect(() => {
     setCompilerOptions();
     // TODO: Make this configurable from the parent page.
-    // TODO: Set the libraries using the same mechanisms as the Sandpack editor.
+    // TODO: Set the libraries using the same mechanisms as the multi-file editor (MonacoPackages in code-editors-core).
   }, [setCompilerOptions, setLibraries]);
 
   // Update local code when hash changes

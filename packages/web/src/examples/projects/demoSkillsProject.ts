@@ -1,5 +1,5 @@
-import type { Project } from "@/model/Project";
-import { filesAsProject } from "./projectHelpers";
+import type { FilesData } from "@/model/FilesData";
+import { filesAsData } from "./projectHelpers";
 
 const aboutMd = `About the demo skills
 =====================
@@ -152,7 +152,7 @@ Reference: QM-LETTERHEAD-V1
 ============================================
 `;
 
-export const demoSkillsProject: Project = filesAsProject(
+export const demoSkillsProject: FilesData = filesAsData(
   {
     "/About demo skills.md": aboutMd,
     "/verification-seal/SKILL.md": verificationSealMd,
@@ -167,10 +167,5 @@ export const demoSkillsProject: Project = filesAsProject(
     "/letterhead-stamp/SKILL.md": letterheadStampSkillMd,
     "/letterhead-stamp/assets/letterhead.txt": letterheadTxt,
   },
-  {
-    customSetup: {
-      entry: "/magic-multiplier/scripts/multiplier.ts",
-      dependencies: {},
-    },
-  },
+  { active: "/magic-multiplier/scripts/multiplier.ts" },
 );

@@ -103,10 +103,18 @@ export class PageHelpers {
 
   /**
    * Sends a message to the parent iframe that the editor is ready (only if in iframe).
+   * @param protocol Version of the message protocol the page speaks, for pages with more than `set-data` / `on-change`.
    */
-  public static sendIframeReadyMessage(): void {
+  public static sendIframeReadyMessage(protocol?: number): void {
     if (PageHelpers.isInIframe()) {
-      window.parent.postMessage({ type: "editor-ready" }, "*");
+      window.parent.postMessage(protocol ? { type: "editor-ready", protocol } : { type: "editor-ready" }, "*");
+    }
+  }
+
+  /** Sends any message to the parent window (only if in iframe). */
+  public static sendMessageToParent(message: { type: string }): void {
+    if (PageHelpers.isInIframe()) {
+      window.parent.postMessage(message, "*");
     }
   }
 

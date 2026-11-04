@@ -60,12 +60,12 @@ export const editorInfo: Record<EditorType, EditorInfo> = {
     fetch: true,
     fs: "file",
   },
-  project: {
-    title: "Project Editor",
-    platform: "react",
+  files: {
+    title: "Files Editor",
+    platform: "vue",
     description:
-      "Project editor for Quartal Hub business logic tools and Quartal Hub UXs",
-    fetch: true,
+      "Monaco editor for many files: one model per file, so completion and go to definition work across files. The host (e.g. the Quartal file explorer) owns the file list and tabs and talks to the editor with messages.",
+    fetch: false,
     fs: "folder",
   },
   markdown: {

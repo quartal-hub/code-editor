@@ -3,7 +3,7 @@ import { getClassExamples } from "./getClassExamples";
 import { getExpressionExamples } from "./getExpressionExamples";
 import type { QEditorExample } from "./QEditorExample";
 import { getTodoExamples } from "./getTodoExamples";
-import { getProjectExamples } from "./getProjectExamples";
+import { getFilesExamples } from "./getProjectExamples";
 import { getMonacoExamples } from "./getMonacoExamples";
 import { getExcalidrawExamples } from "./getExcalidrawExamples";
 import { getMarkdownExamples } from "./getMarkdownExamples";
@@ -31,8 +31,8 @@ export function getExamples(editor: EditorType): QEditorExample[] {
         },
       }));
     }
-    case "project":
-      return getProjectExamples();
+    case "files":
+      return getFilesExamples();
     case "function":
     default:
       return getTodoExamples(editor);

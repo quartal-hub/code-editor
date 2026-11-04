@@ -1,1 +1,1 @@
-export type EditorType = "class" | "expression" | "function" | "monaco" | "monaco-react" | "project" | "excalidraw" | "markdown" | "markdown-hybrid";
+export type EditorType = "class" | "expression" | "function" | "monaco" | "monaco-react" | "files" | "excalidraw" | "markdown" | "markdown-hybrid";

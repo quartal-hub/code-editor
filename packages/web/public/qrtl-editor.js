@@ -7,7 +7,7 @@ const typeToRoute = {
   expression: "/expression",
   function: "/function",
   class: "/class",
-  project: "/project",
+  files: "/files",
 };
 
 const defaultEditorBaseUrl = (() => {

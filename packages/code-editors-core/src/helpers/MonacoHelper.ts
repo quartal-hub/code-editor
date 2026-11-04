@@ -112,7 +112,7 @@ export class MonacoHelper {
       esModuleInterop: true,
       allowSyntheticDefaultImports: true,
 
-      // Note these were added when debuging Sandpack => Not sure if they are really needed.
+      // Note these were added when debugging the first project editor => Not sure if they are really needed.
       jsx: monacoInstance.languages.typescript.JsxEmit.ReactJSX,
       allowImportingTsExtensions: true,
       resolveJsonModule: true,
