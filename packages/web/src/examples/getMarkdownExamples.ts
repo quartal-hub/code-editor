@@ -1,10 +1,14 @@
 import type { QEditorExample } from "./QEditorExample";
 
+const HYBRID_NOTICE =
+  "> **Note:** This hybrid editor is for test / evaluation purposes only. Use the main Markdown editor (`/markdown`) instead.\n\n";
+
 /**
  * Examples for the Markdown editors.
  * @param type The editor type: "markdown" (WYSIWYG) or "markdown-hybrid".
  */
 export function getMarkdownExamples(type: "markdown" | "markdown-hybrid"): QEditorExample[] {
+  const notice = type === "markdown-hybrid" ? HYBRID_NOTICE : "";
   return [
     {
       title: "Formatting and lists",
@@ -14,7 +18,7 @@ export function getMarkdownExamples(type: "markdown" | "markdown-hybrid"): QEdit
         type,
         readOnly: false,
         lang: "markdown",
-        code: `# Hello Markdown
+        code: `${notice}# Hello Markdown
 
 Write **bold**, *italic*, ~~strikethrough~~ and \`inline code\`.
 
@@ -44,7 +48,7 @@ Write **bold**, *italic*, ~~strikethrough~~ and \`inline code\`.
         type,
         readOnly: false,
         lang: "markdown",
-        code: `# Table and code
+        code: `${notice}# Table and code
 
 | Name | Value  |
 | ---- | ------ |
@@ -67,7 +71,7 @@ export function add(a: number, b: number): number {
         type,
         readOnly: true,
         lang: "markdown",
-        code: "# Read-only\n\nThis document **cannot** be edited.\n",
+        code: `${notice}# Read-only\n\nThis document **cannot** be edited.\n`,
       },
     },
   ];

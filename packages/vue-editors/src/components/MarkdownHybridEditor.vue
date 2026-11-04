@@ -19,6 +19,9 @@ import type { QEditorChangeEventData } from "@quartal/code-editors-core";
 /**
  * Obsidian-like hybrid Markdown editor based on @vscode/markdown-editor:
  * Markdown markers are shown only in the block that is being edited.
+ *
+ * NOTE: For test / evaluation purposes only (the underlying package is a prerelease).
+ * Use MarkdownEditor (the main Markdown editor) instead.
  */
 interface MarkdownHybridEditorProps {
   /** The Markdown to show in the editor. */

@@ -80,7 +80,7 @@ export const editorInfo: Record<EditorType, EditorInfo> = {
     title: "Markdown Editor (hybrid)",
     platform: "vue",
     description:
-      "Obsidian-like hybrid Markdown editor (@vscode/markdown-editor): the text is rendered, but the Markdown markers are shown in the block that is being edited.",
+      "Obsidian-like hybrid Markdown editor (@vscode/markdown-editor): the text is rendered, but the Markdown markers are shown in the block that is being edited. Test / evaluation purposes only: use the main Markdown editor (/markdown) instead.",
     fetch: true,
     fs: "file",
   },
