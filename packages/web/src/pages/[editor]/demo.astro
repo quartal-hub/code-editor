@@ -3,6 +3,7 @@ import type { EditorType } from "@quartal/code-editors-core";
 
 import TesterLayout from "@/layouts/TesterLayout.astro";
 import ExampleWrapper from "@/components/layout/ExampleWrapper.vue";
+import FilesEditorDemo from "@/components/layout/FilesEditorDemo.vue";
 import { editorInfo, editorList } from "@/data";
 
 export function getStaticPaths() {
@@ -17,7 +18,8 @@ const editorType = editor as EditorType;
 ---
 
 <TesterLayout title={title}>
-  {editorType && (
+  {editorType === "files" && <FilesEditorDemo client:only="vue" />}
+  {editorType && editorType !== "files" && (
     <ExampleWrapper editor={editorType} client:only="vue" />
   )}
   {!editorType && (
