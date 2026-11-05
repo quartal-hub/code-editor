@@ -29,6 +29,31 @@ interface FilesEditorElement extends HTMLElement {
 }
 
 const examples = getFilesExamples();
+
+/** The example shown at the top of the page: a complete host, with the initial files. */
+const sampleCode = `<qrtl-editor id="editor" type="files" style="height: 400px"></qrtl-editor>
+<script type="module" src="https://code.quartal.com/qrtl-editor.js"></` + `script>
+<script type="module">
+  // The host owns the files. Here they are in memory; use your own storage.
+  const files = {
+    "/index.ts": 'import { greet } from "./greet";\n\nconsole.log(greet("world"));\n',
+    "/greet.ts": "export function greet(name: string): string {\n  return \`Hello, \${name}!\`;\n}\n",
+  };
+  const editor = document.getElementById("editor");
+
+  editor.addEventListener("ready", () => {
+    editor.setContext({ files });                                    // so imports resolve
+    editor.openFile({ address: "/index.ts", text: files["/index.ts"] });
+  });
+  editor.addEventListener("file-change", (e) => {                    // the user edited
+    files[e.detail.address] = e.detail.text;
+  });
+  editor.addEventListener("file-save", (e) => save(e.detail.address, files[e.detail.address]));   // Ctrl+S
+  editor.addEventListener("file-request", (e) => {                   // go to definition into another file
+    editor.openFile({ address: e.detail.address, text: files[e.detail.address] }, { selection: e.detail.selection });
+  });
+</` + `script>`;
+const sourceUrl = "https://github.com/quartal-hub/code-editor/blob/main/packages/web/src/components/layout/FilesEditorDemo.vue";
 const editor = ref<FilesEditorElement | null>(null);
 const files = reactive<Record<string, HostFile>>({});
 const tabs = ref<string[]>([]);
@@ -186,9 +211,9 @@ onMounted(() => {
       The files editor is Monaco for many files. Your page owns the file list, the tabs and the storage; the editor only edits
       the files you open in it.
     </p>
-    <pre class="border rounded p-2 small bg-body-tertiary"><code>&lt;qrtl-editor type="files"&gt;&lt;/qrtl-editor&gt;
-editor.addEventListener("ready", () =&gt; editor.openFile({ address: "/a.ts", text: "export const a = 1;" }));
-editor.addEventListener("file-change", (e) =&gt; save(e.detail.address, e.detail.text));</code></pre>
+    <div class="border rounded mb-3" style="height: 22rem;">
+      <qrtl-editor type="monaco" lang="html" read-only :code="sampleCode"></qrtl-editor>
+    </div>
     <div class="row small">
       <div class="col-md-6">
         <p class="mb-1"><strong>Methods</strong> (call after <code>ready</code>):</p>
@@ -218,6 +243,7 @@ editor.addEventListener("file-change", (e) =&gt; save(e.detail.address, e.detail
     <p class="small text-body-secondary">
       The page below is a host: it holds the files, opens tabs and answers the events. Try go to definition (F12), Ctrl+S,
       switching tabs, and the buttons. The log shows each call and event.
+      <a :href="sourceUrl" target="_blank" rel="noopener">Source of this simulator on GitHub</a>.
     </p>
     <div class="d-flex flex-wrap gap-2 align-items-center mb-2">
       <select class="form-select form-select-sm w-auto" aria-label="Example" :value="exampleIndex" @change="loadExample(Number(($event.target as HTMLSelectElement).value))">

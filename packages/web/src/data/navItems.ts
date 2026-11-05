@@ -19,7 +19,8 @@ export const navItems: NavItem[] = [
   {
     path: "/markdown-hybrid/demo",
     label: "Markdown (hybrid)",
-    description: "Obsidian-like hybrid Markdown editor (test / evaluation only: use the Markdown Editor instead)",
+    description: "EXPERIMENTAL: Obsidian-like hybrid Markdown editor (test / evaluation only: use the Markdown Editor instead)",
+    hideInTopMenu: true,
   },
   {
     path: "/expression/demo",

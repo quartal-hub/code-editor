@@ -9,4 +9,6 @@ export interface NavItem {
   label: string;
   /** The description of the item. */
   description: string;
+  /** If true, the item is listed on the front page but not in the top menu. */
+  hideInTopMenu?: boolean;
 }

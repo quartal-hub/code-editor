@@ -7,7 +7,7 @@ const { title } = Astro.props;
 const currentPath = Astro.url.pathname;
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 // Paths in navItems are site-root-relative: prefix them with the base path (empty in production).
-const navItems = rawNavItems.map((item) => ({ ...item, path: `${base}${item.path}` }));
+const navItems = rawNavItems.filter((item) => !item.hideInTopMenu).map((item) => ({ ...item, path: `${base}${item.path}` }));
 const SKIN_URL = "https://cdn.quartal.com/css/quartal-www.css";
 ---
 
