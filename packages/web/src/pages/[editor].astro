@@ -6,8 +6,7 @@ import FunctionEditorPage from "@/components/pages/FunctionEditorPage.vue";
 import MonacoEditorPage from "@/components/pages/MonacoEditorPage.vue";
 import MarkdownEditorPage from "@/components/pages/MarkdownEditorPage.vue";
 import MarkdownHybridEditorPage from "@/components/pages/MarkdownHybridEditorPage.vue";
-import MonacoEditorReactPage from "@/components/pages/MonacoEditorReactPage";
-import ProjectEditorPage from "@/components/pages/ProjectEditorPage";
+import FilesEditorPage from "@/components/pages/FilesEditorPage.vue";
 import ExcalidrawEditorPage from "@/components/pages/ExcalidrawEditorPage";
 import { editorInfo, editorList } from "@/data";
 import type { EditorType } from "@quartal/code-editors-core";
@@ -29,8 +28,7 @@ const title = editorConfig?.title ?? "Editor";
   {editor === "markdown" && <MarkdownEditorPage client:only="vue" />}
   {editor === "markdown-hybrid" && <MarkdownHybridEditorPage client:only="vue" />}
   {editor === "function" && <FunctionEditorPage client:only="vue" />}
-  {editor === "monaco-react" && <MonacoEditorReactPage client:only="react" />}
-  {editor === "project" && <ProjectEditorPage client:only="react" />}
+  {editor === "files" && <FilesEditorPage client:only="vue" />}
   {editor === "excalidraw" && <ExcalidrawEditorPage client:only="react" />}
   {!editorConfig && (
     <div class="alert alert-danger mx-auto w-50 mt-5">Unknown editor "{editor}"</div>

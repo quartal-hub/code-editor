@@ -1,21 +1,9 @@
-import type { Project } from "@/model/Project";
+import type { FilesData } from "@/model/FilesData";
 
 /**
- * Builds a Project from a flat map of `path -> file content`. Keeps example
- * declarations readable (one template literal per file) instead of nested
- * `{ code: ... }` objects everywhere.
+ * Builds the data of the multi-file editor from a flat map of `address -> file content`. Keeps
+ * example declarations readable (one template literal per file).
  */
-export function filesAsProject(
-  files: Record<string, string>,
-  options?: { customSetup?: Project["customSetup"]; template?: string },
-): Project {
-  const projectFiles: Project["files"] = {};
-  for (const [path, code] of Object.entries(files)) {
-    projectFiles[path] = { code };
-  }
-  return {
-    files: projectFiles,
-    customSetup: options?.customSetup,
-    template: options?.template,
-  };
+export function filesAsData(files: Record<string, string>, options?: { active?: string }): FilesData {
+  return { files, active: options?.active };
 }

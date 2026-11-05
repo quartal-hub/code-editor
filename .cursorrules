@@ -8,9 +8,9 @@ This is a standalone SPA that implements various customized code editors for Qua
 - **Build Tool**: Vite
 - **Routing**: React Router v6
 - **Package Manager**: pnpm
-- **Editors**: Sandpack (with Monaco Editor integration), Monaco Editor standalone
+- **Editors**: Monaco Editor (single file and the multi-file `/files` editor), Milkdown, Excalidraw
 - **Target**: ESNext
-- **UI elements**: Bootstrap outside Sandpack, Monaco etc. components.
+- **UI elements**: Bootstrap outside Monaco etc. components.
   Later versions, may add "switching the skin" as changing the Bootstrap CSS.
 
 ## Project Structure
@@ -22,7 +22,7 @@ This is a standalone SPA that implements various customized code editors for Qua
 - `/expression` - Excel-like expression editor
 - `/function` - Editor for a single function within a class
 - `/class` - Visual editor for classes (properties, expressions, functions, interfaces)
-- `/project` - Project editor with Sandpack (Quartal Hub business logic and UXs)
+- `/files` - Multi-file Monaco editor driven by messages from the host (no file list or tabs of its own)
 
 ### File Organization
 - `src/pages/` - Route page components
@@ -42,17 +42,12 @@ This is a standalone SPA that implements various customized code editors for Qua
 ### React
 - Use functional components only
 - Use React Router's `Link` component for navigation (not `<a>` tags)
-- Import React explicitly when needed (e.g., for React.useState in Sandpack code)
 
 ### Styling
-- Use bootstrap when standard bootstrap fits the styling needs (not inside Monaco, Sandpack etc.).
+- Use bootstrap when standard bootstrap fits the styling needs (not inside Monaco etc.).
 - Skin CSS is Bootstrap-based. It is loaded dynamically from CDN (see main.tsx)
 - Prefer inline styles for component-specific styling when Bootstrap is not enough 
 - External CSS only in `src/index.css` for global styles
-
-### Sandpack Integration
-- Use `SandpackProvider`, `SandpackLayout`, `SandpackPreview` for project editor
-- Use `useActiveCode` and `useSandpack` hooks for Monaco integration
 
 ### Monaco Editor
 - Use `@monaco-editor/react` for Monaco integration
@@ -83,10 +78,10 @@ This is a standalone SPA that implements various customized code editors for Qua
 - Single file editing without context
 - Context can be passed via methods
 
-### Project Editor (`/project`)
-- Uses Sandpack with Monaco Editor
-- Supports Quartal Hub business logic and UX editing
-- Full project editing capabilities
+### Files Editor (`/files`)
+- One Monaco editor with one model per file; the host owns the file list and tabs
+- Protocol 2 messages are documented in README.md and typed in `code-editors-core` (`FilesEditorInMessage`, `FilesEditorOutMessage`)
+- Model handling is framework free: `WorkspaceModels` and `MonacoPackages` in `code-editors-core`
 
 ### Skin Loading
 - Skin CSS loaded from configurable URL (default: https://cdn.quartal.com/skins/default.css)

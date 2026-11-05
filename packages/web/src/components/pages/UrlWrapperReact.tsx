@@ -1,31 +1,21 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { JSX } from "react";
-import { ExcalidrawEditor, MonacoEditor, ProjectEditor } from "react-editors";
-import type { Project } from "@quartal/code-editors-core";
+import { ExcalidrawEditor } from "react-editors";
 import { PageHelpers } from "@/helpers";
 import { useQEditorPropsFromQuery } from "@/hooks";
 
-type ReactUrlEditor = "monaco-react" | "excalidraw" | "project";
+type ReactUrlEditor = "excalidraw";
 
 interface UrlWrapperReactProps {
   /** Type of the editor to show. */
   editor: ReactUrlEditor;
 }
 
-function parseProjectFromCode(code: string): Project {
-  const parsed = JSON.parse(code) as Project;
-  if (!parsed || typeof parsed !== "object" || !("files" in parsed)) {
-    throw new Error("Invalid project data.");
-  }
-  return parsed;
-}
-
 function UrlWrapperReact({ editor }: UrlWrapperReactProps): JSX.Element {
-  const { url, readOnly, lang } = useQEditorPropsFromQuery(editor);
+  const { url, readOnly } = useQEditorPropsFromQuery(editor);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
   const [code, setCode] = useState<string>("");
-  const [project, setProject] = useState<Project | null>(null);
 
   const isReadOnly = useMemo(() => readOnly !== false, [readOnly]);
 
@@ -47,11 +37,6 @@ function UrlWrapperReact({ editor }: UrlWrapperReactProps): JSX.Element {
           return;
         }
         setCode(nextCode);
-        if (editor === "project") {
-          setProject(parseProjectFromCode(nextCode));
-        } else {
-          setProject(null);
-        }
       } catch (ex) {
         if (isCancelled) {
           return;
@@ -90,15 +75,7 @@ function UrlWrapperReact({ editor }: UrlWrapperReactProps): JSX.Element {
     );
   }
 
-  if (editor === "excalidraw") {
-    return <ExcalidrawEditor code={code} readOnly={isReadOnly} onLinkOpen={handleExcalidrawLinkOpen} />;
-  }
-
-  if (editor === "project") {
-    return project ? <ProjectEditor project={project} /> : <div>No project data.</div>;
-  }
-
-  return <MonacoEditor code={code} lang={lang} readOnly={isReadOnly} />;
+  return <ExcalidrawEditor code={code} readOnly={isReadOnly} onLinkOpen={handleExcalidrawLinkOpen} />;
 }
 
 export default UrlWrapperReact;

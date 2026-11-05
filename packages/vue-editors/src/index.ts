@@ -6,3 +6,5 @@ export { default as ClassEditor } from "./components/ClassEditor.vue";
 export { default as FunctionEditor } from "./components/FunctionEditor.vue";
 export { default as MarkdownEditor } from "./components/MarkdownEditor.vue";
 export { default as MarkdownHybridEditor } from "./components/MarkdownHybridEditor.vue";
+
+export { default as FilesEditor } from "./components/FilesEditor.vue";

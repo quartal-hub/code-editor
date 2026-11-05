@@ -1,10 +1,8 @@
-import type { Project } from "@/model/Project";
-import { filesAsProject } from "./projectHelpers";
+import type { FilesData } from "@/model/FilesData";
+import { filesAsData } from "./projectHelpers";
 
-// Snapshot of @qrtl-packages/test1 — a Deno package. Sandpack has no Deno
-// template, but for editing-only the Provider just needs an entry, so we point
-// it at /main.ts. The bundler will fail to resolve Deno-style specifiers (JSR,
-// `.ts` extensions, deno.jsonc imports map) but the editor itself works.
+// Snapshot of @qrtl-packages/test1 — a Deno package. The editor only edits the files: Deno
+// style specifiers (JSR, `.ts` extensions, the deno.jsonc imports map) are not resolved by Monaco.
 // Heavy generated artefacts (qrtl-hub/tools.json, types/salaxy.d.ts) and the
 // Deno-only formulas/tests trees are intentionally omitted from this snapshot.
 
@@ -460,7 +458,7 @@ export interface TypeTesterJsonSchemaFormats {
 }
 `;
 
-export const denoTest1Project: Project = filesAsProject(
+export const denoTest1Project: FilesData = filesAsData(
   {
     "/deno.jsonc": denoJsonc,
     "/README.md": readmeMd,
@@ -485,10 +483,5 @@ export const denoTest1Project: Project = filesAsProject(
     "/tools/model/TypeTesterNestedObjectResult.ts": nestedObjectResultTs,
     "/tools/model/TypeTesterJsonSchemaFormats.ts": jsonSchemaFormatsTs,
   },
-  {
-    customSetup: {
-      entry: "/main.ts",
-      dependencies: {},
-    },
-  },
+  { active: "/main.ts" },
 );

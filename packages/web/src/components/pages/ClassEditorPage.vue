@@ -42,8 +42,8 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="h-100" style="min-height: 0;">
-    <ClassEditor v-if="editorProps" :code="editorProps.code ?? ''" :read-only="editorProps.readOnly"
-      :view="editorProps.view as 'single-class' | 'multi-class'" @on-change="handleCodeChange" />
+    <ClassEditor v-if="editorProps" :code="editorProps.code ?? ''" :read-only="editorProps.readOnly ?? props.readOnly"
+      :view="(editorProps.view ?? props.view) as 'single-class' | 'multi-class'" @on-change="handleCodeChange" />
     <div v-else class="d-flex align-items-center justify-content-center" style="height: 100%;">
       <div class="spinner-border" role="status"></div>
       <span class="ms-2">Waiting for class code...</span>

@@ -66,8 +66,9 @@ export class PageHelpers {
 
   /**
    * Fetches a file from a URL and returns the content as a string.
-   * Uses a CORS proxy to avoid CORS issues.
-   * 
+   * The request is made by the visitor's browser, with no proxy: The file must be on this site (a site-relative URL)
+   * or on a server that allows cross-origin requests (CORS, `Access-Control-Allow-Origin`) and needs no credentials.
+   *
    * @param url The URL to fetch the code from.
    * @returns The content of the file as a string.
    * @throws Error if the URL is not provided or is not a valid URL.
@@ -85,12 +86,16 @@ export class PageHelpers {
       url = window.location.origin + prefix + url;
     }
     if (!url.startsWith("http")) {
-      throw new Error(`Invalid URL: ${url}. The URL must start with http or https because it is proxied through a CORS proxy.`);
+      throw new Error(`Invalid URL: ${url}. The URL must start with http or https, or be a site-relative path such as /examples/x.json.`);
     }
 
-    // HACK: Switch to our own proxy service => This will not work in production.
-
-    const response = await fetch(url);
+    let response: Response;
+    try {
+      response = await fetch(url);
+    } catch {
+      // The browser does not say why a cross-origin request failed: The usual reason is a missing CORS header.
+      throw new Error(`Could not load ${url}. Only files on this site and on servers that allow cross-origin requests (CORS) can be loaded.`);
+    }
     if (!response.ok) {
       throw new Error(`Failed to fetch code from URL: ${url}`);
     }
@@ -103,10 +108,18 @@ export class PageHelpers {
 
   /**
    * Sends a message to the parent iframe that the editor is ready (only if in iframe).
+   * @param protocol Version of the message protocol the page speaks, for pages with more than `set-data` / `on-change`.
    */
-  public static sendIframeReadyMessage(): void {
+  public static sendIframeReadyMessage(protocol?: number): void {
     if (PageHelpers.isInIframe()) {
-      window.parent.postMessage({ type: "editor-ready" }, "*");
+      window.parent.postMessage(protocol ? { type: "editor-ready", protocol } : { type: "editor-ready" }, "*");
+    }
+  }
+
+  /** Sends any message to the parent window (only if in iframe). */
+  public static sendMessageToParent(message: { type: string }): void {
+    if (PageHelpers.isInIframe()) {
+      window.parent.postMessage(message, "*");
     }
   }
 

@@ -1,5 +1,5 @@
-import type { Project } from "@/model/Project";
-import { filesAsProject } from "./projectHelpers";
+import type { FilesData } from "@/model/FilesData";
+import { filesAsData } from "./projectHelpers";
 
 const skillMd = `---
 name: magic-multiplier
@@ -35,15 +35,10 @@ export function applyMagicMultiplier(n: number): number {
 }
 `;
 
-export const magicMultiplierProject: Project = filesAsProject(
+export const magicMultiplierProject: FilesData = filesAsData(
   {
     "/SKILL.md": skillMd,
     "/scripts/multiplier.ts": multiplierTs,
   },
-  {
-    customSetup: {
-      entry: "/scripts/multiplier.ts",
-      dependencies: {},
-    },
-  },
+  { active: "/scripts/multiplier.ts" },
 );
