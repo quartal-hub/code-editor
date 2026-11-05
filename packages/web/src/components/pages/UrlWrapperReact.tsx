@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { JSX } from "react";
-import { ExcalidrawEditor, MonacoEditor } from "react-editors";
+import { ExcalidrawEditor } from "react-editors";
 import { PageHelpers } from "@/helpers";
 import { useQEditorPropsFromQuery } from "@/hooks";
 
-type ReactUrlEditor = "monaco-react" | "excalidraw";
+type ReactUrlEditor = "excalidraw";
 
 interface UrlWrapperReactProps {
   /** Type of the editor to show. */
@@ -12,7 +12,7 @@ interface UrlWrapperReactProps {
 }
 
 function UrlWrapperReact({ editor }: UrlWrapperReactProps): JSX.Element {
-  const { url, readOnly, lang } = useQEditorPropsFromQuery(editor);
+  const { url, readOnly } = useQEditorPropsFromQuery(editor);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
   const [code, setCode] = useState<string>("");
@@ -75,11 +75,7 @@ function UrlWrapperReact({ editor }: UrlWrapperReactProps): JSX.Element {
     );
   }
 
-  if (editor === "excalidraw") {
-    return <ExcalidrawEditor code={code} readOnly={isReadOnly} onLinkOpen={handleExcalidrawLinkOpen} />;
-  }
-
-  return <MonacoEditor code={code} lang={lang} readOnly={isReadOnly} />;
+  return <ExcalidrawEditor code={code} readOnly={isReadOnly} onLinkOpen={handleExcalidrawLinkOpen} />;
 }
 
 export default UrlWrapperReact;

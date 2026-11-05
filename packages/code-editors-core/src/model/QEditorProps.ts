@@ -2,7 +2,7 @@
 export interface QEditorProps {
 
     /** Type of the editor to show. */
-    type: "monaco" | "monaco-react" | "expression" | "function" | "class" | "project" | "excalidraw" | "markdown" | "markdown-hybrid";
+    type: "monaco" | "expression" | "function" | "class" | "files" | "excalidraw" | "markdown" | "markdown-hybrid";
     /** Optional view style for editors (e.g. expression "plain" | "excel"). */
     view?: string;
     /**

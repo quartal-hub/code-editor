@@ -41,14 +41,4 @@ export const navItems: NavItem[] = [
     label: "Excalidraw Editor",
     description: "Excalidraw editor for editing and displaying drawings and diagrams",
   },
-  {
-    path: "/function/demo",
-    label: "Function Editor",
-    description: "Editor for a single function within a class",
-  },
-  {
-    path: "/monaco-react/demo",
-    label: "Monaco (React)",
-    description: "React version of the stand-alone Monaco editor.",
-  },
 ];

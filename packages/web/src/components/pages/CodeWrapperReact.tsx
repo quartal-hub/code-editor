@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { JSX } from "react";
 import type { ExcalidrawSceneData } from "react-editors";
-import { ExcalidrawEditor, MonacoEditor } from "react-editors";
+import { ExcalidrawEditor } from "react-editors";
 import type { QEditorChangeEventData } from "@quartal/code-editors-core";
 import { PageHelpers } from "@/helpers";
 
-type ReactCodeEditor = "monaco-react" | "excalidraw";
+type ReactCodeEditor = "excalidraw";
 
 interface CodeWrapperReactProps {
   /** Type of the editor to show. */
@@ -39,7 +39,6 @@ function parseSceneFromCode(code: string): ExcalidrawSceneData | null {
 
 function CodeWrapperReact({ editor }: CodeWrapperReactProps): JSX.Element {
   const [code, setCode] = useState<string>("");
-  const [lang, setLang] = useState<string | undefined>(undefined);
   const [readOnly, setReadOnly] = useState<boolean>(false);
   const [scene, setScene] = useState<ExcalidrawSceneData | null>(null);
 
@@ -54,7 +53,6 @@ function CodeWrapperReact({ editor }: CodeWrapperReactProps): JSX.Element {
     const values = PageHelpers.getPropsFromLocation(editor);
     const nextCode = values.code ?? "";
     setCode(nextCode);
-    setLang(values.lang ?? undefined);
     setReadOnly(values.readOnly ?? false);
     if (editor === "excalidraw") {
       setScene(parseSceneFromCode(nextCode));
@@ -89,15 +87,6 @@ function CodeWrapperReact({ editor }: CodeWrapperReactProps): JSX.Element {
       }
     };
   }, []);
-
-  const handleMonacoChange = useCallback(
-    (data: QEditorChangeEventData) => {
-      const nextCode = data.code ?? "";
-      setCode(nextCode);
-      scheduleHashUpdate(nextCode);
-    },
-    [scheduleHashUpdate]
-  );
 
   const handleExcalidrawChange = useCallback(
     (data: QEditorChangeEventData) => {
@@ -141,7 +130,7 @@ function CodeWrapperReact({ editor }: CodeWrapperReactProps): JSX.Element {
     );
   }
 
-  return <MonacoEditor code={code} lang={lang} readOnly={readOnly} onChange={handleMonacoChange} />;
+  return null;
 }
 
 export default CodeWrapperReact;

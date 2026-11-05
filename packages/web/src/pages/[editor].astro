@@ -6,7 +6,6 @@ import FunctionEditorPage from "@/components/pages/FunctionEditorPage.vue";
 import MonacoEditorPage from "@/components/pages/MonacoEditorPage.vue";
 import MarkdownEditorPage from "@/components/pages/MarkdownEditorPage.vue";
 import MarkdownHybridEditorPage from "@/components/pages/MarkdownHybridEditorPage.vue";
-import MonacoEditorReactPage from "@/components/pages/MonacoEditorReactPage";
 import FilesEditorPage from "@/components/pages/FilesEditorPage.vue";
 import ExcalidrawEditorPage from "@/components/pages/ExcalidrawEditorPage";
 import { editorInfo, editorList } from "@/data";
@@ -29,7 +28,6 @@ const title = editorConfig?.title ?? "Editor";
   {editor === "markdown" && <MarkdownEditorPage client:only="vue" />}
   {editor === "markdown-hybrid" && <MarkdownHybridEditorPage client:only="vue" />}
   {editor === "function" && <FunctionEditorPage client:only="vue" />}
-  {editor === "monaco-react" && <MonacoEditorReactPage client:only="react" />}
   {editor === "files" && <FilesEditorPage client:only="vue" />}
   {editor === "excalidraw" && <ExcalidrawEditorPage client:only="react" />}
   {!editorConfig && (

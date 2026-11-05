@@ -21,16 +21,6 @@ export function getExamples(editor: EditorType): QEditorExample[] {
       return getMarkdownExamples(editor);
     case "monaco":
       return getMonacoExamples();
-    case "monaco-react": {
-      const examples = getMonacoExamples();
-      return examples.map((example) => ({
-        ...example,
-        props: {
-          ...example.props,
-          type: "monaco-react",
-        },
-      }));
-    }
     case "files":
       return getFilesExamples();
     case "function":

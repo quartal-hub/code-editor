@@ -52,14 +52,6 @@ export const editorInfo: Record<EditorType, EditorInfo> = {
     fetch: true,
     fs: "file",
   },
-  "monaco-react": {
-    title: "Monaco Editor (React)",
-    platform: "react",
-    description:
-      "This is the basic Monaco code editor for editing miscellaneous single code files, typically JSON for data, CSS / skins, JS/TS or HTML.",
-    fetch: true,
-    fs: "file",
-  },
   files: {
     title: "Files Editor",
     platform: "vue",

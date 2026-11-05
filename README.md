@@ -24,7 +24,7 @@ Paths:
   For test / evaluation purposes only: use `/markdown` instead
 - `/skin`: Visual editor for Bootstrap based skins
 - `/expression`: Simple excel-like expression editor.
-- `/function`: Editor for a single function within a class
+- `/function`: Placeholder for an editor of a single function within a class. Not listed on the site.
 - `/class`: Visual editor for a class
   - Properties editor for data structure
   - Expression and functions: add/remove/edit
@@ -32,6 +32,13 @@ Paths:
 - `/files`: A Monaco editor for many files (Quartal Hub business logic tools, skills, UXs). It has no file list,
   tabs or storage: the host (the `QFileExplorer` of `@quartal/ui-core`, or any page) owns them and tells the editor
   which files are open and which one is shown. See "Files editor protocol" below.
+
+The `qrtl-editor` element
+=========================
+
+`packages/web/public/qrtl-editor.js` wraps the iframe and the messages of all the editors as attributes, methods and
+events. The table on the About page lists them by editor. It is built from `packages/web/src/data/editorApi.ts`: when an
+editor page or `qrtl-editor.js` changes, change that file too.
 
 Files editor protocol
 =====================

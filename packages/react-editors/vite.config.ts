@@ -12,7 +12,6 @@ export default defineConfig({
     },
     rollupOptions: {
       external: [
-        "@monaco-editor/react",
         "react",
         "react-dom",
       ],

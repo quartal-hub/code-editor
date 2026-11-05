@@ -25,7 +25,7 @@ const platform: "vue" | "react" = editorConfig?.platform;
   )}
   {platform === "react" && (
     <UrlWrapperReact
-      editor={editor as "monaco-react" | "excalidraw"}
+      editor={editor as "excalidraw"}
       client:only="react" />
   )}
   {!platform && <div class="alert alert-danger mx-auto w-50 mt-5">Unknown platform for editor "{editor}"</div>}
