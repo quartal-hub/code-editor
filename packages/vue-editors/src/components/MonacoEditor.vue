@@ -15,7 +15,7 @@ type CursorPosition = { lineNumber: number; column: number } | null;
   readOnly?: boolean;
   /** The code to show in the editor. */
   code?: string;
-  /** The URL of the code to show in the editor. Alternative to code. */
+  /** The URL of the code to show in the editor. Alternative to code. Must allow CORS (or be on the Code UI site); there is no proxy. */
   url?: string;
   /** Extra Monaco editor options to merge into the editor options. */
   options?: Record<string, unknown>;

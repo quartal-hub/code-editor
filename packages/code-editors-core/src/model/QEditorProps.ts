@@ -13,8 +13,9 @@ export interface QEditorProps {
     /** Code to show in the editor. Used in simple single-file usecases. */
     code?: string;
     /**
-     * URL of the code to show in the editor. Alternative to code. 
-     * URL must support anonymous access.
+     * URL of the code to show in the editor. Alternative to code.
+     * The browser fetches it directly, so it must be a path on the Code UI site or a server that allows CORS,
+     * and it must need no credentials. There is no proxy.
      */
     url?: string;
     /** Language of the code to show in the editor. Used together with code in single-file usecases. */

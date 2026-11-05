@@ -557,7 +557,7 @@ export class QEditorUrlElement extends QEditorStaticElement {
     return ["type", "view", "url", "lang", "editable", "base-url"];
   }
 
-  /** The address of the text to show. It must be readable without credentials. */
+  /** The address of the text to show. The browser fetches it directly: it must allow CORS (or be a path on the Code UI site) and need no credentials. There is no proxy. */
   get url() { return stringProperty("url", undefined).get.call(this); }
   set url(value) { stringProperty("url").set.call(this, value); }
 

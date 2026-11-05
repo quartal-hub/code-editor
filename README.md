@@ -36,6 +36,10 @@ Paths:
 The `qrtl-editor` element
 =========================
 
+**Loading from a URL** (`qrtl-editor-url`, the `/fetch` pages): the visitor's browser fetches the file directly. There is no
+proxy, so only files on the Code UI site itself (site-relative URLs, such as the examples) and files on servers that send
+CORS headers (`Access-Control-Allow-Origin`) work. The file must need no credentials.
+
 `packages/web/public/qrtl-editor.js` wraps the iframe and the messages of all the editors as attributes, methods and
 events. The table on the About page lists them by editor. It is built from `packages/web/src/data/editorApi.ts`: when an
 editor page or `qrtl-editor.js` changes, change that file too.
