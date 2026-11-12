@@ -1,0 +1,80 @@
+---
+import SiteLayout from "@/layouts/SiteLayout.astro";
+import { demoEditors, editorApi, editorInfo, type NavItemEditor } from "@/data";
+
+export function getStaticPaths() {
+  return demoEditors.map((item) => ({ params: { editor: item.editor }, props: { item } }));
+}
+
+const { item } = Astro.props as { item: NavItemEditor };
+const info = editorInfo[item.editor];
+const groups = [
+  { title: "Attributes", note: "Set in HTML. Each one is also a property of the element.", items: editorApi.attributes },
+  { title: "Methods", note: "Call in JavaScript.", items: editorApi.methods },
+  { title: "Events", note: "Listen with addEventListener; the data is in event.detail.", items: editorApi.events },
+].map((g) => ({ ...g, items: g.items.filter((i) => i.editors.includes(item.editor)) }));
+
+/** The attributes of the static elements, that show code from the link hash or from a URL and report no changes. */
+const staticAttributes = [
+  { name: "type", description: `The editor: ${item.editor}.` },
+  { name: "code", description: "qrtl-editor-code: the text to show." },
+  ...(info.fetch ? [{ name: "url", description: "qrtl-editor-url: the address to fetch. It must allow CORS (or be on code.quartal.com) and need no credentials." }] : []),
+  { name: "lang", description: "Language of the code. For a URL, detected from the address when not given." },
+  { name: "view", description: "Variant of the editor, as for qrtl-editor." },
+  { name: "editable", description: "The editor accepts edits. Default is read-only." },
+  { name: "base-url", description: "Address of the Code UI site, when it is not the one that served qrtl-editor.js." },
+];
+---
+
+<SiteLayout title="Properties, Methods and Events" eyebrow={info.title} editor={item.editor} page="api">
+  <p class="lead">
+    What <code>{`<qrtl-editor type="${item.editor}">`}</code> supports. An editor ignores what it does not support.
+  </p>
+
+  {groups.map((g) => (
+    <>
+      <h2>{g.title}</h2>
+      <p>{g.note}</p>
+      {g.items.length ? (
+        <div class="table-responsive">
+          <table class="table table-sm">
+            <thead><tr><th scope="col" style="width: 40%;">Name</th><th scope="col">What it does</th></tr></thead>
+            <tbody>
+              {g.items.map((i) => (
+                <tr><td><code>{i.name}</code></td><td>{i.description}</td></tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <p class="text-body-secondary">None.</p>
+      )}
+    </>
+  ))}
+
+  {item.editor !== "files" && (
+    <>
+      <h2>qrtl-editor-code{info.fetch ? " and qrtl-editor-url" : ""}</h2>
+      <p>
+        These show the code without a script of your own: the code{info.fetch ? " or its URL" : ""} goes in the hash of the editor page.
+        They report no changes{item.editor === "excalidraw" ? "; the only event is link-open" : ""}.
+      </p>
+      <div class="table-responsive">
+        <table class="table table-sm">
+          <thead><tr><th scope="col" style="width: 40%;">Attribute</th><th scope="col">What it does</th></tr></thead>
+          <tbody>
+            {staticAttributes.map((i) => (
+              <tr><td><code>{i.name}</code></td><td>{i.description}</td></tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </>
+  )}
+  {item.editor === "files" && (
+    <p class="mt-4">
+      The element wraps the messages of the files page (protocol 2). The messages themselves are listed in the
+      <a href="https://github.com/quartal-hub/code-editor#files-editor-protocol" target="_blank" rel="noopener">README</a>.
+    </p>
+  )}
+</SiteLayout>

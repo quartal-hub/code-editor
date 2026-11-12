@@ -1,0 +1,117 @@
+---
+import { Code } from "astro:components";
+import SiteLayout from "@/layouts/SiteLayout.astro";
+import { demoEditors, editorApi, editorInfo, type NavItemEditor } from "@/data";
+import {
+  elementHtml,
+  filesHostCode,
+  getExamples,
+  plainLink,
+  sampleId,
+  sampleKind,
+  SCRIPT_TAG,
+  SITE_URL,
+} from "@/examples";
+
+export function getStaticPaths() {
+  return demoEditors.map((item) => ({ params: { editor: item.editor }, props: { item } }));
+}
+
+const { item } = Astro.props as { item: NavItemEditor };
+const info = editorInfo[item.editor];
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const demo = `${base}${item.path}`;
+const samples = getExamples(item.editor);
+const isFiles = item.editor === "files";
+/** The first sample with the code in an attribute shows the element; the first URL sample shows loading from a URL. */
+const codeSample = samples.find((s) => sampleKind(s) === "code");
+const urlSample = samples.find((s) => sampleKind(s) === "url");
+const starter = codeSample ?? urlSample;
+const changes = editorApi.events.find((e) => e.name === "change")!.editors.includes(item.editor);
+const theme = "github-dark-default";
+
+const elementSnippet = starter && `<div style="height: 300px;">\n  ${elementHtml(starter, true)}\n</div>`;
+const listenSnippet = `const editor = document.querySelector("qrtl-editor");
+editor.addEventListener("change", (e) => console.log(e.detail));   // the user edited
+editor.setData({ code: "new text" });                              // replace the content`;
+const urlSnippet = urlSample && `<div style="height: 300px;">\n  ${elementHtml(urlSample, true)}\n</div>`;
+const link = starter && plainLink(starter);
+---
+
+<SiteLayout title="Getting Started" eyebrow={info.title} editor={item.editor} page="getting-started">
+  {isFiles ? (
+    <>
+      <p class="lead">
+        The files editor is Monaco for many files. Your page owns the file list, the tabs and the storage; the editor only
+        edits the files you open in it.
+      </p>
+      <h2>A Complete Host</h2>
+      <p>
+        Load <code>qrtl-editor.js</code>, add the element and send it the files when it is <code>ready</code>. Then answer
+        its events: save on <code>file-save</code>, open the file it asks for on <code>file-request</code>.
+      </p>
+      <Code code={filesHostCode} lang="html" theme={theme} />
+      <p class="mt-3">
+        See it working in the <a href={`${demo}/${sampleId(samples[0]!.title)}/`}>host simulator</a>, and every method and
+        event in <a href={`${demo}/api/`}>Properties, Methods and Events</a>.
+      </p>
+    </>
+  ) : (
+    <>
+      <p class="lead">{codeSample && changes ? "Three steps: load the script, add the element, listen to it." : "Two steps: load the script and add the element."}</p>
+
+      <h2>1. Load the Script</h2>
+      <p>Once per page, at the end. It defines the <code>qrtl-editor</code> elements.</p>
+      <Code code={SCRIPT_TAG} lang="html" theme={theme} />
+
+      {starter && elementSnippet && (
+        <>
+          <h2>2. Add the Element</h2>
+          <p>The element fills its parent: give the parent a height.</p>
+          <Code code={elementSnippet} lang="html" theme={theme} />
+          <p class="mt-3 mb-2">...renders as:</p>
+          <div class="editor-frame" style="height: 300px; min-height: 0;" set:html={elementHtml(starter)} />
+        </>
+      )}
+
+      {codeSample && changes && (
+        <>
+          <h2>3. Listen to Changes</h2>
+          <p>
+            The <code>change</code> event carries the edited content. <code>setData</code> replaces it without touching the
+            attributes.
+          </p>
+          <Code code={listenSnippet} lang="js" theme={theme} />
+        </>
+      )}
+
+      {info.fetch && urlSnippet && starter !== urlSample && (
+        <>
+          <h2>Load From a URL</h2>
+          <p>
+            <code>qrtl-editor-url</code> fetches the file in the visitor's browser. Only files on <code>{SITE_URL}</code> and on
+            servers that allow CORS work. It is read-only unless <code>editable</code>, and reports no changes.
+          </p>
+          <Code code={urlSnippet} lang="html" theme={theme} />
+        </>
+      )}
+
+      {link && (
+        <>
+          <h2>Or Just Link to It</h2>
+          <p>
+            The element is an iframe of the editor page, so a plain link works too, in a new window or in your own iframe.
+            The {starter && sampleKind(starter) === "url" ? "URL" : "code"} goes in the hash.
+          </p>
+          <p class="text-truncate"><a href={link} target="_blank" rel="noopener">{link}</a></p>
+        </>
+      )}
+
+      <h2>Next</h2>
+      <p>
+        Every attribute, method and event: <a href={`${demo}/api/`}>Properties, Methods and Events</a>. Working examples:
+        the samples in the side navi.
+      </p>
+    </>
+  )}
+</SiteLayout>

@@ -33,6 +33,22 @@ Paths:
   tabs or storage: the host (the `QFileExplorer` of `@quartal/ui-core`, or any page) owns them and tells the editor
   which files are open and which one is shown. See "Files editor protocol" below.
 
+Site styles
+===========
+
+The site pages (About `/`, Editors `/editors`, the demos `/<editor>/demo`) use `SiteLayout.astro` with the Quartal skin:
+`packages/web/public/skin/quartal.css`, the compiled `quartal` skin of the docs repo (`packages/skins`, `pnpm build` there).
+Copy a new build with `pnpm -C packages/web skin:sync` (reads `../docs/packages/skins/dist`, or `SKINS_DIST`). The site's
+own chrome (top bar, side navi, editor rows) is in `src/styles/site.css`.
+
+Each editor has its own pages under `/<editor>/demo/`: the Intro, `getting-started/`, `api/` (from
+`src/data/editorApi.ts`) and one page per sample (`/<editor>/demo/<sample-id>/`, the id is the title as a slug). The samples
+are in `src/examples/get*Examples.ts`; a sample page shows them in three tabs: Preview, Component (the HTML of the
+preview, built by `src/examples/sampleHtml.ts`) and Plain link (disabled for the files editor, which needs a host).
+
+The editor pages (`/monaco`, `/monaco/code`, `/monaco/fetch`, ...) use `EditorLayout.astro`, which still links
+`https://cdn.quartal.com/css/quartal-www.css` and `src/index.css`. They do not load the site skin.
+
 The `qrtl-editor` element
 =========================
 

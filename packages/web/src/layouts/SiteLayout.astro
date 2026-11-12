@@ -1,0 +1,164 @@
+---
+// The layout of the site pages: About, Editors and the editor demos. The editor pages themselves
+// (/monaco, /monaco/code, ...) use EditorLayout.astro and keep their own styles.
+import "../styles/site.css";
+import type { EditorType } from "@quartal/code-editors-core";
+import { demoEditors } from "../data";
+import { getExamples, sampleId } from "../examples";
+
+interface Props {
+  title: string;
+  /** Text above the title. */
+  eyebrow?: string;
+  /** The editor whose pages are shown: highlighted in the side navi, with its pages and samples below it. */
+  editor?: EditorType;
+  /** The page of the editor: "intro", "getting-started", "api" or the id of a sample. */
+  page?: string;
+}
+const { title, eyebrow, editor, page } = Astro.props;
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const pathname = Astro.url.pathname.replace(/\/$/, "") || "/";
+const href = (path: string) => `${base}${path}`;
+
+const menu = [
+  { path: "/", label: "About" },
+  { path: "/editors", label: "Editors" },
+];
+const active = pathname === (base || "/") ? "/" : "/editors";
+
+/** The editors in the side navi; the ones hidden from the menu show only while they are open. */
+const editors = demoEditors.filter((item) => !item.hideInTopMenu || item.editor === editor);
+const editorPages = [
+  { id: "intro", label: "Intro", path: "" },
+  { id: "getting-started", label: "Getting Started", path: "getting-started/" },
+  { id: "api", label: "Properties, Methods and Events", path: "api/" },
+];
+const samples = editor ? getExamples(editor).map((e) => ({ id: sampleId(e.title), title: e.title })) : [];
+const year = new Date().getFullYear();
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title} · Quartal Code</title>
+    <link rel="icon" href="https://cdn.quartal.com/img/logo/quartal-logo-q-32px.png" sizes="32x32" type="image/png" />
+    <link rel="icon" href="https://cdn.quartal.com/img/logo/quartal-logo-q.png" sizes="124x124" type="image/png" />
+    <link rel="stylesheet" href={href("/skin/quartal.css")} />
+  </head>
+  <body class="d-flex flex-column min-vh-100">
+    <nav class="navbar site-navbar">
+      <div class="container flex-wrap">
+        <a class="navbar-brand site-brand" href={href("/")} aria-label="Quartal Code home">
+          <span class="site-logo" aria-hidden="true"></span>
+          <span>Quartal <b>Code</b></span>
+        </a>
+        <ul class="navbar-nav flex-row gap-2 gap-sm-4 mx-md-auto">
+          {menu.map((item) => (
+            <li class="nav-item">
+              <a
+                class:list={["nav-link", { active: item.path === active }]}
+                href={href(item.path === "/" ? "/" : `${item.path}/`)}
+                aria-current={item.path === active ? "page" : undefined}
+              >
+                {item.label}
+              </a>
+            </li>
+          ))}
+          <li class="nav-item">
+            <a class="nav-link" href="https://www.quartal.com" target="_blank" rel="noopener">Quartal.com</a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <div class="container flex-grow-1 site-main">
+      <div class="row gy-5">
+        <aside class="col-md-4 col-lg-3 order-2 order-md-1">
+          <nav class="side-navi" aria-label="Editors">
+            <div class="side-kicker">Editors</div>
+            <div class="list-group list-group-flush q-navi-level-2">
+              {editors.map((item) => (
+                <>
+                  <a
+                    class:list={["list-group-item list-group-item-action", { selected: item.editor === editor, "has-samples": item.editor === editor }]}
+                    href={href(`${item.path}/`)}
+                  >
+                    {item.label}
+                  </a>
+                  {item.editor === editor && (
+                    <div class="list-group list-group-flush q-navi-level-3">
+                      {editorPages.map((p) => (
+                        <a
+                          class:list={["list-group-item list-group-item-action", { selected: p.id === page }]}
+                          href={href(`${item.path}/${p.path}`)}
+                          aria-current={p.id === page ? "page" : undefined}
+                        >
+                          {p.label}
+                        </a>
+                      ))}
+                      {samples.length > 0 && <div class="side-subkicker">Samples</div>}
+                      {samples.map((sample) => (
+                        <a
+                          class:list={["list-group-item list-group-item-action", { selected: sample.id === page }]}
+                          href={href(`${item.path}/${sample.id}/`)}
+                          aria-current={sample.id === page ? "page" : undefined}
+                        >
+                          {sample.title}
+                        </a>
+                      ))}
+                    </div>
+                  )}
+                </>
+              ))}
+            </div>
+          </nav>
+        </aside>
+        <main class="col-md-8 col-lg-9 order-1 order-md-2">
+          {eyebrow && <span class="site-eyebrow">{eyebrow}</span>}
+          <h1 class="mb-4">{title}</h1>
+          <slot />
+        </main>
+      </div>
+    </div>
+
+    <footer class="site-footer border-top bg-body-tertiary mt-5">
+      <div class="container pt-5">
+        <div class="row gy-3">
+          <div class="col-md-5">
+            <p class="h5 mb-2">Quartal <b>Code</b></p>
+            <p class="small text-body-secondary mb-0">Code editors for Quartal Hub. Open source, MIT licensed.</p>
+          </div>
+          <nav class="col-md-7" aria-label="Footer">
+            <ul class="list-unstyled mb-0 d-flex flex-wrap gap-3 justify-content-md-end">
+              <li><a class="link-body-emphasis text-decoration-none" href={href("/")}>About</a></li>
+              <li><a class="link-body-emphasis text-decoration-none" href={href("/editors/")}>Editors</a></li>
+              <li><a class="link-body-emphasis text-decoration-none" href="https://github.com/quartal-hub/code-editor" target="_blank" rel="noopener">GitHub</a></li>
+              <li><a class="link-body-emphasis text-decoration-none" href="https://www.quartal.com" target="_blank" rel="noopener">Quartal.com</a></li>
+            </ul>
+          </nav>
+        </div>
+        <p class="small text-body-secondary mt-4 mb-0">© {year} Quartal Accounting Software Oy</p>
+      </div>
+    </footer>
+
+    <script type="module" src={href("/qrtl-editor.js")}></script>
+    <script>
+      // Tabs (the sample pages): a .nav-tabs of buttons with data-tab, panes with data-pane.
+      for (const tabs of document.querySelectorAll<HTMLElement>("[data-tabs]")) {
+        const buttons = [...tabs.querySelectorAll<HTMLButtonElement>("[data-tab]")];
+        const panes = [...tabs.querySelectorAll<HTMLElement>("[data-pane]")];
+        for (const button of buttons) {
+          button.addEventListener("click", () => {
+            for (const b of buttons) {
+              b.classList.toggle("active", b === button);
+              b.setAttribute("aria-selected", String(b === button));
+            }
+            for (const pane of panes) pane.hidden = pane.dataset.pane !== button.dataset.tab;
+          });
+        }
+      }
+    </script>
+  </body>
+</html>
