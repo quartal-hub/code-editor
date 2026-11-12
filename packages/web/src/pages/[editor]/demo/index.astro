@@ -1,0 +1,67 @@
+---
+import SiteLayout from "@/layouts/SiteLayout.astro";
+import { demoEditors, editorInfo, type NavItemEditor } from "@/data";
+import { getExamples, sampleId, SITE_URL } from "@/examples";
+
+export function getStaticPaths() {
+  return demoEditors.map((item) => ({ params: { editor: item.editor }, props: { item } }));
+}
+
+const { item } = Astro.props as { item: NavItemEditor };
+const info = editorInfo[item.editor];
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const demo = `${base}${item.path}`;
+const samples = getExamples(item.editor).map((s) => ({ ...s, id: sampleId(s.title) }));
+const usage =
+  item.editor === "files"
+    ? "Your page drives it with methods and events: it owns the file list, the tabs and the storage."
+    : info.fetch
+      ? "Give it the code in an attribute, the hash of a link, or a URL to fetch."
+      : "Give it the code in an attribute or in the hash of a link.";
+---
+
+<SiteLayout title={info.title} eyebrow="Editors" editor={item.editor} page="intro">
+  <p class="lead">{info.description}</p>
+  <p>{usage}</p>
+
+  <dl class="meta-rows mt-4">
+    <div><dt>Element</dt><dd><code>{`<qrtl-editor type="${item.editor}">`}</code></dd></div>
+    {info.fetch && <div><dt>From a URL</dt><dd><code>{`<qrtl-editor-url type="${item.editor}" url="…">`}</code></dd></div>}
+    <div>
+      <dt>Page</dt>
+      <dd><a href={`${SITE_URL}/${item.editor}`} target="_blank" rel="noopener">{`${SITE_URL}/${item.editor}`}</a></dd>
+    </div>
+    <div><dt>Built With</dt><dd>{info.platform === "vue" ? "Vue" : "React"}</dd></div>
+  </dl>
+
+  <h2>Next</h2>
+  <div class="editor-rows">
+    <a href={`${demo}/getting-started/`}>
+      <strong>Getting Started</strong>
+      <span>Add the editor to a page, listen to the changes{info.fetch ? ", load from a URL" : ""}.</span>
+    </a>
+    <a href={`${demo}/api/`}>
+      <strong>Properties, Methods and Events</strong>
+      <span>Everything the <code>{`type="${item.editor}"`}</code> element supports.</span>
+    </a>
+  </div>
+
+  <h2>Samples</h2>
+  <div class="editor-rows">
+    {samples.map((s) => (
+      <a href={`${demo}/${s.id}/`}>
+        <strong>{s.title}</strong>
+        <span>{s.descr}</span>
+      </a>
+    ))}
+  </div>
+
+  <script>
+    // Old links picked a sample by the hash (/monaco/demo#read-only): send them to the sample's page.
+    const id = decodeURIComponent(location.hash.slice(1));
+    if (/^[a-z0-9-]+$/.test(id)) {
+      const link = document.querySelector<HTMLAnchorElement>(`.editor-rows a[href$="/${id}/"]`);
+      if (link) location.replace(link.href);
+    }
+  </script>
+</SiteLayout>

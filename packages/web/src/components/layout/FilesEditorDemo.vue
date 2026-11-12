@@ -4,6 +4,11 @@ import type { WorkspaceSelection } from "@quartal/code-editors-core";
 import { getFilesExamples } from "@/examples/getProjectExamples";
 import type { FilesData } from "@/model/FilesData";
 
+const props = defineProps<{
+  /** The index of the example (project) in getFilesExamples() to load. */
+  example: number;
+}>();
+
 /**
  * Demo of the files editor with the `<qrtl-editor type="files">` element. This component plays the host: it owns
  * the file list, the tabs and the storage, and calls the methods of the element. The editor only edits the open files.
@@ -30,29 +35,6 @@ interface FilesEditorElement extends HTMLElement {
 
 const examples = getFilesExamples();
 
-/** The example shown at the top of the page: a complete host, with the initial files. */
-const sampleCode = `<qrtl-editor id="editor" type="files" style="height: 400px"></qrtl-editor>
-<script type="module" src="https://code.quartal.com/qrtl-editor.js"></` + `script>
-<script type="module">
-  // The host owns the files. Here they are in memory; use your own storage.
-  const files = {
-    "/index.ts": 'import { greet } from "./greet";\n\nconsole.log(greet("world"));\n',
-    "/greet.ts": "export function greet(name: string): string {\n  return \`Hello, \${name}!\`;\n}\n",
-  };
-  const editor = document.getElementById("editor");
-
-  editor.addEventListener("ready", () => {
-    editor.setContext({ files });                                    // so imports resolve
-    editor.openFile({ address: "/index.ts", text: files["/index.ts"] });
-  });
-  editor.addEventListener("file-change", (e) => {                    // the user edited
-    files[e.detail.address] = e.detail.text;
-  });
-  editor.addEventListener("file-save", (e) => save(e.detail.address, files[e.detail.address]));   // Ctrl+S
-  editor.addEventListener("file-request", (e) => {                   // go to definition into another file
-    editor.openFile({ address: e.detail.address, text: files[e.detail.address] }, { selection: e.detail.selection });
-  });
-</` + `script>`;
 const sourceUrl = "https://github.com/quartal-hub/code-editor/blob/main/packages/web/src/components/layout/FilesEditorDemo.vue";
 const editor = ref<FilesEditorElement | null>(null);
 const files = reactive<Record<string, HostFile>>({});
@@ -60,7 +42,6 @@ const tabs = ref<string[]>([]);
 const active = ref<string | undefined>(undefined);
 const readOnly = ref(false);
 const ready = ref(false);
-const exampleIndex = ref(0);
 const log = ref<{ dir: "to" | "from"; text: string }[]>([]);
 
 const addresses = computed(() => Object.keys(files).sort((a, b) => a.localeCompare(b)));
@@ -111,18 +92,6 @@ function close(address: string): void {
   tabs.value = tabs.value.filter((a) => a !== address);
   call("closeFile", address);
   if (active.value === address) active.value = tabs.value[Math.min(at, tabs.value.length - 1)];
-}
-
-function loadExample(index: number): void {
-  exampleIndex.value = index;
-  for (const address of [...tabs.value]) call("closeFile", address);
-  tabs.value = [];
-  active.value = undefined;
-  for (const key of Object.keys(files)) delete files[key];
-  const data = examples[index]!.props.data as unknown as FilesData;
-  for (const [address, text] of Object.entries(data.files)) files[address] = { saved: text, draft: text, version: 1 };
-  sendContext();
-  open(data.active ?? Object.keys(data.files)[0]!);
 }
 
 /** Someone else saves the active file: the host pushes the new text. */
@@ -196,8 +165,8 @@ function onFileFocus(event: Event): void {
 }
 
 onMounted(() => {
-  // The first example is loaded when the editor says it is ready (see onReady); until then only the state is set.
-  const data = examples[0]!.props.data as unknown as FilesData;
+  // The example is loaded when the editor says it is ready (see onReady); until then only the state is set.
+  const data = examples[props.example]!.props.data as unknown as FilesData;
   for (const [address, text] of Object.entries(data.files)) files[address] = { saved: text, draft: text, version: 1 };
   const first = data.active ?? Object.keys(data.files)[0]!;
   tabs.value = [first];
@@ -206,55 +175,19 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="container pb-5" style="height: 100%; overflow-y: auto;">
-    <p class="lead">
-      The files editor is Monaco for many files. Your page owns the file list, the tabs and the storage; the editor only edits
-      the files you open in it.
-    </p>
-    <div class="border rounded mb-3" style="height: 22rem;">
-      <qrtl-editor type="monaco" lang="html" read-only :code="sampleCode"></qrtl-editor>
-    </div>
-    <div class="row small">
-      <div class="col-md-6">
-        <p class="mb-1"><strong>Methods</strong> (call after <code>ready</code>):</p>
-        <ul>
-          <li><code>openFile(file, { show?, selection? })</code> with <code>file = { address, text, lang?, readOnly?, version? }</code></li>
-          <li><code>showFile(address, selection?)</code>, <code>closeFile(address)</code></li>
-          <li><code>renameFile(from, to)</code> for a renamed or moved file or folder</li>
-          <li><code>updateFile(address, text, version?)</code> for a change made elsewhere</li>
-          <li><code>setContext({ files?, tsconfig?, packageJson? })</code> so imports resolve</li>
-          <li><code>setOptions({ readOnly?, theme? })</code></li>
-        </ul>
-      </div>
-      <div class="col-md-6">
-        <p class="mb-1"><strong>Events</strong> (<code>event.detail</code>):</p>
-        <ul>
-          <li><code>ready</code> <code>{ protocol }</code></li>
-          <li><code>file-change</code> <code>{ address, text, version? }</code> when the user edits</li>
-          <li><code>file-save</code> <code>{ address }</code> on Ctrl+S</li>
-          <li><code>file-request</code> <code>{ address, selection? }</code> when the user goes to a file that is not open</li>
-          <li><code>file-focus</code> <code>{ address }</code> when the editor shows another open file</li>
-        </ul>
-        <p class="mb-0">Attribute: <code>read-only</code>. There is no <code>code</code> or <code>url</code>: files go in with the methods. All editors: see the <a href="../../">About page</a>.</p>
-      </div>
-    </div>
-
-    <h2 class="h5 mt-3">Host simulator</h2>
+  <div>
     <p class="small text-body-secondary">
       The page below is a host: it holds the files, opens tabs and answers the events. Try go to definition (F12), Ctrl+S,
       switching tabs, and the buttons. The log shows each call and event.
       <a :href="sourceUrl" target="_blank" rel="noopener">Source of this simulator on GitHub</a>.
     </p>
     <div class="d-flex flex-wrap gap-2 align-items-center mb-2">
-      <select class="form-select form-select-sm w-auto" aria-label="Example" :value="exampleIndex" @change="loadExample(Number(($event.target as HTMLSelectElement).value))">
-        <option v-for="(example, i) in examples" :key="example.title" :value="i">{{ example.title }}</option>
-      </select>
       <button type="button" class="btn btn-sm btn-outline-secondary" :disabled="!active" @click="changeByOther">Someone else changes the file</button>
       <button type="button" class="btn btn-sm btn-outline-secondary" :disabled="!active" @click="renameActive">Rename the file</button>
       <button type="button" class="btn btn-sm btn-outline-secondary" :class="{ active: readOnly }" @click="toggleReadOnly">Read only</button>
     </div>
     <div class="d-flex border rounded" style="height: 60vh; min-height: 320px;">
-      <div class="border-end overflow-auto flex-shrink-0 p-2 small" style="width: 15rem;">
+      <div class="border-end overflow-auto flex-shrink-0 p-2 small" style="width: 12rem;">
         <button v-for="address in addresses" :key="address" type="button" class="btn btn-sm btn-link text-start text-truncate w-100 p-0 text-decoration-none"
           :class="{ 'fw-bold': address === active }" :title="address" @click="open(address)">
           {{ address }}
@@ -281,8 +214,8 @@ onMounted(() => {
           ></qrtl-editor>
         </div>
       </div>
-      <pre class="border-start small mb-0 p-2 overflow-auto flex-shrink-0" style="width: 24rem; white-space: pre-wrap; word-break: break-all;" aria-label="Message log"><template v-if="!log.length">Calls and events show here.</template><template v-for="(entry, i) in log" :key="i"><span :class="entry.dir === 'to' ? 'text-primary' : 'text-success'">{{ entry.dir === 'to' ? '→' : '←' }}</span> {{ entry.text }}
-</template></pre>
     </div>
+    <pre class="small mt-3 mb-0 overflow-auto" style="max-height: 14rem; white-space: pre-wrap; word-break: break-all;" aria-label="Message log"><template v-if="!log.length">Calls and events show here.</template><template v-for="(entry, i) in log" :key="i"><span :class="entry.dir === 'to' ? 'text-primary' : 'text-success'">{{ entry.dir === 'to' ? '→' : '←' }}</span> {{ entry.text }}
+</template></pre>
   </div>
 </template>

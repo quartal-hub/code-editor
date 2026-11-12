@@ -1,0 +1,16 @@
+---
+// The editors as ruled rows (name and description), each linking to its demo page.
+import { demoEditors } from "@/data";
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const editors = demoEditors;
+---
+
+<div class="editor-rows">
+  {editors.map((item) => (
+    <a href={`${base}${item.path}/`}>
+      <strong>{item.label}</strong>
+      <span>{item.description}</span>
+    </a>
+  ))}
+</div>

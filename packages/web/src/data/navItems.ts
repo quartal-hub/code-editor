@@ -1,4 +1,7 @@
-import type { NavItem } from "@quartal/code-editors-core";
+import type { EditorType, NavItem } from "@quartal/code-editors-core";
+
+/** A navigation item of an editor, with the editor type. */
+export type NavItemEditor = NavItem & { editor: EditorType };
 
 export const navItems: NavItem[] = [
   {

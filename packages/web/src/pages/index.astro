@@ -1,9 +1,7 @@
 ---
-import TesterLayout from "@/layouts/TesterLayout.astro";
-import { LeftNavi } from "vue-editors";
-import { navItems, editorApi, apiEditors } from "@/data";
-
-const currentPath = Astro.url.pathname;
+import SiteLayout from "@/layouts/SiteLayout.astro";
+import EditorRows from "@/components/layout/EditorRows.astro";
+import { editorApi, apiEditors } from "@/data";
 
 const sample1 =
       (`<div style="width: 100%; height: 150px;">
@@ -22,100 +20,90 @@ editor.addEventListener("change", (e) => console.log(e.detail.code));
 editor.setData({ code: "new text" });`;
 ---
 
-<script type="module" src="/qrtl-editor.js"></script>
-<TesterLayout title="Quartal Hub, Code UI">
-  <div class="container" style="max-height: calc(100vh - 220px); overflow-y: auto;">
-    <p class="lead">
-      Provides a set of code editors for Quartal Hub. These editors are
-      typically used as embedded in Quartal Hub user interfaces as well as
-      external UIs that utilize Quartal Hub components.
-    </p>
-    <div class="row">
-      <div class="col-3">
-        <LeftNavi navItems={navItems} currentPath={currentPath} />
-      </div>
-      <div class="col-9">
-        <h1>Usage</h1>
-        <p class="lead">
-          All the code editors are available through <strong
-            ><code>qrtl-editor</code></strong
-          > component. The component is a <a
-            href="https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/is"
-            target="_blank">custom element</a
-          >.<br />
-          As such it can be used in any HTML page and in any framework.
-        </p>
-        <div style="width: 100%; height: 150px;">
-          <qrtl-editor type="monaco" id="previewEditor" lang="html" code={sample1}></qrtl-editor>
-        </div>
-        ...renders as:
-        <div style="width: 100%; height: 150px;">
-          <qrtl-editor
-            type="monaco"
-            lang="javascript"
-            code="console.log('Hello, world!');"></qrtl-editor>
-        </div>
-        <h2 class="mt-3">Attributes, methods and events</h2>
-        <p>
-          Set attributes in HTML. Call the methods and listen to the events in JavaScript. An editor ignores what it does not support.
-        </p>
-        <pre class="border rounded p-2 small bg-body-tertiary"><code>{sample2}</code></pre>
-        {[["Attributes", editorApi.attributes], ["Methods", editorApi.methods], ["Events", editorApi.events]].map(([title, items]) => (
-          <table class="table table-sm table-bordered small">
-            <thead>
-              <tr>
-                <th scope="col" style="min-width: 14rem;">{title}</th>
-                <th scope="col">What it does</th>
-                {apiEditors.map((e) => <th scope="col" class="text-center align-bottom" style="height: 8.5rem; width: 2.2rem;"><span style="display: inline-block; writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap;">{e.label}</span></th>)}
-              </tr>
-            </thead>
-            <tbody>
-              {items.map((item) => (
-                <tr>
-                  <td><code>{item.name}</code></td>
-                  <td>{item.description}</td>
-                  {apiEditors.map((e) => <td class="text-center">{item.editors.includes(e.type) ? "✓" : ""}</td>)}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        ))}
-        <p>
-          The <code>files</code> editor has no <code>code</code> or <code>url</code>: your page sends the files with the methods. See the <a href="./files/demo">demo</a>.
-        </p>
-        <h2 class="mt-3">URL based usage</h2>
-        <p class="lead">
-          There is a separate component <code>qrtl-editor-url</code> that can be used to load code from a URL.
-          The file is fetched by the visitor's browser, without a proxy. Only files on <code>code.quartal.com</code> itself
-          and on servers that send CORS headers (<code>Access-Control-Allow-Origin</code>) can be loaded. Other URLs fail.
-        </p>
-        <p>The component has the following attributes. It reports no changes; the only event is <code>link-open</code> (excalidraw).
-          <code>qrtl-editor-code</code> takes <code>code</code> in the same way.</p>
-        <ul>
-          <li><code>url</code> - URL of the code to show in the editor. It must allow CORS and need no credentials (or be a path on this site).</li>
-          <li><code>type</code> - Type of the editor to show. See the table above.</li>
-          <li><code>lang</code> - Optional possibility to force the language of the code to show in the editor.
-            Typically, the language is detected automatically from the URL.
-          </li>          
-          <li><code>view</code> - Optional view style for editors.</li>
-          <li><code>editable</code> - If present, editor is editable. Default is read-only.</li>
-        </ul>
-        <h2 class="mt-3">Use directly as pages</h2>
-        <p class="lead">
-          The <code>qrtl-editor</code> component is essentially just an iframe that loads the code editor.
-          As such, you can also access the editors directly as pages:
-        </p>
-        <ul>
-          <li><a href="https://code.quartal.com/monaco" target="_blank">https://code.quartal.com/monaco</a> - Monaco editor</li>
-          <li><a href="https://code.quartal.com/markdown" target="_blank">https://code.quartal.com/markdown</a> - Markdown editor (WYSIWYG)</li>
-          <li><a href="https://code.quartal.com/markdown-hybrid" target="_blank">https://code.quartal.com/markdown-hybrid</a> - Markdown editor (hybrid, Obsidian-like): for test / evaluation purposes only, use the main Markdown editor (<code>/markdown</code>) instead</li>
-          <li><a href="https://code.quartal.com/expression" target="_blank">https://code.quartal.com/expression</a> - Expression editor</li>
-          <li><a href="https://code.quartal.com/class" target="_blank">https://code.quartal.com/class</a> - Class editor</li>
-          <li><a href="https://code.quartal.com/files" target="_blank">https://code.quartal.com/files</a> - Files editor (many files). No <code>code</code> or <code>url</code> parameter: the host sends the files with messages, see the <a href="./files/demo">demo</a></li>
-          <li><a href="https://code.quartal.com/excalidraw" target="_blank">https://code.quartal.com/excalidraw</a> - Excalidraw editor</li>
-        </ul>
-        <p>&nbsp;</p>
-      </div>
-    </div>
+<SiteLayout title="Code Editors for Quartal Hub" eyebrow="About">
+  <p class="lead">
+    A set of code editors for Quartal Hub. They are embedded in Quartal Hub user interfaces and in
+    external user interfaces that use Quartal Hub components.
+  </p>
+  <h2>Editors</h2>
+  <EditorRows />
+  <h2>Usage</h2>
+  <p class="lead">
+    All the code editors are available through <strong
+      ><code>qrtl-editor</code></strong
+    > component. The component is a <a
+      href="https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/is"
+      target="_blank">custom element</a
+    >.<br />
+    As such it can be used in any HTML page and in any framework.
+  </p>
+  <div class="editor-frame" style="height: 150px; min-height: 0;">
+    <qrtl-editor type="monaco" id="previewEditor" lang="html" code={sample1}></qrtl-editor>
   </div>
-</TesterLayout>
+  <p class="my-2">...renders as:</p>
+  <div class="editor-frame" style="height: 150px; min-height: 0;">
+    <qrtl-editor
+      type="monaco"
+      lang="javascript"
+      code="console.log('Hello, world!');"></qrtl-editor>
+  </div>
+  <h2>Attributes, Methods and Events</h2>
+  <p>
+    Set attributes in HTML. Call the methods and listen to the events in JavaScript. An editor ignores what it does not support.
+  </p>
+  <pre class="small"><code>{sample2}</code></pre>
+  {[["Attributes", editorApi.attributes], ["Methods", editorApi.methods], ["Events", editorApi.events]].map(([title, items]) => (
+    <div class="table-responsive"><table class="table table-sm small">
+      <thead>
+        <tr>
+          <th scope="col" style="min-width: 14rem;">{title}</th>
+          <th scope="col">What it does</th>
+          {apiEditors.map((e) => <th scope="col" class="text-center align-bottom" style="height: 8.5rem; width: 2.2rem;"><span style="display: inline-block; writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap;">{e.label}</span></th>)}
+        </tr>
+      </thead>
+      <tbody>
+        {items.map((item) => (
+          <tr>
+            <td><code>{item.name}</code></td>
+            <td>{item.description}</td>
+            {apiEditors.map((e) => <td class="text-center">{item.editors.includes(e.type) ? "✓" : ""}</td>)}
+          </tr>
+        ))}
+      </tbody>
+    </table></div>
+  ))}
+  <p>
+    The <code>files</code> editor has no <code>code</code> or <code>url</code>: your page sends the files with the methods. See the <a href="./files/demo">demo</a>.
+  </p>
+  <h2>URL Based Usage</h2>
+  <p class="lead">
+    There is a separate component <code>qrtl-editor-url</code> that can be used to load code from a URL.
+    The file is fetched by the visitor's browser, without a proxy. Only files on <code>code.quartal.com</code> itself
+    and on servers that send CORS headers (<code>Access-Control-Allow-Origin</code>) can be loaded. Other URLs fail.
+  </p>
+  <p>The component has the following attributes. It reports no changes; the only event is <code>link-open</code> (excalidraw).
+    <code>qrtl-editor-code</code> takes <code>code</code> in the same way.</p>
+  <ul>
+    <li><code>url</code> - URL of the code to show in the editor. It must allow CORS and need no credentials (or be a path on this site).</li>
+    <li><code>type</code> - Type of the editor to show. See the table above.</li>
+    <li><code>lang</code> - Optional possibility to force the language of the code to show in the editor.
+      Typically, the language is detected automatically from the URL.
+    </li>          
+    <li><code>view</code> - Optional view style for editors.</li>
+    <li><code>editable</code> - If present, editor is editable. Default is read-only.</li>
+  </ul>
+  <h2>Use Directly as Pages</h2>
+  <p class="lead">
+    The <code>qrtl-editor</code> component is essentially just an iframe that loads the code editor.
+    As such, you can also access the editors directly as pages:
+  </p>
+  <ul>
+    <li><a href="https://code.quartal.com/monaco" target="_blank">https://code.quartal.com/monaco</a> - Monaco editor</li>
+    <li><a href="https://code.quartal.com/markdown" target="_blank">https://code.quartal.com/markdown</a> - Markdown editor (WYSIWYG)</li>
+    <li><a href="https://code.quartal.com/markdown-hybrid" target="_blank">https://code.quartal.com/markdown-hybrid</a> - Markdown editor (hybrid, Obsidian-like): for test / evaluation purposes only, use the main Markdown editor (<code>/markdown</code>) instead</li>
+    <li><a href="https://code.quartal.com/expression" target="_blank">https://code.quartal.com/expression</a> - Expression editor</li>
+    <li><a href="https://code.quartal.com/class" target="_blank">https://code.quartal.com/class</a> - Class editor</li>
+    <li><a href="https://code.quartal.com/files" target="_blank">https://code.quartal.com/files</a> - Files editor (many files). No <code>code</code> or <code>url</code> parameter: the host sends the files with messages, see the <a href="./files/demo">demo</a></li>
+    <li><a href="https://code.quartal.com/excalidraw" target="_blank">https://code.quartal.com/excalidraw</a> - Excalidraw editor</li>
+  </ul>
+</SiteLayout>

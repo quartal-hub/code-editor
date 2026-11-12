@@ -1,0 +1,99 @@
+---
+import { Code } from "astro:components";
+import SiteLayout from "@/layouts/SiteLayout.astro";
+import FilesEditorDemo from "@/components/layout/FilesEditorDemo.vue";
+import { demoEditors, editorInfo, reservedPageIds, type NavItemEditor } from "@/data";
+import {
+  componentSnippet,
+  elementHtml,
+  filesHostCode,
+  getExamples,
+  plainLink,
+  sampleId,
+  sampleKind,
+  type QEditorExample,
+} from "@/examples";
+
+export function getStaticPaths() {
+  return demoEditors.flatMap((item) =>
+    getExamples(item.editor).map((sample, index) => {
+      const id = sampleId(sample.title);
+      if (reservedPageIds.includes(id)) throw new Error(`Sample "${sample.title}" of ${item.editor} takes the page id "${id}": rename it.`);
+      return { params: { editor: item.editor, sample: id }, props: { item, sample, index } };
+    }),
+  );
+}
+
+const { item, sample, index } = Astro.props as { item: NavItemEditor; sample: QEditorExample; index: number };
+const info = editorInfo[item.editor];
+const kind = sampleKind(sample);
+/** The link goes to this site (so it also works locally and under a base path); the text is the public address. */
+const link = plainLink(sample, import.meta.env.BASE_URL.replace(/\/$/, ""));
+const linkText = plainLink(sample);
+const theme = "github-dark-default";
+---
+
+<SiteLayout title={sample.title} eyebrow={`${info.title} / Samples`} editor={item.editor} page={sampleId(sample.title)}>
+  <p class="lead">{sample.descr}</p>
+
+  <div class="sample-tabs" data-tabs>
+    <ul class="nav nav-tabs" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" type="button" role="tab" aria-selected="true" data-tab="preview">Preview</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" type="button" role="tab" aria-selected="false" data-tab="component">Component</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        {link ? (
+          <button class="nav-link" type="button" role="tab" aria-selected="false" data-tab="link">Plain Link</button>
+        ) : (
+          <span class="nav-link disabled" aria-disabled="true" title="This sample needs a host page that sends the files: it has no plain link.">
+            Plain Link
+          </span>
+        )}
+      </li>
+    </ul>
+
+    <div role="tabpanel" data-pane="preview">
+      {kind === "host" ? (
+        <FilesEditorDemo example={index} client:only="vue" />
+      ) : (
+        <div class="editor-frame" set:html={elementHtml(sample)} />
+      )}
+    </div>
+
+    <div role="tabpanel" data-pane="component" hidden>
+      {kind === "host" ? (
+        <>
+          <p>
+            The files editor needs a host: your page sends it the files with methods and answers its events. The preview is
+            a host like this one, with this sample's files.
+          </p>
+          <Code code={filesHostCode} lang="html" theme={theme} />
+        </>
+      ) : (
+        <>
+          <p>
+            {kind === "url"
+              ? <>Custom element usage: <code>qrtl-editor-url</code> fetches the file in the visitor's browser and reports no changes.</>
+              : <>Custom element usage: <code>qrtl-editor</code> with the code in an attribute. Change it later with <code>setData</code>.</>}
+            {" "}The preview is this HTML.
+          </p>
+          <Code code={componentSnippet(sample)} lang="html" theme={theme} />
+        </>
+      )}
+    </div>
+
+    {link && (
+      <div role="tabpanel" data-pane="link" hidden>
+        <p>
+          The editor page with the {kind === "url" ? "URL" : "code"} in the hash. Open it in a new window or show it in your
+          own iframe; it reports no changes.
+        </p>
+        <p class="text-truncate mb-4"><a href={link} target="_blank" rel="noopener">{linkText}</a></p>
+        <a class="btn btn-primary" href={link} target="_blank" rel="noopener">Open in a New Window</a>
+      </div>
+    )}
+  </div>
+</SiteLayout>
