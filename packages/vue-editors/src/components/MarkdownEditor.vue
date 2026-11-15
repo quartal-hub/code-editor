@@ -23,24 +23,48 @@ const emit = defineEmits<{
   (event: "on-change", data: QEditorChangeEventData): void;
 }>();
 
+/** DOM events that mean the user is interacting with the editor content (as opposed to just loading it). */
+const userInputEvents = ["beforeinput", "keydown", "paste", "cut", "drop", "pointerdown", "compositionstart"] as const;
+
 const containerRef = ref<HTMLDivElement | null>(null);
 let crepe: Crepe | undefined;
 let destroyed = false;
 let debounceTimeout = 0;
 /** Last Markdown known to both the parent and the editor: prevents echoing parent changes back. */
 let knownMarkdown = props.code ?? "";
+/**
+ * Milkdown normalizes the Markdown when it loads it (list markers, escaping, blank lines...).
+ * This is that normalized form of the code from the parent: an update that only yields it is not a user edit.
+ */
+let normalizedMarkdown: string | undefined;
+/** True once the user has interacted with the editor content after the code was (re)loaded. */
+let userInteracted = false;
+/** True once the user has made a real edit: from then on all changes are emitted. */
+let dirty = false;
 
 defineExpose({
-  getValue: (): string => crepe?.getMarkdown() ?? knownMarkdown,
+  getValue: (): string => (dirty ? crepe?.getMarkdown() ?? knownMarkdown : knownMarkdown),
 });
 
+function onUserInput(): void {
+  userInteracted = true;
+}
+
 async function initializeEditor(): Promise<void> {
-  if (!containerRef.value) {
+  const container = containerRef.value;
+  if (!container) {
     return;
   }
-  const instance = new Crepe({ root: containerRef.value, defaultValue: knownMarkdown });
+  const instance = new Crepe({ root: container, defaultValue: knownMarkdown });
   instance.on((listener) => {
     listener.markdownUpdated((_ctx, markdown) => {
+      if (!dirty) {
+        // Ignore Milkdown's own normalization of the loaded Markdown until the user really edits something.
+        if (!userInteracted || normalizedMarkdown === undefined || markdown === normalizedMarkdown) {
+          return;
+        }
+        dirty = true;
+      }
       if (markdown === knownMarkdown) {
         return;
       }
@@ -56,6 +80,10 @@ async function initializeEditor(): Promise<void> {
   }
   instance.setReadonly(props.readOnly ?? false);
   crepe = instance;
+  normalizedMarkdown = instance.getMarkdown();
+  for (const type of userInputEvents) {
+    container.addEventListener(type, onUserInput, true);
+  }
   // The parent may have changed the code while the editor was loading.
   applyCode(props.code ?? "");
 }
@@ -64,8 +92,12 @@ function applyCode(code: string): void {
   if (!crepe || code === knownMarkdown) {
     return;
   }
+  window.clearTimeout(debounceTimeout);
   knownMarkdown = code;
+  dirty = false;
+  userInteracted = false;
   crepe.editor.action(replaceAll(code));
+  normalizedMarkdown = crepe.getMarkdown();
 }
 
 onMounted(() => {
@@ -78,6 +110,12 @@ watch(() => props.readOnly, (readOnly) => crepe?.setReadonly(readOnly ?? false))
 onBeforeUnmount(() => {
   destroyed = true;
   window.clearTimeout(debounceTimeout);
+  const container = containerRef.value;
+  if (container) {
+    for (const type of userInputEvents) {
+      container.removeEventListener(type, onUserInput, true);
+    }
+  }
   void crepe?.destroy();
   crepe = undefined;
 });
