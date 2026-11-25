@@ -18,6 +18,11 @@ export interface QEditorProps {
      * and it must need no credentials. There is no proxy.
      */
     url?: string;
+    /**
+     * Original code to compare the code against (monaco): when set, the editor shows a side-by-side diff,
+     * the original read-only on the left and the code on the right.
+     */
+    original?: string;
     /** Language of the code to show in the editor. Used together with code in single-file usecases. */
     lang?: string;
     /**

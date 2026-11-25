@@ -45,7 +45,8 @@ export function elementHtml(sample: QEditorExample, absolute = false): string {
   }
   return (
     `<qrtl-editor${attr("type", p.type)}${p.lang ? attr("lang", p.lang) : ""}${p.view ? attr("view", p.view) : ""}` +
-    `${p.readOnly ? " read-only" : ""}${p.code !== undefined ? attr("code", p.code) : ""}></qrtl-editor>`
+    `${p.readOnly ? " read-only" : ""}${p.original !== undefined ? attr("original", p.original) : ""}` +
+    `${p.code !== undefined ? attr("code", p.code) : ""}></qrtl-editor>`
   );
 }
 
@@ -80,6 +81,7 @@ export function plainLink(sample: QEditorExample, base: string = SITE_URL): stri
   const hash = new URLSearchParams();
   if (kind === "url") hash.set("url", p.url!);
   else hash.set("code", p.code!);
+  if (kind === "code" && p.original !== undefined) hash.set("original", p.original);
   if (p.lang) hash.set("lang", p.lang);
   const q = query.toString();
   return `${base}/${p.type}/${kind === "url" ? "fetch" : "code"}${q ? `?${q}` : ""}#${hash.toString()}`;

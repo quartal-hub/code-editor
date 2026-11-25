@@ -13,6 +13,8 @@ const code = ref<string>("");
 // Read-only state sent by the parent as a set-data message. Overrides the read-only query parameter.
 const readOnlyFromParent = ref<boolean | undefined>(undefined);
 const readOnly = computed<boolean>(() => readOnlyFromParent.value ?? props.value.readOnly ?? false);
+// Original code sent by the parent: when a string, the editor shows a diff of the original (left) and the code (right).
+const original = ref<string | null>(null);
 
 // The Monaco API (set when the editor has mounted) and the JSON schema options sent by the parent.
 let monacoApi: any = undefined;
@@ -47,8 +49,9 @@ function handleCodeChange(data: QEditorChangeEventData): void {
 }
 
 /**
- * Messages from the parent: `{ type: "set-data", code?, schema?, readOnly? }`.
+ * Messages from the parent: `{ type: "set-data", code?, original?, schema?, readOnly? }`.
  * Each field is optional: Only the fields that are present are changed.
+ * `original` as a string turns the editor into a diff editor; `original: null` turns it back to the plain editor.
  */
 function handleMessageFromParent(event: MessageEvent): void {
   const data = event.data;
@@ -57,6 +60,9 @@ function handleMessageFromParent(event: MessageEvent): void {
   }
   if ("code" in data) {
     code.value = data.code ?? "";
+  }
+  if ("original" in data) {
+    original.value = typeof data.original === "string" ? data.original : null;
   }
   if ("readOnly" in data) {
     readOnlyFromParent.value = data.readOnly === true || data.readOnly === "true";
@@ -78,5 +84,5 @@ onBeforeUnmount(() => {
 
 </script>
 <template>
-  <MonacoEditor :code="code" :lang="props.lang" :read-only="readOnly" @on-change="handleCodeChange" @on-editor-mount="handleEditorMount" />
+  <MonacoEditor :code="code" :lang="props.lang" :original="original" :read-only="readOnly" @on-change="handleCodeChange" @on-editor-mount="handleEditorMount" />
 </template>

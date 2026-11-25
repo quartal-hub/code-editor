@@ -18,6 +18,7 @@ const groups = [
 const staticAttributes = [
   { name: "type", description: `The editor: ${item.editor}.` },
   { name: "code", description: "qrtl-editor-code: the text to show." },
+  ...(item.editor === "monaco" ? [{ name: "original", description: "qrtl-editor-code: text to compare the code against; shows a side-by-side diff." }] : []),
   ...(info.fetch ? [{ name: "url", description: "qrtl-editor-url: the address to fetch. It must allow CORS (or be on code.quartal.com) and need no credentials." }] : []),
   { name: "lang", description: "Language of the code. For a URL, detected from the address when not given." },
   { name: "view", description: "Variant of the editor, as for qrtl-editor." },

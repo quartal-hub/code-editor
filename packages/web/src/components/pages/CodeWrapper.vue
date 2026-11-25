@@ -10,6 +10,7 @@ const props = defineProps<{
 
 const code = ref<string>("");
 const lang = ref<string | undefined>(undefined);
+const original = ref<string | undefined>(undefined);
 const view = ref<string | undefined>(undefined);
 const readOnly = ref<boolean>(false);
 
@@ -38,6 +39,7 @@ function readPropsFromLocation(): void {
   const values = PageHelpers.getPropsFromLocation(props.editor);
   code.value = values.code ?? "";
   lang.value = values.lang ?? undefined;
+  original.value = values.original ?? undefined;
   view.value = values.view ?? undefined;
   readOnly.value = values.readOnly ?? false;
 }
@@ -110,6 +112,7 @@ onBeforeUnmount(() => {
     v-else
     :code="code"
     :lang="lang"
+    :original="original"
     :read-only="readOnly"
     @on-change="handleCodeChange"
   />

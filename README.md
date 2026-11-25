@@ -95,6 +95,8 @@ Editor to parent:
 | `file-focus` | `address` | The editor showed another file (the user followed a reference into an open file) |
 
 The single-file `/monaco` page keeps its own messages (`editor-ready`, `set-data`, `on-change`).
+Its `set-data` takes `code?`, `schema?`, `readOnly?` and `original?`: a string `original` shows a side-by-side diff
+(the original read-only on the left, the code editable on the right, long unchanged runs collapsed), `original: null` goes back to the plain editor.
 
 GitHub Pages
 ============

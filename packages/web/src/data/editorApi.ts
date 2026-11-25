@@ -38,10 +38,11 @@ export const editorApi: { attributes: ApiItem[]; methods: ApiItem[]; events: Api
     { name: "lang", description: "Language of the code, e.g. javascript.", editors: ["monaco", "expression"] },
     { name: "view", description: "Variant: plain or excel; single-class or multi-class.", editors: ["expression", "class"] },
     { name: "schema", description: "JSON schema options for JSON (a JSON string).", editors: ["monaco"] },
+    { name: "original", description: "Text to compare the code against: shows a side-by-side diff, the code editable on the right, unchanged lines collapsed. Remove it for the plain editor.", editors: ["monaco"] },
     { name: "data", description: "An object: the scene of excalidraw; { files, active?, context? } of files.", editors: ["excalidraw", "files"] },
   ],
   methods: [
-    { name: "setData({ code?, data?, schema?, readOnly? })", description: "Changes what the editor shows without changing the attributes. Monaco takes all four; the others code or data.", editors: all },
+    { name: "setData({ code?, data?, schema?, readOnly?, original? })", description: "Changes what the editor shows without changing the attributes. Monaco takes all but data (original: null ends the diff); the others code or data.", editors: all },
     { name: "openFile(file, { show?, selection? })", description: "Opens a file: { address, text, lang?, readOnly?, version? }.", editors: ["files"] },
     { name: "showFile(address, selection?)", description: "Shows an open file.", editors: ["files"] },
     { name: "closeFile(address)", description: "Closes a file.", editors: ["files"] },
