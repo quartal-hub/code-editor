@@ -53,6 +53,72 @@ sayHello(Greetings.GoodMorning, "Typescript");`,
             },
         },
         {
+            title: "Diff",
+            descr: "The code compared with an earlier version: the original on the left (read-only), the code on the right (editable). Unchanged lines are collapsed: click the bar to show them. In a narrow editor, Monaco shows the diff inline.",
+            mode: "event",
+            props: {
+                type: "monaco",
+                readOnly: false,
+                original: `function sayHello() {
+    console.log('Hello, JavaScript');
+}
+
+/** Formats a date as d.m.yyyy. */
+function formatDate(date) {
+    return date.getDate() + '.' + (date.getMonth() + 1) + '.' + date.getFullYear();
+}
+
+/** Adds days to a date. */
+function addDays(date, days) {
+    const result = new Date(date);
+    result.setDate(result.getDate() + days);
+    return result;
+}
+
+/** Days between two dates. */
+function daysBetween(from, to) {
+    return Math.round((to - from) / (24 * 60 * 60 * 1000));
+}
+
+/** True for Saturday and Sunday. */
+function isWeekend(date) {
+    return date.getDay() === 0 || date.getDay() === 6;
+}
+
+sayHello();`,
+                code: `/** Says hello, with the time. */
+function sayHello(target = 'JavaScript') {
+    console.log('Hello, ' + target + ' at ' + new Date().toTimeString());
+}
+
+/** Formats a date as d.m.yyyy. */
+function formatDate(date) {
+    return date.getDate() + '.' + (date.getMonth() + 1) + '.' + date.getFullYear();
+}
+
+/** Adds days to a date. */
+function addDays(date, days) {
+    const result = new Date(date);
+    result.setDate(result.getDate() + days);
+    return result;
+}
+
+/** Days between two dates. */
+function daysBetween(from, to) {
+    return Math.round((to - from) / (24 * 60 * 60 * 1000));
+}
+
+/** True for Saturday and Sunday. */
+function isWeekend(date) {
+    return date.getDay() === 0 || date.getDay() === 6;
+}
+
+sayHello();
+sayHello('Diff');`,
+                lang: "javascript",
+            },
+        },
+        {
             title: "Read Only",
             descr: "Simple Hello World in JavaScript, read only.",
             mode: "event",

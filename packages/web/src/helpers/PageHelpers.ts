@@ -27,6 +27,7 @@ export class PageHelpers {
     const code = params.get("code") ?? "";
     const url = params.get("url") ?? undefined;
     const lang = params.get("lang") ?? undefined;
+    const original = params.get("original") ?? undefined;
     let data: Record<string, unknown> | undefined = undefined;
     const dataStr = params.get("data");
     if (dataStr) {
@@ -37,7 +38,7 @@ export class PageHelpers {
         data = undefined;
       }
     }
-    return { code, url, lang, data, type };
+    return { code, url, lang, original, data, type };
   }
 
   /**

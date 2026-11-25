@@ -156,7 +156,7 @@ export class QrtlEditorElement extends HTMLElement {
   };
 
   static get observedAttributes() {
-    return ["type", "view", "read-only", "code", "lang", "data", "schema", "base-url"];
+    return ["type", "view", "read-only", "code", "lang", "data", "schema", "original", "base-url"];
   }
 
   connectedCallback() {
@@ -187,6 +187,9 @@ export class QrtlEditorElement extends HTMLElement {
     }
     if (name === "read-only" && this.ready && liveReadOnly.has(this.type ?? "monaco")) {
       this.pendingReadOnly = true;
+    } else if (name === "original" && this.ready) {
+      // Only the original is sent: resending the code attribute would undo the user's edits.
+      this.pendingOriginal = true;
     } else if ((name === "code" || name === "data" || name === "schema") && this.ready) {
       this.pendingSetDataUpdate = true;
     } else {
@@ -205,6 +208,7 @@ export class QrtlEditorElement extends HTMLElement {
         this.pendingIframeUpdate = false;
         this.pendingSetDataUpdate = false;
         this.pendingReadOnly = false;
+        this.pendingOriginal = false;
         this.updateIframeSrc();
         return;
       }
@@ -217,6 +221,10 @@ export class QrtlEditorElement extends HTMLElement {
         } else {
           this.setData({ readOnly: this.readOnly });
         }
+      }
+      if (this.pendingOriginal) {
+        this.pendingOriginal = false;
+        this.setData({ original: this.original ?? null });
       }
       if (this.pendingSetDataUpdate) {
         this.pendingSetDataUpdate = false;
@@ -250,6 +258,16 @@ export class QrtlEditorElement extends HTMLElement {
   /** JSON schema options for JSON in the Monaco editor (a JSON string). */
   get schema() { return stringProperty("schema", undefined).get.call(this); }
   set schema(value) { stringProperty("schema").set.call(this, value); }
+
+  /** Original text to compare the code against: when set, the Monaco editor shows a side-by-side diff. Remove it for the plain editor. */
+  get original() { return stringProperty("original", undefined).get.call(this); }
+  set original(value) {
+    if (value === undefined || value === null) {
+      this.removeAttribute("original");
+    } else {
+      this.setAttribute("original", value);
+    }
+  }
 
   /** Base URL of the Code UI site, when it is not the site `qrtl-editor.js` was loaded from. */
   get baseUrl() { return stringProperty("base-url", undefined).get.call(this); }
@@ -338,12 +356,14 @@ export class QrtlEditorElement extends HTMLElement {
     if (this.code !== undefined) message.code = this.code;
     if (this.data !== undefined) message.data = this.data;
     if (this.schema !== undefined) message.schema = this.schema;
+    if (this.original !== undefined) message.original = this.original;
     this.sendMessage(message);
   }
 
   /**
    * Changes what the editor shows, without changing the attributes.
-   * @param fields `code` (text), `data` (scene or files), `schema` (Monaco JSON schema), `readOnly` (Monaco).
+   * @param fields `code` (text), `data` (scene or files), `schema` (Monaco JSON schema), `readOnly` (Monaco),
+   *   `original` (Monaco: a string shows a diff against it, null shows the plain editor).
    */
   setData(fields) {
     this.sendMessage({ type: "set-data", ...fields });
@@ -537,15 +557,25 @@ export class QEditorCodeElement extends QEditorStaticElement {
   route = "code";
 
   static get observedAttributes() {
-    return ["type", "view", "code", "lang", "editable", "base-url"];
+    return ["type", "view", "code", "original", "lang", "editable", "base-url"];
   }
 
   /** The text to show. */
   get code() { return stringProperty("code", undefined).get.call(this); }
   set code(value) { stringProperty("code").set.call(this, value); }
 
+  /** Original text to compare the code against (monaco): shows a side-by-side diff. */
+  get original() { return stringProperty("original", undefined).get.call(this); }
+  set original(value) { stringProperty("original").set.call(this, value); }
+
   contentParameter() {
     return { name: "code", value: this.code };
+  }
+
+  buildHash() {
+    const hashParams = new URLSearchParams(super.buildHash());
+    if (this.original !== undefined) hashParams.set("original", this.original);
+    return hashParams.toString();
   }
 }
 
